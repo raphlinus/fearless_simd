@@ -103,8 +103,7 @@ impl<A: Iterator<Item = AvxF32>, F: Iterator<Item = f32>> SimdStream<A, F>
     }
 }
 
-#[target_feature(enable = "avx")]
-pub unsafe fn count(init: f32, step: f32)
+pub fn count(init: f32, step: f32)
     -> SimdStream<impl Iterator<Item=AvxF32>, impl Iterator<Item=f32>>
 {
     match detect() {

@@ -21,7 +21,7 @@ impl SimdFnF32 for Sin9Fn {
 
 fn gen_sinewave(freq: f32, obuf: &mut [f32]) {
     //count(0.25, freq).map(Sin9Fn).collect(obuf);
-    unsafe {count(0.25, freq).map(Sin9Fn).collect(obuf); }
+    count(0.25, freq).map(Sin9Fn).collect(obuf);
 }
 
 fn main() {
