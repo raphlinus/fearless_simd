@@ -1,0 +1,9 @@
+[package]
+name = "fearless_simd"
+version = "0.1.0"
+license = "MIT/Apache-2.0"
+authors = ["Raph Levien <raph.levien@gmail.com>"]
+keywords = ["simd"]
+description = "Safer and easier SIMD"
+
+[dependencies]
