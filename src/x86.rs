@@ -28,6 +28,7 @@ struct CountStream<S: SimdF32> {
 
 impl<S: SimdF32> Iterator for CountStream<S> {
     type Item = S;
+    #[inline]
     fn next(&mut self) -> Option<S> {
         let val = self.val;
         self.val = self.val + self.step;
@@ -37,6 +38,7 @@ impl<S: SimdF32> Iterator for CountStream<S> {
 
 impl<S: SimdF32, A: Iterator<Item = S>, F: FnMut(S) -> S> Iterator for MapStream<S, A, F> {
     type Item = S;
+    #[inline]
     fn next(&mut self) -> Option<S> {
         self.inner.next().map(|x| (self.f)(x))
     }
@@ -101,14 +103,17 @@ impl<A: Iterator<Item = AvxF32>, F: Iterator<Item = f32>> SimdStream<A, F>
     }
 }
 
-pub fn count(init: f32, step: f32)
+#[target_feature(enable = "avx")]
+pub unsafe fn count(init: f32, step: f32)
     -> SimdStream<impl Iterator<Item=AvxF32>, impl Iterator<Item=f32>>
 {
     match detect() {
-        SimdCaps::Avx(cap) => SimdStream::Avx(CountStream {
-            val: cap.steps() * step + init,
-            step: step * (cap.width() as f32),
-        }),
+        SimdCaps::Avx(cap) => {
+            SimdStream::Avx(CountStream {
+                val: cap.steps() * step + init,
+                step: step * (cap.width() as f32),
+            })
+        },
         SimdCaps::Fallback(cap) => SimdStream::Fallback(CountStream {
             val: cap.steps() * step + init,
             step: step * (cap.width() as f32),
