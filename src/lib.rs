@@ -2,6 +2,7 @@
 
 mod fallback;
 mod traits;
+mod combinators;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod avx;
@@ -11,5 +12,10 @@ pub mod x86;
 
 pub use traits::{SimdF32, SimdMask};
 
+pub use combinators::SimdFnF32;
+
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub use avx::{AvxF32, AvxMask};
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub use x86::count;
