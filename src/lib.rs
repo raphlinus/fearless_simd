@@ -18,4 +18,4 @@ pub use combinators::SimdFnF32;
 pub use avx::{AvxF32, AvxMask};
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-pub use x86::count;
+pub use x86::{count, GeneratorF32};

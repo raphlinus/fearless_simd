@@ -2,7 +2,7 @@
 
 extern crate fearless_simd;
 
-use fearless_simd::{count, SimdF32, SimdFnF32};
+use fearless_simd::{count, GeneratorF32, SimdF32, SimdFnF32};
 
 struct Sin9Fn;
 impl SimdFnF32 for Sin9Fn {
