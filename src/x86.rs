@@ -17,6 +17,7 @@ pub trait GeneratorF32: Sized {
         F32Map { inner: self, f }
     }
 
+    #[inline]
     fn collect(self, obuf: &mut [f32]) {
         if is_x86_feature_detected!("avx") {
             unsafe { collect_avx(self, obuf); }
@@ -80,6 +81,7 @@ pub struct CountStream<S: SimdF32> {
     step: f32,
 }
 
+#[inline]
 pub fn count(init: f32, step: f32) -> CountGen {
     CountGen { init, step }
 }

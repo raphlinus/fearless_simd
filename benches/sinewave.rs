@@ -1,8 +1,14 @@
-//! Sinewave generation example
+//! Sinewave generation example, as benchmark.
+
+#![feature(test)]
+
+extern crate test;
 
 extern crate fearless_simd;
 
 use fearless_simd::{count, GeneratorF32, SimdF32, SimdFnF32};
+
+use test::Bencher;
 
 struct Sin9Fn;
 impl SimdFnF32 for Sin9Fn {
@@ -24,10 +30,9 @@ fn gen_sinewave(freq: f32, obuf: &mut [f32]) {
     count(0.25, freq).map(Sin9Fn).collect(obuf);
 }
 
-fn main() {
-    let mut obuf = [0.0; 32];
-    gen_sinewave(0.1, &mut obuf);
-    for i in 0..obuf.len() {
-        println!("{}", obuf[i]);
-    }
+#[bench]
+fn sinewave(b: &mut Bencher) {
+
+    let mut obuf = [0.0; 64];
+    b.iter(|| gen_sinewave(0.1, &mut obuf));
 }
