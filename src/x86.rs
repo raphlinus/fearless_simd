@@ -1,13 +1,16 @@
 //! Runtime detection of x86 and x86_64 capabilities.
 
 use avx::AvxF32;
+use sse42::Sse42F32;
 use combinators::SimdFnF32;
 use traits::SimdF32;
 
 pub trait GeneratorF32: Sized {
     type IterF32: Iterator<Item=f32>;
+    type IterSse42: Iterator<Item=Sse42F32>;
     type IterAvx: Iterator<Item=AvxF32>;
     fn gen_f32(self, cap: f32) -> Self::IterF32;
+    fn gen_sse42(self, cap: Sse42F32) -> Self::IterSse42;
     fn gen_avx(self, cap: AvxF32) -> Self::IterAvx;
 
     #[inline]
@@ -21,6 +24,8 @@ pub trait GeneratorF32: Sized {
     fn collect(self, obuf: &mut [f32]) {
         if is_x86_feature_detected!("avx") {
             unsafe { collect_avx(self, obuf); }
+        } else if is_x86_feature_detected!("sse4.2") {
+            unsafe { collect_sse42(self, obuf); }
         } else {
             let mut iter = self.gen_f32(0.0);
             for i in (0..obuf.len()).step_by(1) {
@@ -35,6 +40,15 @@ pub trait GeneratorF32: Sized {
 unsafe fn collect_avx<G: GeneratorF32>(gen: G, obuf: &mut [f32]) {
     let mut iter = gen.gen_avx(AvxF32::create());
     for i in (0..obuf.len()).step_by(8) {
+        let x = iter.next().unwrap();
+        x.write_to_slice(&mut obuf[i..]);
+    }
+}
+
+#[target_feature(enable = "sse4.2")]
+unsafe fn collect_sse42<G: GeneratorF32>(gen: G, obuf: &mut [f32]) {
+    let mut iter = gen.gen_sse42(Sse42F32::create());
+    for i in (0..obuf.len()).step_by(4) {
         let x = iter.next().unwrap();
         x.write_to_slice(&mut obuf[i..]);
     }
@@ -61,9 +75,13 @@ impl<S, I, F> Iterator for F32MapIter<S, I, F>
 
 impl<G: GeneratorF32, F: SimdFnF32> GeneratorF32 for F32Map<G, F> {
     type IterF32 = F32MapIter<f32, G::IterF32, F>;
+    type IterSse42 = F32MapIter<Sse42F32, G::IterSse42, F>;
     type IterAvx = F32MapIter<AvxF32, G::IterAvx, F>;
     fn gen_f32(self, cap: f32) -> Self::IterF32 {
         F32MapIter { inner: self.inner.gen_f32(cap), f: self.f }
+    }
+    fn gen_sse42(self, cap: Sse42F32) -> Self::IterSse42 {
+        F32MapIter { inner: self.inner.gen_sse42(cap), f: self.f }
     }
     fn gen_avx(self, cap: AvxF32) -> Self::IterAvx {
         F32MapIter { inner: self.inner.gen_avx(cap), f: self.f }
@@ -103,9 +121,14 @@ impl CountGen {
 // lands.
 impl GeneratorF32 for CountGen {
     type IterF32 = CountStream<f32>;
+    type IterSse42 = CountStream<Sse42F32>;
     type IterAvx = CountStream<AvxF32>;
     #[inline]
     fn gen_f32(self, cap: f32) -> CountStream<f32> {
+        self.gen(cap)
+    }
+    #[inline]
+    fn gen_sse42(self, cap: Sse42F32) -> CountStream<Sse42F32> {
         self.gen(cap)
     }
     #[inline]

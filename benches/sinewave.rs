@@ -30,9 +30,23 @@ fn gen_sinewave(freq: f32, obuf: &mut [f32]) {
     count(0.25, freq).map(Sin9Fn).collect(obuf);
 }
 
+fn gen_sin_scalar(freq: f32, obuf: &mut [f32]) {
+    let delta_phase = 2.0 * ::std::f32::consts::PI * freq;
+    let mut phase = 0.0f32;
+    for out in obuf {
+        *out = phase.sin();
+        phase += delta_phase;
+    }
+}
+
 #[bench]
 fn sinewave(b: &mut Bencher) {
-
     let mut obuf = [0.0; 64];
     b.iter(|| gen_sinewave(0.1, &mut obuf));
+}
+
+#[bench]
+fn sin_scalar(b: &mut Bencher) {
+    let mut obuf = [0.0; 64];
+    b.iter(|| gen_sin_scalar(0.1, &mut obuf));
 }
