@@ -6,6 +6,7 @@ use fearless_simd::{count, GeneratorF32, SimdF32, SimdFnF32};
 
 struct Sin9Fn;
 impl SimdFnF32 for Sin9Fn {
+    #[inline]
     fn call<S: SimdF32>(&mut self, x: S) -> S {
         let c0 =   6.28308759;
         let c1 = -41.33318707;
