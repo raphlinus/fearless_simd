@@ -50,6 +50,12 @@ unsafe fn sse42_set1_ps(a: f32) -> __m128 {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
+unsafe fn sse42_floor_ps(a: __m128) -> __m128 {
+    _mm_round_ps(a, _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
 unsafe fn sse42_round_nearest_ps(a: __m128) -> __m128 {
     _mm_round_ps(a, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC)
 }
@@ -246,6 +252,11 @@ impl SimdF32 for Sse42F32 {
 
     #[inline]
     fn width(self) -> usize { 4 }
+
+    #[inline]
+    fn floor(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_floor_ps(self.0)) }
+    }
 
     #[inline]
     fn round(self: Sse42F32) -> Sse42F32 {

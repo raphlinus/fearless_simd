@@ -42,11 +42,11 @@ fn gen_sin_scalar(freq: f32, obuf: &mut [f32]) {
 #[bench]
 fn sinewave(b: &mut Bencher) {
     let mut obuf = [0.0; 64];
-    b.iter(|| gen_sinewave(0.1, &mut obuf));
+    b.iter(|| gen_sinewave(test::black_box(0.1), &mut obuf));
 }
 
 #[bench]
 fn sin_scalar(b: &mut Bencher) {
     let mut obuf = [0.0; 64];
-    b.iter(|| gen_sin_scalar(0.1, &mut obuf));
+    b.iter(|| gen_sin_scalar(test::black_box(0.1), &mut obuf));
 }

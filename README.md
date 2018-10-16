@@ -64,17 +64,17 @@ The C/C++ ecosystem has done quite a bit of work in this space. They have a fair
 
 ## Benchmarks
 
-These aren't meant to be rigorous, but should give a general impression of performance. The particular benchmark is generation of a sinewave to greater than 100dB accuracy, and times are given in ns to generate 64 samples.
+These aren't meant to be rigorous, but should give a general impression of performance. The particular benchmark is generation of a sinewave with less than -100dB disortion, and times are given in ns to generate 64 samples.
 
 | CPU       | simd level      | time  |
-| --------- | --------------- | ----- |
-| i5 430M   | SSE4.2          | 303   |
-| "         | scalar fallback | 2268  |
+| --------- | --------------- | ----: |
+| i7 7700HQ | AVX             |   30  |
+| "         | SSE 4.2         |   49  |
+| "         | scalar fallback |  344  |
+| "         | sin() scalar    |  506  |
+| i5 430M   | SSE4.2          |  303  |
+| "         | scalar fallback |  717  |
 | "         | sin() scalar    | 1690  |
-| i7 7700HQ | AVX             | 30    |
-| "         | SSE 4.2         | 49    |
-| "         | scalar fallback | 1583  |
-| "         | sin() scalar    | 506   |
 
 ## Acknowledgements
 

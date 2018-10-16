@@ -13,7 +13,12 @@ impl SimdF32 for f32 {
     fn width(self) -> usize { 1 }
 
     #[inline]
-    fn round(self) -> f32 { f32::round(self) }
+    fn floor(self) -> f32 { f32::floor(self) }
+
+    #[inline]
+    // See https://github.com/rust-lang/rust/issues/55107 for explanation
+    // why I use `floor` here and not `round`.
+    fn round(self) -> f32 { f32::floor(self + 0.5) }
 
     #[inline]
     fn abs(self) -> f32 { f32::abs(self) }

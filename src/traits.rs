@@ -24,6 +24,8 @@ pub trait SimdF32: Sized + Copy + Clone
     // Maybe doesn't need self?
     fn width(self) -> usize;
 
+    fn floor(self) -> Self;
+
     fn round(self) -> Self;
 
     fn abs(self) -> Self;

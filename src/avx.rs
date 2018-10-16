@@ -50,6 +50,12 @@ unsafe fn avx_set1_ps(a: f32) -> __m256 {
 
 #[inline]
 #[target_feature(enable = "avx")]
+unsafe fn avx_floor_ps(a: __m256) -> __m256 {
+    _mm256_round_ps(a, _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
 unsafe fn avx_round_nearest_ps(a: __m256) -> __m256 {
     _mm256_round_ps(a, _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC)
 }
@@ -246,6 +252,11 @@ impl SimdF32 for AvxF32 {
 
     #[inline]
     fn width(self) -> usize { 8 }
+
+    #[inline]
+    fn floor(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_floor_ps(self.0)) }
+    }
 
     #[inline]
     fn round(self: AvxF32) -> AvxF32 {
