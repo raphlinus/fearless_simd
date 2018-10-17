@@ -2,7 +2,7 @@
 
 use std::ptr;
 
-use traits::{SimdF32, SimdMask};
+use traits::{SimdF32, SimdMask32};
 
 impl SimdF32 for f32 {
     type Raw = f32;
@@ -16,9 +16,13 @@ impl SimdF32 for f32 {
     fn floor(self) -> f32 { f32::floor(self) }
 
     #[inline]
-    // See https://github.com/rust-lang/rust/issues/55107 for explanation
-    // why I use `floor` here and not `round`.
-    fn round(self) -> f32 { f32::floor(self + 0.5) }
+    fn ceil(self) -> f32 { f32::ceil(self) }
+
+    #[inline]
+    // See https://github.com/rust-lang/rust/issues/55107 for some discussion
+    // of this choice. Basically, this implements round up on even semantics
+    // for all values other than -0.5.
+    fn round(self) -> f32 { f32::floor(self + (0.5 - 0.25 * ::std::f32::EPSILON)) }
 
     #[inline]
     fn abs(self) -> f32 { f32::abs(self) }
@@ -47,7 +51,7 @@ impl SimdF32 for f32 {
     }
 }
 
-impl SimdMask for u32 {
+impl SimdMask32 for u32 {
     type Raw = u32;
     type F32 = f32;
 

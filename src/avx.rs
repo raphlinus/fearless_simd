@@ -4,7 +4,7 @@
 use std::mem;
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Not};
 
-use traits::{SimdF32, SimdMask};
+use traits::{SimdF32, SimdMask32};
 
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
@@ -16,7 +16,7 @@ use std::arch::x86_64::*;
 pub struct AvxF32(__m256);
 
 #[derive(Clone, Copy)]
-pub struct AvxMask(__m256);
+pub struct AvxMask32(__m256);
 
 #[inline]
 #[target_feature(enable = "avx")]
@@ -52,6 +52,12 @@ unsafe fn avx_set1_ps(a: f32) -> __m256 {
 #[target_feature(enable = "avx")]
 unsafe fn avx_floor_ps(a: __m256) -> __m256 {
     _mm256_round_ps(a, _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
+unsafe fn avx_ceil_ps(a: __m256) -> __m256 {
+    _mm256_round_ps(a, _MM_FROUND_TO_POS_INF | _MM_FROUND_NO_EXC)
 }
 
 #[inline]
@@ -248,7 +254,7 @@ impl From<AvxF32> for __m256 {
 impl SimdF32 for AvxF32 {
     type Raw = __m256;
 
-    type Mask = AvxMask;
+    type Mask = AvxMask32;
 
     #[inline]
     fn width(self) -> usize { 8 }
@@ -256,6 +262,11 @@ impl SimdF32 for AvxF32 {
     #[inline]
     fn floor(self: AvxF32) -> AvxF32 {
         unsafe { AvxF32(avx_floor_ps(self.0)) }
+    }
+
+    #[inline]
+    fn ceil(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_ceil_ps(self.0)) }
     }
 
     #[inline]
@@ -299,37 +310,37 @@ impl SimdF32 for AvxF32 {
     }
 
     #[inline]
-    fn eq(self, other: AvxF32) -> AvxMask {
-        unsafe { AvxMask(avx_cmpeq_ps(self.0, other.0)) }
+    fn eq(self, other: AvxF32) -> AvxMask32 {
+        unsafe { AvxMask32(avx_cmpeq_ps(self.0, other.0)) }
     }
 }
 
-// AvxMask
+// AvxMask32
 
-impl From<AvxMask> for __m256 {
+impl From<AvxMask32> for __m256 {
     #[inline]
-    fn from(x: AvxMask) -> __m256 {
+    fn from(x: AvxMask32) -> __m256 {
         x.0
     }
 }
 
-impl BitAnd for AvxMask {
-    type Output = AvxMask;
+impl BitAnd for AvxMask32 {
+    type Output = AvxMask32;
     #[inline]
-    fn bitand(self, other: AvxMask) -> AvxMask {
-        unsafe { AvxMask(avx_and_ps(self.0, other.0)) }
+    fn bitand(self, other: AvxMask32) -> AvxMask32 {
+        unsafe { AvxMask32(avx_and_ps(self.0, other.0)) }
     }
 }
 
-impl Not for AvxMask {
-    type Output = AvxMask;
+impl Not for AvxMask32 {
+    type Output = AvxMask32;
     #[inline]
-    fn not(self) -> AvxMask {
-        unsafe { AvxMask(avx_andnot_ps(self.0, mem::transmute(avx_set1_epi32(-1)))) }
+    fn not(self) -> AvxMask32 {
+        unsafe { AvxMask32(avx_andnot_ps(self.0, mem::transmute(avx_set1_epi32(-1)))) }
     }
 }
 
-impl SimdMask for AvxMask {
+impl SimdMask32 for AvxMask32 {
     type Raw = __m256;
 
     type F32 = AvxF32;

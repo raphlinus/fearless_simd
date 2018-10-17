@@ -4,7 +4,7 @@
 use std::mem;
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Not};
 
-use traits::{SimdF32, SimdMask};
+use traits::{SimdF32, SimdMask32};
 
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
@@ -16,7 +16,7 @@ use std::arch::x86_64::*;
 pub struct Sse42F32(__m128);
 
 #[derive(Clone, Copy)]
-pub struct Sse42Mask(__m128);
+pub struct Sse42Mask32(__m128);
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
@@ -52,6 +52,12 @@ unsafe fn sse42_set1_ps(a: f32) -> __m128 {
 #[target_feature(enable = "sse4.2")]
 unsafe fn sse42_floor_ps(a: __m128) -> __m128 {
     _mm_round_ps(a, _MM_FROUND_TO_NEG_INF | _MM_FROUND_NO_EXC)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
+unsafe fn sse42_ceil_ps(a: __m128) -> __m128 {
+    _mm_round_ps(a, _MM_FROUND_TO_POS_INF | _MM_FROUND_NO_EXC)
 }
 
 #[inline]
@@ -248,7 +254,7 @@ impl From<Sse42F32> for __m128 {
 impl SimdF32 for Sse42F32 {
     type Raw = __m128;
 
-    type Mask = Sse42Mask;
+    type Mask = Sse42Mask32;
 
     #[inline]
     fn width(self) -> usize { 4 }
@@ -256,6 +262,11 @@ impl SimdF32 for Sse42F32 {
     #[inline]
     fn floor(self: Sse42F32) -> Sse42F32 {
         unsafe { Sse42F32(sse42_floor_ps(self.0)) }
+    }
+
+    #[inline]
+    fn ceil(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_ceil_ps(self.0)) }
     }
 
     #[inline]
@@ -299,37 +310,37 @@ impl SimdF32 for Sse42F32 {
     }
 
     #[inline]
-    fn eq(self, other: Sse42F32) -> Sse42Mask {
-        unsafe { Sse42Mask(sse42_cmpeq_ps(self.0, other.0)) }
+    fn eq(self, other: Sse42F32) -> Sse42Mask32 {
+        unsafe { Sse42Mask32(sse42_cmpeq_ps(self.0, other.0)) }
     }
 }
 
-// Sse42Mask
+// Sse42Mask32
 
-impl From<Sse42Mask> for __m128 {
+impl From<Sse42Mask32> for __m128 {
     #[inline]
-    fn from(x: Sse42Mask) -> __m128 {
+    fn from(x: Sse42Mask32) -> __m128 {
         x.0
     }
 }
 
-impl BitAnd for Sse42Mask {
-    type Output = Sse42Mask;
+impl BitAnd for Sse42Mask32 {
+    type Output = Sse42Mask32;
     #[inline]
-    fn bitand(self, other: Sse42Mask) -> Sse42Mask {
-        unsafe { Sse42Mask(sse42_and_ps(self.0, other.0)) }
+    fn bitand(self, other: Sse42Mask32) -> Sse42Mask32 {
+        unsafe { Sse42Mask32(sse42_and_ps(self.0, other.0)) }
     }
 }
 
-impl Not for Sse42Mask {
-    type Output = Sse42Mask;
+impl Not for Sse42Mask32 {
+    type Output = Sse42Mask32;
     #[inline]
-    fn not(self) -> Sse42Mask {
-        unsafe { Sse42Mask(sse42_andnot_ps(self.0, mem::transmute(sse42_set1_epi32(-1)))) }
+    fn not(self) -> Sse42Mask32 {
+        unsafe { Sse42Mask32(sse42_andnot_ps(self.0, mem::transmute(sse42_set1_epi32(-1)))) }
     }
 }
 
-impl SimdMask for Sse42Mask {
+impl SimdMask32 for Sse42Mask32 {
     type Raw = __m128;
 
     type F32 = Sse42F32;
