@@ -13,6 +13,10 @@ pub trait SimdFnF32 {
     fn call<S: SimdF32>(&mut self, x: S) -> S;
 }
 
+pub trait ThunkF32 {
+    fn call<S: SimdF32>(self, cap: S);
+}
+
 pub trait ThunkF32x4 {
     fn call<S: F32x4>(self, cap: S);
 }

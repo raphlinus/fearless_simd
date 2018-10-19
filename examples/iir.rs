@@ -21,7 +21,7 @@ impl<'a> ThunkF32x4 for Iir<'a> {
         for i in (0..self.ibuf.len()).step_by(2) {
             let x0 = self.ibuf[i];
             let x1 = self.ibuf[i + 1];
-            state = c0 * x0 + c1 * x1 + c2 * state.as_vec()[2] + c3 * state.as_vec()[3];
+            state = c0 * x0 + c1 * x1 + c2 * state[2] + c3 * state[3];
             self.obuf[i] = state.as_vec()[0];
             self.obuf[i + 1] = state.as_vec()[1];
         }

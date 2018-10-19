@@ -2,7 +2,7 @@
 //! `target_feature = "sse4.2"`.
 
 use std::mem;
-use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Not};
+use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Not, Deref};
 
 use traits::{SimdF32, SimdMask32, F32x4};
 
@@ -367,6 +367,14 @@ impl From<Sse42F32x4> for [f32; 4] {
     #[inline]
     fn from(x: Sse42F32x4) -> [f32; 4] {
         x.as_vec()
+    }
+}
+
+impl Deref for Sse42F32x4 {
+    type Target = [f32; 4];
+    #[inline]
+    fn deref(&self) -> &[f32; 4] {
+        unsafe { mem::transmute(self) }
     }
 }
 

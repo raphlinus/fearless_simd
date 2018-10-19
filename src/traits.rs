@@ -1,6 +1,6 @@
 //! Traits for SIMD operations.
 
-use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd};
+use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Deref};
 
 pub trait SimdF32: Sized + Copy + Clone
     + Add<Self, Output=Self> + Add<f32, Output=Self>
@@ -119,6 +119,7 @@ pub trait SimdMask32: Sized + Copy + Clone
 pub trait F32x4: Sized + Copy + Clone
     + Add<Self, Output=Self>
     + Mul + Mul<f32, Output=Self>
+    + Deref<Target=[f32; 4]>
     where Self::Raw: From<Self>,
     // Again bitten by Rust #23856.
     /*
@@ -139,5 +140,6 @@ pub trait F32x4: Sized + Copy + Clone
     /// Note: self is unused but is needed for safety.
     fn new(self, array: [f32; 4]) -> Self;
 
+    // This is probably not needed since we have deref.
     fn as_vec(self) -> [f32; 4];
 }

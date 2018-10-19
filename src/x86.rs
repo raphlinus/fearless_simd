@@ -2,7 +2,7 @@
 
 use avx::AvxF32;
 use sse42::{Sse42F32, Sse42F32x4};
-use combinators::{SimdFnF32, ThunkF32x4};
+use combinators::{SimdFnF32, ThunkF32, ThunkF32x4};
 use traits::{SimdF32, F32x4};
 
 pub trait GeneratorF32: Sized {
@@ -144,6 +144,28 @@ impl<S: SimdF32> Iterator for CountStream<S> {
         let val = self.val;
         self.val = self.val + self.step;
         Some(val)
+    }
+}
+
+// x86 thunk runner for SimdF32
+
+#[target_feature(enable = "avx")]
+unsafe fn run_f32_avx<S: ThunkF32>(thunk: S) {
+    thunk.call(AvxF32::create());
+}
+
+#[target_feature(enable = "sse4.2")]
+unsafe fn run_f32_sse42<S: ThunkF32>(thunk: S) {
+    thunk.call(Sse42F32::create());
+}
+
+pub fn run_f32<S: ThunkF32>(thunk: S) {
+    if is_x86_feature_detected!("avx") {
+        unsafe { run_f32_avx(thunk); }
+    } else if is_x86_feature_detected!("sse4.2") {
+        unsafe { run_f32_sse42(thunk); }
+    } else {
+        thunk.call(0.0f32);
     }
 }
 
