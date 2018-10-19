@@ -1,9 +1,9 @@
 //! Runtime detection of x86 and x86_64 capabilities.
 
 use avx::AvxF32;
-use sse42::Sse42F32;
-use combinators::SimdFnF32;
-use traits::SimdF32;
+use sse42::{Sse42F32, Sse42F32x4};
+use combinators::{SimdFnF32, ThunkF32x4};
+use traits::{SimdF32, F32x4};
 
 pub trait GeneratorF32: Sized {
     type IterF32: Iterator<Item=f32>;
@@ -147,3 +147,15 @@ impl<S: SimdF32> Iterator for CountStream<S> {
     }
 }
 
+// x86 thunk runner for F32x4
+
+#[target_feature(enable = "sse4.2")]
+unsafe fn run_f32x4_sse42<S: ThunkF32x4>(thunk: S) {
+    thunk.call(Sse42F32x4::create());
+}
+
+pub fn run_f32x4<S: ThunkF32x4>(thunk: S) {
+    if is_x86_feature_detected!("sse4.2") {
+        unsafe { run_f32x4_sse42(thunk); }
+    }
+}

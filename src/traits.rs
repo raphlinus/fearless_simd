@@ -115,3 +115,29 @@ pub trait SimdMask32: Sized + Copy + Clone
     /// otherwise.
     fn select(self, a: Self::F32, b: Self::F32) -> Self::F32;
 }
+
+pub trait F32x4: Sized + Copy + Clone
+    + Add<Self, Output=Self>
+    + Mul + Mul<f32, Output=Self>
+    where Self::Raw: From<Self>,
+    // Again bitten by Rust #23856.
+    /*
+    [f32; 4]: From<Self>,
+    */
+{
+    type Raw;
+
+    /// Create an instance (zero but value is usually ignored). Marked
+    /// as unsafe because it requires that the corresponding target_feature
+    /// is enabled.
+    unsafe fn create() -> Self;
+
+    /// Create from a raw value. Marked as unsafe because it requires that the
+    /// corresponding target_feature is enabled.
+    unsafe fn from_raw(raw: Self::Raw) -> Self;
+
+    /// Note: self is unused but is needed for safety.
+    fn new(self, array: [f32; 4]) -> Self;
+
+    fn as_vec(self) -> [f32; 4];
+}

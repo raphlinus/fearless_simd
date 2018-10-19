@@ -4,7 +4,7 @@
 use std::mem;
 use std::ops::{Add, Sub, Mul, Div, Neg, BitAnd, Not};
 
-use traits::{SimdF32, SimdMask32};
+use traits::{SimdF32, SimdMask32, F32x4};
 
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
@@ -17,6 +17,9 @@ pub struct Sse42F32(__m128);
 
 #[derive(Clone, Copy)]
 pub struct Sse42Mask32(__m128);
+
+#[derive(Clone, Copy)]
+pub struct Sse42F32x4(__m128);
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
@@ -348,5 +351,80 @@ impl SimdMask32 for Sse42Mask32 {
     #[inline]
     fn select(self, a: Sse42F32, b: Sse42F32) -> Sse42F32 {
         unsafe { Sse42F32(sse42_blendv_ps(b.0, a.0, self.0)) }
+    }
+}
+
+// F32x4
+
+impl From<Sse42F32x4> for __m128 {
+    #[inline]
+    fn from(x: Sse42F32x4) -> __m128 {
+        x.0
+    }
+}
+
+impl From<Sse42F32x4> for [f32; 4] {
+    #[inline]
+    fn from(x: Sse42F32x4) -> [f32; 4] {
+        x.as_vec()
+    }
+}
+
+impl Add for Sse42F32x4 {
+    type Output = Sse42F32x4;
+
+    #[inline]
+    fn add(self, other: Sse42F32x4) -> Sse42F32x4 {
+        unsafe { Sse42F32x4(sse42_add_ps(self.0, other.0)) }
+    }
+}
+
+impl Mul for Sse42F32x4 {
+    type Output = Sse42F32x4;
+
+    #[inline]
+    fn mul(self, other: Sse42F32x4) -> Sse42F32x4 {
+        unsafe { Sse42F32x4(sse42_mul_ps(self.0, other.0)) }
+    }
+}
+
+impl Mul<f32> for Sse42F32x4 {
+    type Output = Sse42F32x4;
+
+    #[inline]
+    fn mul(self, other: f32) -> Sse42F32x4 {
+        unsafe { Sse42F32x4(sse42_mul_ps(self.0, sse42_set1_ps(other))) }
+    }
+}
+
+impl F32x4 for Sse42F32x4 {
+    type Raw = __m128;
+
+    #[inline]
+    unsafe fn from_raw(raw: __m128) -> Sse42F32x4 {
+        Sse42F32x4(raw)
+    }
+
+    #[inline]
+    unsafe fn create() -> Sse42F32x4 {
+        Sse42F32x4(sse42_set1_ps(0.0))
+    }
+
+    #[inline]
+    fn new(self, array: [f32; 4]) -> Sse42F32x4 {
+        union U {
+            array: [f32; 4],
+            xmm: __m128,
+        }
+        unsafe { Sse42F32x4(U { array }.xmm) }
+    }
+
+    #[inline]
+    fn as_vec(self) -> [f32; 4] {
+        union U {
+            array: [f32; 4],
+            xmm: __m128,
+        }
+        unsafe { U { xmm: self.0 }.array }
     }
 }
