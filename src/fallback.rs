@@ -28,6 +28,12 @@ impl SimdF32 for f32 {
     fn abs(self) -> f32 { f32::abs(self) }
 
     #[inline]
+    fn recip(self) -> f32 { f32::recip(self) }
+
+    #[inline]
+    fn rsqrt(self) -> f32 { f32::recip(f32::sqrt(self)) }
+
+    #[inline]
     fn splat(self, x: f32) -> f32 { x }
 
     #[inline]

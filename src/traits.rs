@@ -43,6 +43,42 @@ pub trait SimdF32: Sized + Copy + Clone
     /// Returns the absolute value of a number.
     fn abs(self) -> Self;
 
+    /// Compute approximate reciprocal, to 8 bits of precision.
+    fn recip8(self) -> Self { self.recip11() }
+
+    /// Compute approximate reciprocal, to 11 bits of precision.
+    fn recip11(self) -> Self { self.recip14() }
+
+    /// Compute approximate reciprocal, to 14 bits of precision.
+    fn recip14(self) -> Self { self.recip16() }
+
+    /// Compute approximate reciprocal, to 16 bits of precision.
+    fn recip16(self) -> Self { self.recip22() }
+
+    /// Compute approximate reciprocal, to 22 bits of precision.
+    fn recip22(self) -> Self { self.recip() }
+
+    /// Compute reciprocal, to IEEE precision standards.
+    fn recip(self) -> Self;
+
+    /// Compute approximate reciprocal square root, to 8 bits of precision.
+    fn rsqrt8(self) -> Self { self.rsqrt11() }
+
+    /// Compute approximate reciprocal square root, to 11 bits of precision.
+    fn rsqrt11(self) -> Self { self.rsqrt14() }
+
+    /// Compute approximate reciprocal square root, to 14 bits of precision.
+    fn rsqrt14(self) -> Self { self.rsqrt16() }
+
+    /// Compute approximate reciprocal square root, to 16 bits of precision.
+    fn rsqrt16(self) -> Self { self.rsqrt22() }
+
+    /// Compute approximate reciprocal square root, to 22 bits of precision.
+    fn rsqrt22(self) -> Self { self.rsqrt() }
+
+    /// Compute reciprocal square root, to IEEE precision standards.
+    fn rsqrt(self) -> Self;
+
     /// Repeat a scalar in all lanes.
     ///
     /// Note: self is unused but is needed for safety.

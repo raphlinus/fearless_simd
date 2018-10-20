@@ -71,6 +71,24 @@ unsafe fn sse42_round_nearest_ps(a: __m128) -> __m128 {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
+unsafe fn sse42_rcp_ps(a: __m128) -> __m128 {
+    _mm_rcp_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
+unsafe fn sse42_rsqrt_ps(a: __m128) -> __m128 {
+    _mm_rsqrt_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
+unsafe fn sse42_sqrt_ps(a: __m128) -> __m128 {
+    _mm_sqrt_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
 unsafe fn sse42_andnot_ps(a: __m128, b: __m128) -> __m128 {
     _mm_andnot_ps(a, b)
 }
@@ -280,6 +298,47 @@ impl SimdF32 for Sse42F32 {
     #[inline]
     fn abs(self: Sse42F32) -> Sse42F32 {
         unsafe { Sse42F32(sse42_andnot_ps(sse42_set1_ps(-0.0), self.0)) }
+    }
+
+    #[inline]
+    fn recip11(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_rcp_ps(self.0)) }
+    }
+
+    #[inline]
+    fn recip22(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32( {
+            let est = sse42_rcp_ps(self.0);
+            let muls = sse42_mul_ps(self.0, sse42_mul_ps(est, est));
+            sse42_sub_ps(sse42_add_ps(est, est), muls)
+        })}
+    }
+
+    #[inline]
+    fn recip(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_div_ps(sse42_set1_ps(1.0), self.0)) }
+    }
+
+    #[inline]
+    fn rsqrt11(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_rsqrt_ps(self.0)) }
+    }
+
+    #[inline]
+    fn rsqrt22(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32( {
+            let est = sse42_rsqrt_ps(self.0);
+            let r_est = sse42_mul_ps(self.0, est);
+            let half_est = sse42_mul_ps(sse42_set1_ps(0.5), est);
+            let muls = sse42_mul_ps(r_est, est);
+            let three_minus_muls = sse42_sub_ps(sse42_set1_ps(3.0), muls);
+            sse42_mul_ps(half_est, three_minus_muls)
+        })}
+    }
+
+    #[inline]
+    fn rsqrt(self: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_div_ps(sse42_set1_ps(1.0), sse42_sqrt_ps(self.0))) }
     }
 
     #[inline]

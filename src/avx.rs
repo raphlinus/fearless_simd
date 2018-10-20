@@ -68,6 +68,24 @@ unsafe fn avx_round_nearest_ps(a: __m256) -> __m256 {
 
 #[inline]
 #[target_feature(enable = "avx")]
+unsafe fn avx_rcp_ps(a: __m256) -> __m256 {
+    _mm256_rcp_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
+unsafe fn avx_rsqrt_ps(a: __m256) -> __m256 {
+    _mm256_rsqrt_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
+unsafe fn avx_sqrt_ps(a: __m256) -> __m256 {
+    _mm256_sqrt_ps(a)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
 unsafe fn avx_andnot_ps(a: __m256, b: __m256) -> __m256 {
     _mm256_andnot_ps(a, b)
 }
@@ -277,6 +295,47 @@ impl SimdF32 for AvxF32 {
     #[inline]
     fn abs(self: AvxF32) -> AvxF32 {
         unsafe { AvxF32(avx_andnot_ps(avx_set1_ps(-0.0), self.0)) }
+    }
+
+    #[inline]
+    fn recip11(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_rcp_ps(self.0)) }
+    }
+
+    #[inline]
+    fn recip22(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32( {
+            let est = avx_rcp_ps(self.0);
+            let muls = avx_mul_ps(self.0, avx_mul_ps(est, est));
+            avx_sub_ps(avx_add_ps(est, est), muls)
+        })}
+    }
+
+    #[inline]
+    fn recip(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_div_ps(avx_set1_ps(1.0), self.0)) }
+    }
+
+    #[inline]
+    fn rsqrt11(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_rsqrt_ps(self.0)) }
+    }
+
+    #[inline]
+    fn rsqrt22(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32( {
+            let est = avx_rsqrt_ps(self.0);
+            let r_est = avx_mul_ps(self.0, est);
+            let half_est = avx_mul_ps(avx_set1_ps(0.5), est);
+            let muls = avx_mul_ps(r_est, est);
+            let three_minus_muls = avx_sub_ps(avx_set1_ps(3.0), muls);
+            avx_mul_ps(half_est, three_minus_muls)
+        })}
+    }
+
+    #[inline]
+    fn rsqrt(self: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_div_ps(avx_set1_ps(1.0), avx_sqrt_ps(self.0))) }
     }
 
     #[inline]
