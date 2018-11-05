@@ -71,6 +71,18 @@ unsafe fn sse42_round_nearest_ps(a: __m128) -> __m128 {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
+unsafe fn sse42_min_ps(a: __m128, b: __m128) -> __m128 {
+    _mm_min_ps(a, b)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
+unsafe fn sse42_max_ps(a: __m128, b: __m128) -> __m128 {
+    _mm_max_ps(a, b)
+}
+
+#[inline]
+#[target_feature(enable = "sse4.2")]
 unsafe fn sse42_rcp_ps(a: __m128) -> __m128 {
     _mm_rcp_ps(a)
 }
@@ -298,6 +310,16 @@ impl SimdF32 for Sse42F32 {
     #[inline]
     fn abs(self: Sse42F32) -> Sse42F32 {
         unsafe { Sse42F32(sse42_andnot_ps(sse42_set1_ps(-0.0), self.0)) }
+    }
+
+    #[inline]
+    fn min(self: Sse42F32, b: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_min_ps(self.0, b.0)) }
+    }
+
+    #[inline]
+    fn max(self: Sse42F32, b: Sse42F32) -> Sse42F32 {
+        unsafe { Sse42F32(sse42_max_ps(self.0, b.0)) }
     }
 
     #[inline]

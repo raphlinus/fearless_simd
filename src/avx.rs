@@ -68,6 +68,18 @@ unsafe fn avx_round_nearest_ps(a: __m256) -> __m256 {
 
 #[inline]
 #[target_feature(enable = "avx")]
+unsafe fn avx_min_ps(a: __m256, b: __m256) -> __m256 {
+    _mm256_min_ps(a, b)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
+unsafe fn avx_max_ps(a: __m256, b: __m256) -> __m256 {
+    _mm256_max_ps(a, b)
+}
+
+#[inline]
+#[target_feature(enable = "avx")]
 unsafe fn avx_rcp_ps(a: __m256) -> __m256 {
     _mm256_rcp_ps(a)
 }
@@ -295,6 +307,16 @@ impl SimdF32 for AvxF32 {
     #[inline]
     fn abs(self: AvxF32) -> AvxF32 {
         unsafe { AvxF32(avx_andnot_ps(avx_set1_ps(-0.0), self.0)) }
+    }
+
+    #[inline]
+    fn min(self: AvxF32, b: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_min_ps(self.0, b.0)) }
+    }
+
+    #[inline]
+    fn max(self: AvxF32, b: AvxF32) -> AvxF32 {
+        unsafe { AvxF32(avx_max_ps(self.0, b.0)) }
     }
 
     #[inline]

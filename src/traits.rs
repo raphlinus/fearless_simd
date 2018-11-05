@@ -43,6 +43,12 @@ pub trait SimdF32: Sized + Copy + Clone
     /// Returns the absolute value of a number.
     fn abs(self) -> Self;
 
+    /// Minimum of two values.
+    fn min(self, other: Self) -> Self;
+
+    /// Maximum of two values.
+    fn max(self, other: Self) -> Self;
+
     /// Compute approximate reciprocal, to 8 bits of precision.
     fn recip8(self) -> Self { self.recip11() }
 

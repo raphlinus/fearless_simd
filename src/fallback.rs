@@ -28,6 +28,12 @@ impl SimdF32 for f32 {
     fn abs(self) -> f32 { f32::abs(self) }
 
     #[inline]
+    fn min(self, b: f32) -> f32 { f32::min(self, b) }
+
+    #[inline]
+    fn max(self, b: f32) -> f32 { f32::max(self, b) }
+
+    #[inline]
     fn recip(self) -> f32 { f32::recip(self) }
 
     #[inline]
