@@ -6,13 +6,12 @@
 use core::arch::aarch64::*;
 use core::arch::asm;
 
-use crate::f16x8;
 use crate::macros::impl_simd_from_into;
-use crate::mask16x8;
+use crate::{f16, f16x8, mask16x8};
 
 impl_simd_from_into!(f16x8, int16x8_t);
 
-macro_rules! impl_unaryop {
+macro_rules! neon_f16_unaryop {
     ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
         #[target_feature(enable = "neon", enable = "fp16")]
         #[inline]
@@ -32,7 +31,7 @@ macro_rules! impl_unaryop {
     };
 }
 
-macro_rules! impl_binop {
+macro_rules! neon_f16_binop {
     ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
         #[target_feature(enable = "neon", enable = "fp16")]
         #[inline]
@@ -54,7 +53,7 @@ macro_rules! impl_binop {
     };
 }
 
-macro_rules! impl_ternary {
+macro_rules! neon_f16_ternary {
     ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
         #[target_feature(enable = "neon", enable = "fp16")]
         #[inline]
@@ -76,7 +75,7 @@ macro_rules! impl_ternary {
     };
 }
 
-macro_rules! impl_cmp {
+macro_rules! neon_f16_cmp {
     ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
         #[target_feature(enable = "neon", enable = "fp16")]
         #[inline]
@@ -98,25 +97,57 @@ macro_rules! impl_cmp {
     };
 }
 
-impl_unaryop!(abs(f16x8) = "fabs.8h {0:v}, {1:v}", uint16x8_t);
-impl_unaryop!(floor(f16x8) = "frintm.8h {0:v}, {1:v}", uint16x8_t);
-impl_unaryop!(ceil(f16x8) = "frintp.8h {0:v}, {1:v}", uint16x8_t);
-impl_unaryop!(round_ties_even(f16x8) = "frintn.8h {0:v}, {1:v}", uint16x8_t);
-impl_unaryop!(trunc(f16x8) = "frintz.8h {0:v}, {1:v}", uint16x8_t);
-impl_unaryop!(sqrt(f16x8) = "fsqrt.8h {0:v}, {1:v}", uint16x8_t);
-impl_binop!(add(f16x8) = "fadd.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_binop!(sub(f16x8) = "fsub.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_binop!(mul(f16x8) = "fmul.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_binop!(div(f16x8) = "fdiv.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_binop!(min(f16x8) = "fminm.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_binop!(max(f16x8) = "fmaxm.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_ternary!(mul_add(f16x8) = "fmla.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_ternary!(mul_sub(f16x8) = "fmls.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_cmp!(simd_eq(f16x8) = "fcmeq.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_cmp!(simd_le(f16x8) = "fcmle.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_cmp!(simd_lt(f16x8) = "fcmlt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_cmp!(simd_gt(f16x8) = "fcmgt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
-impl_cmp!(simd_ge(f16x8) = "fcmge.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_unaryop!(abs(f16x8) = "fabs.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_unaryop!(floor(f16x8) = "frintm.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_unaryop!(ceil(f16x8) = "frintp.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_unaryop!(
+    round_ties_even(f16x8) = "frintn.8h {0:v}, {1:v}",
+    uint16x8_t
+);
+neon_f16_unaryop!(round(f16x8) = "frinta.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_unaryop!(trunc(f16x8) = "frintz.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_unaryop!(sqrt(f16x8) = "fsqrt.8h {0:v}, {1:v}", uint16x8_t);
+neon_f16_binop!(add(f16x8) = "fadd.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_binop!(sub(f16x8) = "fsub.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_binop!(mul(f16x8) = "fmul.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_binop!(div(f16x8) = "fdiv.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_binop!(min(f16x8) = "fminm.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_binop!(max(f16x8) = "fmaxm.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_ternary!(mul_add(f16x8) = "fmla.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_ternary!(mul_sub(f16x8) = "fmls.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_cmp!(simd_eq(f16x8) = "fcmeq.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_cmp!(simd_le(f16x8) = "fcmle.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_cmp!(simd_lt(f16x8) = "fcmlt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_cmp!(simd_gt(f16x8) = "fcmgt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+neon_f16_cmp!(simd_ge(f16x8) = "fcmge.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn splat(value: f16) -> f16x8 {
+    unsafe { vdupq_n_u16(value.to_bits()).into() }
+}
+
+#[target_feature(enable = "neon", enable = "fp16")]
+#[inline]
+pub fn splat_f32(value: f32) -> f16x8 {
+    unsafe {
+        let result: uint16x8_t;
+        core::arch::asm!(
+            "fcvt {0:h}, {1:s}",
+            "dup.8h {0:v}, {0:v}[0]",
+            out(vreg) result,
+            in(vreg) value,
+            options(pure, nomem, nostack, preserves_flags)
+        );
+        result.into()
+    }
+}
+
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn splat_f32_const(value: f32) -> f16x8 {
+    splat(f16::from_f32_const(value))
+}
 
 #[target_feature(enable = "neon", enable = "fp16")]
 #[inline]

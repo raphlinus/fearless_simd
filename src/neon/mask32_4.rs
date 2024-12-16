@@ -5,7 +5,10 @@
 
 use core::arch::aarch64::*;
 
-use crate::{macros::{impl_binop, impl_cmp_mask, impl_unaryop, impl_simd_from_into}, mask32x4};
+use crate::{
+    macros::{impl_binop, impl_cmp_mask, impl_simd_from_into, impl_unaryop},
+    mask32x4,
+};
 
 impl_simd_from_into!(mask32x4, int32x4_t);
 
@@ -15,6 +18,9 @@ impl_unaryop!("neon": abs(mask32x4) = vabsq_s32);
 impl_binop!("neon": add(mask32x4) = vaddq_s32);
 impl_binop!("neon": sub(mask32x4) = vsubq_s32);
 impl_binop!("neon": mul(mask32x4) = vmulq_s32);
+impl_binop!("neon": bitand(mask32x4) = vandq_s32);
+impl_binop!("neon": bitor(mask32x4) = vorrq_s32);
+impl_binop!("neon": bitxor(mask32x4) = veorq_s32);
 impl_cmp_mask!("neon": simd_eq(mask32x4) = vceqq_s32);
 impl_cmp_mask!("neon": simd_le(mask32x4) = vcleq_s32);
 impl_cmp_mask!("neon": simd_lt(mask32x4) = vcltq_s32);

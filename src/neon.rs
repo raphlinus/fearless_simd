@@ -9,6 +9,6 @@ pub mod u32_4;
 
 pub use f16_8 as f16s;
 pub use f32_4 as f32s;
-pub use mask32_4 as mask32s;
 pub use mask16_8 as mask16s;
+pub use mask32_4 as mask32s;
 pub use u32_4 as u32s;

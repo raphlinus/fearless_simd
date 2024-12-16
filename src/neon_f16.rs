@@ -204,7 +204,6 @@ impl f16x8 {
     impl_ternop!(mul_add, uint16x8_t, "fmla.8h {0:v}, {1:v}, {2:v}");
     impl_ternop!(mul_sub, uint16x8_t, "fmls.8h {0:v}, {1:v}, {2:v}");
     impl_cmp!(simd_eq, uint16x8_t, "fcmeq.8h {0:v}, {1:v}, {2:v}");
-    impl_cmp!(simd_ne, uint16x8_t, "fcmne.8h {0:v}, {1:v}, {2:v}");
     impl_cmp!(simd_le, uint16x8_t, "fcmle.8h {0:v}, {1:v}, {2:v}");
     impl_cmp!(simd_lt, uint16x8_t, "fcmlt.8h {0:v}, {1:v}, {2:v}");
     impl_cmp!(simd_gt, uint16x8_t, "fcmgt.8h {0:v}, {1:v}, {2:v}");
@@ -258,6 +257,7 @@ impl f16x4 {
     impl_binop!(max, uint16x4_t, "fmax.4h {0:v}, {1:v}, {2:v}");
     impl_unaryop!(reverse, uint16x4_t, "rev64.4h {0:v}, {1:v}");
     impl_ternop!(mul_add, uint16x4_t, "fmla.4h {0:v}, {1:v}, {2:v}");
+    impl_ternop!(mul_sub, uint16x4_t, "fmls.4h {0:v}, {1:v}, {2:v}");
     impl_cast!(cast_f32 -> f32x4, "fcvtl {0:v}.4s {1:v}.4h", uint16x4_t -> float32x4_t);
 }
 
