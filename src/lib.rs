@@ -5,7 +5,6 @@
 
 // TODO: remove when target_feature is stabilized (hopefully soon)
 #![feature(target_feature_11)]
-
 #![allow(non_camel_case_types)]
 
 mod base;
@@ -14,7 +13,7 @@ mod macros;
 pub use base::*;
 
 #[cfg(target_arch = "aarch64")]
-mod neon;
+pub mod neon;
 
 #[cfg(target_arch = "aarch64")]
 mod neon_f16;
@@ -28,4 +27,3 @@ pub type f16 = half::f16;
 mod half_assed;
 #[cfg(all(target_arch = "aarch64", not(feature = "half")))]
 pub use half_assed::f16;
-

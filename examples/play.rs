@@ -9,13 +9,15 @@ use fearless_simd::f32x4;
 
 #[target_feature(enable = "neon")]
 fn simd_inner() {
-    let a = f32x4::splat(42.0);
-    let b = a.add(a);
+    use fearless_simd::neon as simd;
+    use simd::f32_4;
+    let a = f32_4::splat(42.0);
+    let b = f32_4::add(a, a);
     println!("{:?}", b.to_array());
     let c = f32x4::from_array([0.0, 1.0, 42.0, 3.14]);
-    let d = a.simd_eq(c);
+    let d = f32_4::simd_eq(a, c);
     println!("{:?}", d.to_array());
-    println!("{:?}", c.round_cast_u32().to_array());
+    println!("{:?}", f32_4::round_cast_u32(c).to_array());
 }
 
 fn main() {

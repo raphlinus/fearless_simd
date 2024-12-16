@@ -123,11 +123,9 @@ impl f16x8 {
     #[target_feature(enable = "neon")]
     #[inline]
     pub fn splat(value: f16) -> Self {
-        unsafe {
-            vdupq_n_u16(value.to_bits()).into()
-        }
+        unsafe { vdupq_n_u16(value.to_bits()).into() }
     }
-    
+
     #[target_feature(enable = "neon", enable = "fp16")]
     #[inline]
     pub fn splat_f32(value: f32) -> Self {
@@ -153,17 +151,13 @@ impl f16x8 {
     #[target_feature(enable = "neon")]
     #[inline]
     pub fn get_low(self) -> f16x4 {
-        unsafe {
-            vget_low_u16(self.into()).into()
-        }
+        unsafe { vget_low_u16(self.into()).into() }
     }
 
     #[target_feature(enable = "neon")]
     #[inline]
     pub fn get_high(self) -> f16x4 {
-        unsafe {
-            vget_high_u16(self.into()).into()
-        }
+        unsafe { vget_high_u16(self.into()).into() }
     }
 
     // This function becomes cast_f32 when we implement f32x8
@@ -186,7 +180,11 @@ impl f16x8 {
             let hi_as_array = &hi as *const float32x4_t as *const [f32; 4];
             let mut tmp = core::mem::MaybeUninit::uninit();
             core::ptr::copy_nonoverlapping(lo_as_array, tmp.as_mut_ptr() as *mut [f32; 4], 1);
-            core::ptr::copy_nonoverlapping(hi_as_array, (tmp.as_mut_ptr() as *mut [f32; 4]).add(1), 1);
+            core::ptr::copy_nonoverlapping(
+                hi_as_array,
+                (tmp.as_mut_ptr() as *mut [f32; 4]).add(1),
+                1,
+            );
             tmp.assume_init()
         }
     }
@@ -221,9 +219,7 @@ impl f16x4 {
     #[target_feature(enable = "neon")]
     #[inline]
     pub fn splat(value: f16) -> Self {
-        unsafe {
-            vdup_n_u16(value.to_bits()).into()
-        }
+        unsafe { vdup_n_u16(value.to_bits()).into() }
     }
 
     #[target_feature(enable = "neon", enable = "fp16")]
@@ -251,9 +247,7 @@ impl f16x4 {
     #[target_feature(enable = "neon")]
     #[inline]
     pub fn combine(self, high: Self) -> f16x8 {
-        unsafe {
-            vcombine_u16(self.into(), high.into()).into()
-        }
+        unsafe { vcombine_u16(self.into(), high.into()).into() }
     }
 
     impl_binop!(add, uint16x4_t, "fadd.4h {0:v}, {1:v}, {2:v}");

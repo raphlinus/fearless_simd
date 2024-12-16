@@ -21,10 +21,11 @@ pub trait Mask {
 
 macro_rules! impl_basetype {
     ($simd:ident, $element:ty, $n:expr) => {
+        // TODO: consider Debug, but our f16 doesn't
         #[derive(Clone, Copy, Default)]
         #[repr(transparent)]
-        pub struct $simd([$element; $n]);
-        
+        pub struct $simd(pub [$element; $n]);
+
         impl $simd {
             #[inline]
             pub const fn len(&self) -> usize {
@@ -120,7 +121,7 @@ macro_rules! impl_simd {
                 unsafe { core::mem::transmute(mask) }
             }
         }
-    }
+    };
 }
 
 macro_rules! impl_mask {
@@ -131,7 +132,7 @@ macro_rules! impl_mask {
 
             type Element = $element;
         }
-    }
+    };
 }
 
 impl_simd!(f32x4, f32, 4, mask32x4);
