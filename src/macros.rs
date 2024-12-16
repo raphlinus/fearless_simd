@@ -32,8 +32,8 @@ macro_rules! impl_unaryop {
         #[target_feature( $( enable = $tf ),* )]
         pub fn $opfn(self) -> Self {
             unsafe {
+                // TODO: many of these transmutes can be replaced with .into()
                 core::mem::transmute($intrinsic(core::mem::transmute(self)))
-
             }
         }
     };
@@ -131,7 +131,6 @@ macro_rules! impl_cast {
         pub fn $opfn(self) -> $to {
             unsafe {
                 core::mem::transmute($intrinsic(core::mem::transmute(self)))
-
             }
         }
     };

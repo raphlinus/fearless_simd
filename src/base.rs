@@ -103,7 +103,7 @@ macro_rules! impl_basetype {
 macro_rules! impl_simd {
     ($simd:ident, $element:ty, $n:expr, $mask:ty) => {
         impl_basetype!($simd, $element, $n);
-        impl Simd for $simd {
+        impl $crate::Simd for $simd {
             const LEN: usize = $n;
 
             type Element = $element;
@@ -111,12 +111,12 @@ macro_rules! impl_simd {
             type Mask = $mask;
 
             /// A bitcast into the mask type, which must be the same size.
-            fn to_mask(self) -> <Self as Simd>::Mask {
+            fn to_mask(self) -> <Self as $crate::Simd>::Mask {
                 unsafe { core::mem::transmute(self) }
             }
 
             /// A bitcast from the mask type, which must be the same size.
-            fn from_mask(mask: <Self as Simd>::Mask) -> Self {
+            fn from_mask(mask: <Self as $crate::Simd>::Mask) -> Self {
                 unsafe { core::mem::transmute(mask) }
             }
         }
@@ -126,7 +126,7 @@ macro_rules! impl_simd {
 macro_rules! impl_mask {
     ($simd:ident, $element:ty, $n:expr) => {
         impl_basetype!($simd, $element, $n);
-        impl Mask for $simd {
+        impl $crate::Mask for $simd {
             const LEN: usize = $n;
 
             type Element = $element;
@@ -136,4 +136,12 @@ macro_rules! impl_mask {
 
 impl_simd!(f32x4, f32, 4, mask32x4);
 impl_simd!(u32x4, u32, 4, mask32x4);
+impl_simd!(u16x4, u16, 4, mask16x4);
+impl_simd!(u16x8, u16, 8, mask16x8);
+impl_mask!(mask16x4, i16, 4);
+impl_mask!(mask16x8, i16, 8);
 impl_mask!(mask32x4, i32, 4);
+
+#[cfg(target_arch = "aarch64")]
+mod f16;
+pub use f16::*;

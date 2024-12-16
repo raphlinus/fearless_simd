@@ -4,7 +4,7 @@
 use core::arch::aarch64::*;
 use core::mem::transmute;
 
-use crate::{f32x4, mask32x4, u32x4, Simd};
+use crate::{f32x4, mask16x4, mask16x8, mask32x4, u32x4, Simd};
 use crate::macros::{impl_binop, impl_cast, impl_cmp, impl_cmp_mask, impl_select, impl_simd_from_into, impl_ternary, impl_unaryop};
 
 impl_simd_from_into!(f32x4, float32x4_t);
@@ -76,3 +76,7 @@ impl mask32x4 {
         self.simd_eq(rhs).not()
     }
 }
+
+impl_simd_from_into!(mask16x8, int16x8_t);
+
+impl_simd_from_into!(mask16x4, int16x4_t);
