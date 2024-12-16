@@ -1,0 +1,29 @@
+// Copyright 2024 the Fearless_SIMD Authors
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
+#![feature(target_feature_11)]
+
+use std::arch::is_aarch64_feature_detected;
+
+use fearless_simd::f32x4;
+
+#[target_feature(enable = "neon")]
+fn simd_inner() {
+    let a = f32x4::splat(42.0);
+    let b = a.add(a);
+    println!("{:?}", b.to_array());
+    let c = f32x4::from_array([0.0, 1.0, 42.0, 3.14]);
+    let d = a.simd_eq(c);
+    println!("{:?}", d.to_array());
+    println!("{:?}", c.round_cast_u32().to_array());
+}
+
+fn main() {
+    // Safety: only call the simd function when the feature
+    // is detected. We'll want a macro for this.
+    if is_aarch64_feature_detected!("neon") {
+        unsafe {
+            simd_inner();
+        }
+    }
+}

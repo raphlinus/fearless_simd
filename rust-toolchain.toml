@@ -1,0 +1,4 @@
+# TODO: remove this when Rust 1.85 is released
+
+[toolchain]
+channel = "nightly"
