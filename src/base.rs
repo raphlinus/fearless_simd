@@ -11,7 +11,6 @@ pub trait Simd: Bytes {
     fn to_mask(self) -> Self::Mask;
 
     fn from_mask(value: Self::Mask) -> Self;
-
 }
 
 pub trait Mask: Bytes {
@@ -145,7 +144,6 @@ macro_rules! impl_simd {
             fn from_mask(mask: <Self as $crate::Simd>::Mask) -> Self {
                 unsafe { core::mem::transmute(mask) }
             }
-
         }
     };
 }

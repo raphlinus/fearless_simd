@@ -20,12 +20,27 @@ fn simd_inner() {
     println!("{:?}", f32_4::round_cast_u32(c).to_array());
 }
 
+#[target_feature(enable = "fp16")]
+fn fp16_inner() {
+    use fearless_simd::neon as simd;
+    use simd::f16_8;
+    let a = f16_8::splat_f32_const(42.0);
+    let b = f16_8::add(a, a);
+    let c = f16_8::cvt_f32(b);
+    println!("{:?}", c.to_array());
+}
+
 fn main() {
     // Safety: only call the simd function when the feature
     // is detected. We'll want a macro for this.
     if is_aarch64_feature_detected!("neon") {
         unsafe {
             simd_inner();
+        }
+    }
+    if is_aarch64_feature_detected!("fp16") {
+        unsafe {
+            fp16_inner();
         }
     }
 }

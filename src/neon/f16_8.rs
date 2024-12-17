@@ -4,98 +4,13 @@
 //! Operations on [`f16x8`] SIMD values.
 
 use core::arch::aarch64::*;
-use core::arch::asm;
 
+use crate::{f16, f16x8, f32x8, mask16x8};
 use crate::macros::impl_simd_from_into;
-use crate::{f16, f16x8, mask16x8};
 
-impl_simd_from_into!(f16x8, int16x8_t);
+use super::{neon_f16_binop, neon_f16_cmp, neon_f16_ternary, neon_f16_unaryop};
 
-macro_rules! neon_f16_unaryop {
-    ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
-        #[target_feature(enable = "neon", enable = "fp16")]
-        #[inline]
-        pub fn $opfn(a: $ty) -> $ty {
-            unsafe {
-                let inp: $arch = a.into();
-                let result: $arch;
-                asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) inp,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
-                result.into()
-            }
-        }
-    };
-}
-
-macro_rules! neon_f16_binop {
-    ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
-        #[target_feature(enable = "neon", enable = "fp16")]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> $ty {
-            unsafe {
-                let inp1: $arch = a.into();
-                let inp2: $arch = b.into();
-                let result: $arch;
-                asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) inp1,
-                    in(vreg) inp2,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
-                result.into()
-            }
-        }
-    };
-}
-
-macro_rules! neon_f16_ternary {
-    ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
-        #[target_feature(enable = "neon", enable = "fp16")]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> $ty {
-            unsafe {
-                let inp1: $arch = a.into();
-                let inp2: $arch = b.into();
-                let result: $arch;
-                asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) inp1,
-                    in(vreg) inp2,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
-                result.into()
-            }
-        }
-    };
-}
-
-macro_rules! neon_f16_cmp {
-    ( $opfn:ident ( $ty:ty ) = $asm:expr, $arch:ty ) => {
-        #[target_feature(enable = "neon", enable = "fp16")]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> <$ty as $crate::Simd>::Mask {
-            unsafe {
-                let inp1: $arch = a.into();
-                let inp2: $arch = b.into();
-                let result: $arch;
-                asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) inp1,
-                    in(vreg) inp2,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
-                core::mem::transmute(result)
-            }
-        }
-    };
-}
+impl_simd_from_into!(f16x8, uint16x8_t);
 
 neon_f16_unaryop!(abs(f16x8) = "fabs.8h {0:v}, {1:v}", uint16x8_t);
 neon_f16_unaryop!(floor(f16x8) = "frintm.8h {0:v}, {1:v}", uint16x8_t);
@@ -127,7 +42,7 @@ pub fn splat(value: f16) -> f16x8 {
     unsafe { vdupq_n_u16(value.to_bits()).into() }
 }
 
-#[target_feature(enable = "neon", enable = "fp16")]
+#[target_feature(enable = "fp16")]
 #[inline]
 pub fn splat_f32(value: f32) -> f16x8 {
     unsafe {
@@ -149,8 +64,32 @@ pub fn splat_f32_const(value: f32) -> f16x8 {
     splat(f16::from_f32_const(value))
 }
 
-#[target_feature(enable = "neon", enable = "fp16")]
+#[target_feature(enable = "fp16")]
 #[inline]
 pub fn simd_ne(a: f16x8, b: f16x8) -> mask16x8 {
     super::mask16_8::not(simd_eq(a, b))
+}
+
+#[target_feature(enable = "fp16")]
+#[inline]
+pub fn cvt_f32(value: f16x8) -> f32x8 {
+    unsafe {
+        let inp: uint16x8_t = value.into();
+        let lo: float32x4_t;
+        let hi_u16x8;
+        core::arch::asm!(
+            "fcvtl {0:v}.4s, {1:v}.4h",
+            "fcvtl2 {1:v}.4s, {1:v}.8h",
+            out(vreg) lo,
+            inout(vreg) inp => hi_u16x8,
+            options(pure, nomem, nostack, preserves_flags)
+        );
+        let hi = vreinterpretq_f32_u16(hi_u16x8);
+        let lo_as_array = &lo as *const float32x4_t as *const [f32; 4];
+        let hi_as_array = &hi as *const float32x4_t as *const [f32; 4];
+        let mut tmp = core::mem::MaybeUninit::uninit();
+        core::ptr::copy_nonoverlapping(lo_as_array, tmp.as_mut_ptr() as *mut [f32; 4], 1);
+        core::ptr::copy_nonoverlapping(hi_as_array, (tmp.as_mut_ptr() as *mut [f32; 4]).add(1), 1);
+        tmp.assume_init()
+    }
 }

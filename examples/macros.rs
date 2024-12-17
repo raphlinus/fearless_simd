@@ -2,7 +2,7 @@
 
 use fearless_simd::simd_dispatch;
 
-simd_dispatch!{
+simd_dispatch! {
     #[levels = (neon_fp16, neon)]
     pub foo(x: f32) -> u32 {
         println!("body of function, neon = {HAS_NEON}");
@@ -21,4 +21,3 @@ fn main() {
     let a = foo(42.0);
     println!("a = {a}");
 }
-

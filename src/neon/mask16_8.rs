@@ -1,7 +1,7 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-//! Operations on [`mask32x4`] SIMD values.
+//! Operations on [`mask16x8`] SIMD values.
 
 use core::arch::aarch64::*;
 
