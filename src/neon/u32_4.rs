@@ -7,7 +7,7 @@ use core::arch::aarch64::*;
 
 use crate::{
     f32x4,
-    macros::{impl_binop, impl_cast, impl_cmp, impl_simd_from_into, impl_unaryop},
+    macros::{impl_binop, impl_cast, impl_cmp, impl_select, impl_simd_from_into, impl_unaryop},
     mask32x4, u32x4,
 };
 
@@ -26,6 +26,7 @@ impl_cmp!("neon": simd_lt(u32x4) = vcltq_u32);
 impl_cmp!("neon": simd_gt(u32x4) = vcgtq_u32);
 impl_cmp!("neon": simd_ge(u32x4) = vcgeq_u32);
 impl_cast!("neon": cast_f32(u32x4) -> f32x4 = vcvtq_f32_u32);
+impl_select!("neon": (u32x4) = vbslq_u32, vreinterpretq_u32_s32);
 
 #[target_feature(enable = "neon")]
 #[inline]

@@ -36,9 +36,7 @@ fn fast_inv_sqrt_f32x4(x: f32x4) -> f32x4 {
 // Similar to above, but instances are hidden inside the function.
 #[simd_dispatch(levels = "neon, fallback")]
 pub fn foo(x: f32) -> f32 {
-    // This lint is super annoying in the presence of cfg's.
-    #[allow(unused)]
-    use simd::f32s::{add, div, splat, sqrt};
+    use simd::f32s::*;
     let a = splat(x);
     let b = add(a, a);
 

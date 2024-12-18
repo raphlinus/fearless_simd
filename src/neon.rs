@@ -63,14 +63,17 @@ macro_rules! neon_f16_ternary {
     ( $opfn:ident ( $ty:ty ) = $asm:literal, $arch:ty ) => {
         #[target_feature(enable = "fp16")]
         #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> $ty {
+        pub fn $opfn(a: $ty, b: $ty, c: $ty) -> $ty {
             unsafe {
                 let inp1: $arch = a.into();
                 let inp2: $arch = b.into();
+                let inp3: $arch = c.into();
                 let result: $arch;
+                // Note order; intrinsic computes v0 + v1 * v2,
+                // we want a * b + c
                 core::arch::asm!(
                     $asm,
-                    out(vreg) result,
+                    inout(vreg) inp3 => result,
                     in(vreg) inp1,
                     in(vreg) inp2,
                     options(pure, nomem, nostack, preserves_flags)

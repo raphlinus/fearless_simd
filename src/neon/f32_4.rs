@@ -7,7 +7,7 @@ use core::arch::aarch64::*;
 
 use crate::{
     f16x4, f32x4,
-    macros::{impl_binop, impl_cast, impl_cmp, impl_simd_from_into, impl_ternary, impl_unaryop},
+    macros::{impl_binop, impl_cast, impl_cmp, impl_select, impl_simd_from_into, impl_ternary, impl_unaryop},
     mask32x4, u32x4,
 };
 
@@ -29,8 +29,8 @@ impl_binop!("neon": mul(f32x4) = vmulq_f32);
 impl_binop!("neon": div(f32x4) = vdivq_f32);
 impl_binop!("neon": min(f32x4) = vminnmq_f32);
 impl_binop!("neon": max(f32x4) = vmaxnmq_f32);
-impl_ternary!("neon": mul_add(f32x4) = vfmaq_f32);
-impl_ternary!("neon": mul_sub(f32x4) = vfmsq_f32);
+impl_ternary!("neon": mul_add(f32x4) = vfmaq_f32 cab);
+impl_ternary!("neon": mul_sub(f32x4) = vfmsq_f32 cab);
 impl_cmp!("neon": simd_eq(f32x4) = vceqq_f32);
 impl_cmp!("neon": simd_le(f32x4) = vcleq_f32);
 impl_cmp!("neon": simd_lt(f32x4) = vcltq_f32);
@@ -41,6 +41,7 @@ impl_cast!("neon": round_cast_u32(f32x4) -> u32x4 = vcvtaq_u32_f32);
 impl_cast!("neon": floor_cast_u32(f32x4) -> u32x4 = vcvtmq_u32_f32);
 impl_cast!("neon": ceil_cast_u32(f32x4) -> u32x4 = vcvtpq_u32_f32);
 impl_cast!("neon": round_ties_even_cast_u32(f32x4) -> u32x4 = vcvtnq_u32_f32);
+impl_select!("neon": (f32x4) = vbslq_f32, vreinterpretq_u32_s32);
 
 neon_f16_cvt!(cvt_f16(f32x4) -> f16x4 = "fcvtn {0:v}.4h, {1:v}.4s" (float32x4_t) -> uint16x4_t);
 
@@ -54,4 +55,24 @@ pub fn splat(value: f32) -> f32x4 {
 #[inline]
 pub fn simd_ne(a: f32x4, b: f32x4) -> mask32x4 {
     super::mask32_4::not(simd_eq(a, b))
+}
+
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn copysign(a: f32x4, b: f32x4) -> f32x4 {
+    unsafe {
+        let sign_mask = vdupq_n_u32(1 << 31);
+        vbslq_f32(sign_mask, b.into(), a.into()).into()
+    }
+}
+
+// This function is a neon-ism. It is possible to emulate on avx2,
+// but we may end up trying to do select with const masks instead,
+// hoping llvm will generate good code.
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn copy_lane<const LANE1: i32, const LANE2: i32>(a: f32x4, b: f32x4) -> f32x4 {
+    unsafe {
+        vcopyq_laneq_f32::<LANE1, LANE2>(a.into(), b.into()).into()
+    }
 }

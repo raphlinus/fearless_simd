@@ -5,7 +5,7 @@
 
 use core::arch::aarch64::*;
 
-use crate::macros::impl_simd_from_into;
+use crate::macros::{impl_select, impl_simd_from_into};
 use crate::{f16, f16x8, f32x8, mask16x8};
 
 use super::{neon_f16_binop, neon_f16_cmp, neon_f16_ternary, neon_f16_unaryop};
@@ -35,6 +35,7 @@ neon_f16_cmp!(simd_le(f16x8) = "fcmle.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
 neon_f16_cmp!(simd_lt(f16x8) = "fcmlt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
 neon_f16_cmp!(simd_gt(f16x8) = "fcmgt.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
 neon_f16_cmp!(simd_ge(f16x8) = "fcmge.8h {0:v}, {1:v}, {2:v}", uint16x8_t);
+impl_select!("neon": (f16x8) = vbslq_u16, vreinterpretq_u16_s16);
 
 #[target_feature(enable = "neon")]
 #[inline]
@@ -91,5 +92,14 @@ pub fn cvt_f32(value: f16x8) -> f32x8 {
         core::ptr::copy_nonoverlapping(lo_as_array, tmp.as_mut_ptr() as *mut [f32; 4], 1);
         core::ptr::copy_nonoverlapping(hi_as_array, (tmp.as_mut_ptr() as *mut [f32; 4]).add(1), 1);
         tmp.assume_init()
+    }
+}
+
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn copysign(a: f16x8, b: f16x8) -> f16x8 {
+    unsafe {
+        let sign_mask = vdupq_n_u16(1 << 15);
+        vbslq_u16(sign_mask, b.into(), a.into()).into()
     }
 }

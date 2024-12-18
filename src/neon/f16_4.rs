@@ -5,7 +5,7 @@
 
 use core::arch::aarch64::*;
 
-use crate::macros::impl_simd_from_into;
+use crate::macros::{impl_select, impl_simd_from_into};
 use crate::{f16, f16x4, f32x4, mask16x4};
 
 use super::{neon_f16_binop, neon_f16_cmp, neon_f16_cvt, neon_f16_ternary, neon_f16_unaryop};
@@ -35,6 +35,7 @@ neon_f16_cmp!(simd_le(f16x4) = "fcmle.4h {0:v}, {1:v}, {2:v}", uint16x4_t);
 neon_f16_cmp!(simd_lt(f16x4) = "fcmlt.4h {0:v}, {1:v}, {2:v}", uint16x4_t);
 neon_f16_cmp!(simd_gt(f16x4) = "fcmgt.4h {0:v}, {1:v}, {2:v}", uint16x4_t);
 neon_f16_cmp!(simd_ge(f16x4) = "fcmge.4h {0:v}, {1:v}, {2:v}", uint16x4_t);
+impl_select!("neon": (f16x4) = vbsl_u16, vreinterpret_u16_s16);
 
 #[target_feature(enable = "neon")]
 #[inline]
@@ -68,6 +69,15 @@ pub fn splat_f32_const(value: f32) -> f16x4 {
 #[inline]
 pub fn simd_ne(a: f16x4, b: f16x4) -> mask16x4 {
     super::mask16_4::not(simd_eq(a, b))
+}
+
+#[target_feature(enable = "neon")]
+#[inline]
+pub fn copysign(a: f16x4, b: f16x4) -> f16x4 {
+    unsafe {
+        let sign_mask = vdup_n_u16(1 << 15);
+        vbsl_u16(sign_mask, b.into(), a.into()).into()
+    }
 }
 
 neon_f16_cvt!(cvt_f32(f16x4) -> f32x4 = "fcvtl {0:v}.4s, {1:v}.4h" (uint16x4_t) -> float32x4_t);

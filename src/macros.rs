@@ -58,6 +58,15 @@ macro_rules! impl_ternary {
             }
         }
     };
+    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident cab) => {
+        #[target_feature( $( enable = $tf ),* )]
+        #[inline]
+        pub fn $opfn(a: $ty, b: $ty, c: $ty) -> $ty {
+            unsafe {
+                $intrinsic(c.into(), a.into(), b.into()).into()
+            }
+        }
+    };
 }
 pub(crate) use impl_ternary;
 
@@ -100,3 +109,25 @@ macro_rules! impl_cast {
     };
 }
 pub(crate) use impl_cast;
+
+macro_rules! impl_select {
+    ($( $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident, $cast:ident ) => {
+        #[target_feature( $( enable = $tf ),* )]
+        #[inline]
+        pub fn select(a: <$ty as $crate::Simd>::Mask, b: $ty, c: $ty) -> $ty {
+            unsafe {
+                $intrinsic($cast(a.into()), b.into(), c.into()).into()
+            }
+        }
+    };
+    ($( mask $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident, $cast:ident ) => {
+        #[target_feature( $( enable = $tf ),* )]
+        #[inline]
+        pub fn select(a: $ty, b: $ty, c: $ty) -> $ty {
+            unsafe {
+                $intrinsic($cast(a.into()), b.into(), c.into()).into()
+            }
+        }
+    };
+}
+pub(crate) use impl_select;

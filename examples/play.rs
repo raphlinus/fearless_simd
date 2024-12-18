@@ -8,6 +8,7 @@ use std::arch::is_aarch64_feature_detected;
 use fearless_simd::f32x4;
 
 #[target_feature(enable = "neon")]
+#[inline]
 fn simd_inner() {
     use fearless_simd::neon as simd;
     use simd::f32_4;
@@ -21,6 +22,7 @@ fn simd_inner() {
 }
 
 #[target_feature(enable = "fp16")]
+#[inline]
 fn fp16_inner() {
     use fearless_simd::neon as simd;
     use simd::f16_8;
@@ -43,6 +45,4 @@ fn main() {
             fp16_inner();
         }
     }
-    #[cfg(all())]
-    println!("true is true");
 }

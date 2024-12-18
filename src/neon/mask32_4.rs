@@ -6,7 +6,7 @@
 use core::arch::aarch64::*;
 
 use crate::{
-    macros::{impl_binop, impl_cmp_mask, impl_simd_from_into, impl_unaryop},
+    macros::{impl_binop, impl_cmp_mask, impl_select, impl_simd_from_into, impl_unaryop},
     mask32x4,
 };
 
@@ -26,6 +26,7 @@ impl_cmp_mask!("neon": simd_le(mask32x4) = vcleq_s32);
 impl_cmp_mask!("neon": simd_lt(mask32x4) = vcltq_s32);
 impl_cmp_mask!("neon": simd_gt(mask32x4) = vcgtq_s32);
 impl_cmp_mask!("neon": simd_ge(mask32x4) = vcgeq_s32);
+impl_select!(mask "neon": (mask32x4) = vbslq_s32, vreinterpretq_u32_s32);
 
 // TODO: we might want to convert from bool
 #[target_feature(enable = "neon")]
