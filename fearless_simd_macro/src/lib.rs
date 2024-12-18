@@ -5,7 +5,12 @@ use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::ToTokens;
 use syn::{
-    parenthesized, parse::{Parse, Parser}, punctuated::Punctuated, spanned::Spanned, token::Paren, visit_mut::VisitMut, AttrStyle, Attribute, FnArg, GenericParam, Ident, LitBool, LitStr, Meta, Token
+    AttrStyle, Attribute, FnArg, GenericParam, Ident, LitBool, LitStr, Meta, Token, parenthesized,
+    parse::{Parse, Parser},
+    punctuated::Punctuated,
+    spanned::Spanned,
+    token::Paren,
+    visit_mut::VisitMut,
 };
 
 type AttributeArgs = Punctuated<AttributeArg, Token![,]>;
@@ -39,7 +44,7 @@ fn arch_for_level(level: &str) -> Option<&'static str> {
 ///
 /// Note that implied features need not be in this list; this list is
 /// primarily used to generate a `#[target_feature]` attribute on
-/// instances. 
+/// instances.
 fn features_for_level(level: &str) -> &'static [&'static str] {
     match level {
         "neon" => &["neon"],
@@ -84,8 +89,11 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             "levels" => {
                 if let AttributeValue::String(s) = &arg.value {
                     opt_level_span = Some(s.span());
-                    levels = s.value().split(',').map(|raw_level|
-                    raw_level.trim().to_owned()).collect();
+                    levels = s
+                        .value()
+                        .split(',')
+                        .map(|raw_level| raw_level.trim().to_owned())
+                        .collect();
                 } else {
                     panic!("levels must be comma-separated string");
                 }
@@ -161,16 +169,18 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
                     #[target_feature(enable = #tf_list)]
                 }
             } else {
-                quote! { }
+                quote! {}
             };
             let mod_ident = syn::Ident::new(&mod_for_level(&level), level_span);
             let mut edited_block = block.clone();
-            let mut level_info = LevelInfo { level: level.clone() };
+            let mut level_info = LevelInfo {
+                level: level.clone(),
+            };
             syn::visit_mut::visit_block_mut(&mut level_info, &mut edited_block);
             let instance_vis = if do_module {
                 quote! { pub }
             } else {
-                quote! { }
+                quote! {}
             };
 
             quote! {
@@ -262,7 +272,7 @@ impl Parse for AttributeValue {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         if input.peek(LitStr) {
             Ok(AttributeValue::String(input.parse()?))
-        } else  {
+        } else {
             Ok(AttributeValue::Bool(input.parse()?))
         }
     }
@@ -454,7 +464,9 @@ impl LevelInfo {
     // TODO: say yes for implied features, see
     // https://github.com/rust-lang/rust/blob/52890e82153cd8716d97a96f47fb6ac99dec65be/compiler/rustc_target/src/target_features.rs#L207
     fn supports_target_feature(&self, tf_query: &str) -> bool {
-        features_for_level(&self.level).iter().any(|tf| *tf == tf_query)
+        features_for_level(&self.level)
+            .iter()
+            .any(|tf| *tf == tf_query)
     }
 
     fn resolve_cfg(cfg: &mut ConfigurationPredicate, value: bool, span: Span) {
