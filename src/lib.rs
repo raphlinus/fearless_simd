@@ -24,5 +24,3 @@ pub type f16 = half::f16;
 mod half_assed;
 #[cfg(all(target_arch = "aarch64", not(feature = "half")))]
 pub use half_assed::f16;
-
-mod simd_dispatch;

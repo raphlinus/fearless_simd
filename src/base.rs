@@ -198,6 +198,7 @@ impl_mask!(mask32x8, i32, 8, u8x32);
 
 #[cfg(target_arch = "aarch64")]
 mod f16;
+#[cfg(target_arch = "aarch64")]
 pub use f16::*;
 
 pub trait Bitcast<T>: Sized {

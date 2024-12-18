@@ -6,7 +6,8 @@
 use core::arch::aarch64::*;
 
 use crate::{
-    macros::{impl_binop, impl_cmp_mask, impl_simd_from_into, impl_unaryop}, mask16x4
+    macros::{impl_binop, impl_cmp_mask, impl_simd_from_into, impl_unaryop},
+    mask16x4,
 };
 
 impl_simd_from_into!(mask16x4, int16x4_t);

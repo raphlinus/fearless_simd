@@ -5,8 +5,8 @@
 
 use core::arch::aarch64::*;
 
-use crate::{f16, f16x4, f32x4, mask16x4};
 use crate::macros::impl_simd_from_into;
+use crate::{f16, f16x4, f32x4, mask16x4};
 
 use super::{neon_f16_binop, neon_f16_cmp, neon_f16_cvt, neon_f16_ternary, neon_f16_unaryop};
 

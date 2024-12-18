@@ -43,4 +43,6 @@ fn main() {
             fp16_inner();
         }
     }
+    #[cfg(all())]
+    println!("true is true");
 }

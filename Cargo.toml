@@ -20,3 +20,9 @@ RUSTUP_TOOLCHAIN = "nightly"
 [dependencies]
 bytemuck = { version = "1.20", optional = true }
 half = { version = "2.4.1", optional = true }
+
+[dev-dependencies]
+fearless_simd_macro = { path = "./fearless_simd_macro" }
+
+[workspace]
+members = ["fearless_simd_macro"]

@@ -6,7 +6,9 @@
 use core::arch::aarch64::*;
 
 use crate::{
-    f16x4, f32x4, macros::{impl_binop, impl_cast, impl_cmp, impl_simd_from_into, impl_ternary, impl_unaryop}, mask32x4, u32x4
+    f16x4, f32x4,
+    macros::{impl_binop, impl_cast, impl_cmp, impl_simd_from_into, impl_ternary, impl_unaryop},
+    mask32x4, u32x4,
 };
 
 use super::neon_f16_cvt;
