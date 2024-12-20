@@ -8,9 +8,11 @@
 #![allow(non_camel_case_types)]
 
 mod base;
+mod detect;
 mod macros;
 
 pub use base::*;
+pub use detect::*;
 
 #[cfg(target_arch = "aarch64")]
 pub mod neon;

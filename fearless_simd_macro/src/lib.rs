@@ -3,7 +3,7 @@
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use quote::ToTokens;
+use quote::{ToTokens, quote};
 use syn::{
     AttrStyle, Attribute, FnArg, GenericParam, Ident, LitBool, LitStr, Meta, Token, parenthesized,
     parse::{Parse, Parser},
@@ -29,8 +29,7 @@ enum AttributeValue {
 
 /// Return the architecture corresponding to the level.
 ///
-/// String is empty if no arch support is needed. Intentionally a
-/// curated set for now.
+/// Intentionally a curated set for now.
 fn arch_for_level(level: &str) -> Option<&'static str> {
     Some(match level {
         "neon" => "aarch64",
@@ -44,7 +43,7 @@ fn arch_for_level(level: &str) -> Option<&'static str> {
 ///
 /// Note that implied features need not be in this list; this list is
 /// primarily used to generate a `#[target_feature]` attribute on
-/// instances.
+/// instances. Having unneeded features just makes detection slower.
 fn features_for_level(level: &str) -> &'static [&'static str] {
     match level {
         "neon" => &["neon"],
@@ -75,14 +74,33 @@ fn detect_macro_for_arch(arch: &str) -> &'static str {
     }
 }
 
+/// A proc macro for runtime dispatch based on SIMD level.
+///
+/// Place this attribute before your free function. You need to specify
+/// levels (currently, "neon", "fp16", and "avx2" but the list will grow).
+/// Optionally add "fallback", otherwise the function will panic when none
+/// of the requested levels are available.
+///
+/// By default, this generates an outer function which has runtime detection,
+/// and one inner function for each of the levels. Optionally (with
+/// `module = true`), the inner functions are in a module with the same name
+/// as the outer function, allowing calls to the instances without dispatch.
+///
+/// Additionally, this macro resolves `#[cfg(fearless_feature_level = "level)]`
+/// cfg's inside the inner functions, allowing conditional compilation based
+/// on detected level.
+///
+/// By default, feature detection uses the slow Rust std macros. An optional
+/// `detect = "fast"` argument enables fast feature detection, but that
+/// requires applications to call `init_simd_detect()` on startup.
 #[proc_macro_attribute]
 pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
-    use quote::quote;
     use syn::{Item, Signature, parse_macro_input};
 
     let mut levels: Vec<String> = vec![];
     let mut opt_level_span = None;
     let mut do_module = false;
+    let mut fast_detect = false;
     for arg in AttributeArgs::parse_terminated.parse(args).unwrap() {
         let key = arg.key.to_string();
         match key.as_str() {
@@ -103,6 +121,17 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
                     do_module = b.value;
                 } else {
                     panic!("module takes a bool value");
+                }
+            }
+            "detect" => {
+                if let AttributeValue::String(s) = &arg.value {
+                    match &*s.value() {
+                        "fast" => fast_detect = true,
+                        "slow" => fast_detect = false,
+                        _ => panic!("unknown value for detect"),
+                    }
+                } else {
+                    panic!("detect takes a string value");
                 }
             }
             _ => panic!("unknown argument key {key}"),
@@ -208,17 +237,10 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             quote! { #level_ident }
         };
         if let Some(arch) = arch_for_level(&level) {
-            let det_str = detect_macro_for_arch(arch);
-            let det_ident = syn::Ident::new(det_str, level_span);
-            let f_checks = features_for_level(&level)
-                .iter()
-                .map(|x| {
-                    quote! { std::arch::#det_ident!(#x) }
-                })
-                .collect::<Vec<_>>();
+            let f_predicate = feature_detection_predicate(level, fast_detect, level_span);
             dispatch.push(quote! {
                 #[cfg(target_arch = #arch)]
-                if #(#f_checks &&)* true {
+                if #f_predicate {
                     // SAFETY: target features are checked by the if condition.
                     unsafe {
                         return #fn_path #inner_generics (#(#arg_names,)*)
@@ -259,6 +281,31 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
     result.into()
+}
+
+fn feature_detection_predicate(
+    level: &str,
+    fast_detect: bool,
+    span: Span,
+) -> proc_macro2::TokenStream {
+    if fast_detect {
+        let detect_fn = syn::Ident::new(&format!("is_{level}_detected"), span);
+        quote! { fearless_simd::#detect_fn() }
+    } else if let Some(arch) = arch_for_level(level) {
+        let det_str = detect_macro_for_arch(arch);
+        let det_ident = syn::Ident::new(det_str, span);
+        let f_checks = features_for_level(&level)
+            .iter()
+            .map(|x| {
+                quote! { std::arch::#det_ident!(#x) }
+            })
+            .collect::<Vec<_>>();
+        quote! {
+            #(#f_checks &&)* true
+        }
+    } else {
+        unreachable!()
+    }
 }
 
 impl Parse for AttributeArg {
