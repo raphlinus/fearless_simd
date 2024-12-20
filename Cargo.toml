@@ -1,6 +1,3 @@
-# TODO: remove this when Rust 1.85 is released
-cargo-features = ["edition2024"]
-
 [package]
 name = "fearless_simd"
 version = "0.2.0"

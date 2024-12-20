@@ -6,7 +6,7 @@
 use fearless_simd::f32x4;
 use fearless_simd_macro::simd_dispatch;
 
-#[simd_dispatch(levels = "neon, fallback")]
+#[simd_dispatch(levels = "neon, avx2, fallback")]
 #[inline]
 fn to_srgb(inp: [f32; 4]) -> [f32; 4] {
     use simd::f32_4::*;

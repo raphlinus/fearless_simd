@@ -3,6 +3,10 @@
 
 //! Macros used by implementations
 
+// Not all macros will be used by all implementations.
+#![allow(unused_macros)]
+#![allow(unused_imports)]
+
 macro_rules! impl_simd_from_into {
     ( $simd:ty, $arch:ty ) => {
         impl From<$arch> for $simd {
@@ -117,6 +121,15 @@ macro_rules! impl_select {
         pub fn select(a: <$ty as $crate::Simd>::Mask, b: $ty, c: $ty) -> $ty {
             unsafe {
                 $intrinsic($cast(a.into()), b.into(), c.into()).into()
+            }
+        }
+    };
+    ($( $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident cba) => {
+        #[target_feature( $( enable = $tf ),* )]
+        #[inline]
+        pub fn select(a: <$ty as $crate::Simd>::Mask, b: $ty, c: $ty) -> $ty {
+            unsafe {
+                $intrinsic(c.into(), b.into(), a.into()).into()
             }
         }
     };

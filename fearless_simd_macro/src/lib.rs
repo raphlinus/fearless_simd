@@ -49,7 +49,7 @@ fn features_for_level(level: &str) -> &'static [&'static str] {
     match level {
         "neon" => &["neon"],
         "fp16" => &["fp16"],
-        "avx2" => &["avx2"],
+        "avx2" => &["avx2", "bmi2", "f16c", "fma", "lzcnt"],
         _ => &[],
     }
 }
@@ -182,8 +182,11 @@ pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
             } else {
                 quote! {}
             };
+            let arch = arch_for_level(&level);
+            let arch_iter = arch.iter();
 
             quote! {
+                #(#[cfg(target_arch = #arch_iter)])*
                 #tf_attr
                 #[inline]
                 #instance_vis #unsafety

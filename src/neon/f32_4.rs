@@ -7,7 +7,10 @@ use core::arch::aarch64::*;
 
 use crate::{
     f16x4, f32x4,
-    macros::{impl_binop, impl_cast, impl_cmp, impl_select, impl_simd_from_into, impl_ternary, impl_unaryop},
+    macros::{
+        impl_binop, impl_cast, impl_cmp, impl_select, impl_simd_from_into, impl_ternary,
+        impl_unaryop,
+    },
     mask32x4, u32x4,
 };
 
@@ -72,7 +75,5 @@ pub fn copysign(a: f32x4, b: f32x4) -> f32x4 {
 #[target_feature(enable = "neon")]
 #[inline]
 pub fn copy_lane<const LANE1: i32, const LANE2: i32>(a: f32x4, b: f32x4) -> f32x4 {
-    unsafe {
-        vcopyq_laneq_f32::<LANE1, LANE2>(a.into(), b.into()).into()
-    }
+    unsafe { vcopyq_laneq_f32::<LANE1, LANE2>(a.into(), b.into()).into() }
 }

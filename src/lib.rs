@@ -25,4 +25,7 @@ mod half_assed;
 #[cfg(all(target_arch = "aarch64", not(feature = "half")))]
 pub use half_assed::f16;
 
+#[cfg(target_arch = "x86_64")]
+pub mod avx2;
+
 pub mod fallback;
