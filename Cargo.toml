@@ -2,17 +2,13 @@
 name = "fearless_simd"
 version = "0.2.0"
 license = "MIT/Apache-2.0"
-edition = "2024"
+edition = "2021"
 authors = ["Raph Levien <raph.levien@gmail.com>"]
 keywords = ["simd"]
 categories = ["hardware-support"]
 description = "Safer and easier SIMD"
 readme = "README.md"
-rust-version = "1.85"
-
-# TODO: remove this when Rust 1.85 is released
-[language-server.rust-analyzer.server.extraEnv]
-RUSTUP_TOOLCHAIN = "nightly"
+rust-version = "1.83"
 
 [dependencies]
 bytemuck = { version = "1.20", optional = true }

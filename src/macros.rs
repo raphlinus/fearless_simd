@@ -7,140 +7,62 @@
 #![allow(unused_macros)]
 #![allow(unused_imports)]
 
+// Adapted from similar macro in pulp
+macro_rules! delegate {
+    ( $(
+        $(#[$attr: meta])*
+        $(unsafe $($placeholder: lifetime)?)?
+        fn $func: ident $(<$(const $generic: ident: $generic_ty: ty),* $(,)?>)?(
+            $($arg: ident: $ty: ty),* $(,)?
+        ) $(-> $ret: ty)?;
+    )*) => {
+        $(
+            $(#[$attr])*
+            #[inline(always)]
+            pub $(unsafe $($placeholder)?)?
+            fn $func $(<$(const $generic: $generic_ty),*>)?(self, $($arg: $ty),*) $(-> $ret)? {
+                unsafe { $func $(::<$($generic,)*>)?($($arg,)*) }
+            }
+        )*
+    };
+}
+pub(crate) use delegate;
+
 macro_rules! impl_simd_from_into {
-    ( $simd:ty, $arch:ty ) => {
-        impl From<$arch> for $simd {
+    ( $simd:ident, $arch:ty ) => {
+        impl<S: Simd> SimdFrom<$arch, S> for $simd<S> {
             #[inline]
-            fn from(arch: $arch) -> Self {
-                unsafe { core::mem::transmute(arch) }
+            fn simd_from(arch: $arch, simd: S) -> Self {
+                $simd {
+                    val: unsafe { core::mem::transmute(arch) },
+                    simd,
+                }
             }
         }
 
-        impl From<$simd> for $arch {
+        impl<S: Simd> From<$simd<S>> for $arch {
             #[inline]
-            fn from(simd: $simd) -> Self {
-                unsafe { core::mem::transmute(simd) }
+            fn from(value: $simd<S>) -> Self {
+                unsafe { core::mem::transmute(value.val) }
             }
         }
     };
 }
 pub(crate) use impl_simd_from_into;
 
-macro_rules! impl_unaryop {
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty) -> $ty {
-            unsafe {
-                $intrinsic(a.into()).into()
-            }
+macro_rules! impl_op {
+    ($opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $intrinsic:ident ) => {
+        #[inline(always)]
+        fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
+            self.$intrinsic( $($arg.into() ),* ).simd_into(self)
         }
     };
-}
-pub(crate) use impl_unaryop;
 
-macro_rules! impl_binop {
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> $ty {
-            unsafe {
-                $intrinsic(a.into(), b.into()).into()
-            }
+    ($opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $cast:ident ( $intrinsic:ident ) ) => {
+        #[inline(always)]
+        fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
+            self.$cast(self.$intrinsic( $($arg.into() ),* )).simd_into(self)
         }
     };
 }
-pub(crate) use impl_binop;
-
-macro_rules! impl_ternary {
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty, c: $ty) -> $ty {
-            unsafe {
-                $intrinsic(a.into(), b.into(), c.into()).into()
-            }
-        }
-    };
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident cab) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty, c: $ty) -> $ty {
-            unsafe {
-                $intrinsic(c.into(), a.into(), b.into()).into()
-            }
-        }
-    };
-}
-pub(crate) use impl_ternary;
-
-macro_rules! impl_cmp {
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> <$ty as $crate::Simd>::Mask {
-            unsafe {
-                core::mem::transmute($intrinsic(a.into(), b.into()))
-            }
-        }
-    };
-}
-pub(crate) use impl_cmp;
-
-// This is the same as impl_binop but with a wilder transmute
-macro_rules! impl_cmp_mask {
-    ($( $tf:literal ),* : $opfn:ident ( $ty:ty ) = $intrinsic:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn $opfn(a: $ty, b: $ty) -> $ty {
-            unsafe {
-                core::mem::transmute($intrinsic(a.into(), b.into()))
-            }
-        }
-    };
-}
-pub(crate) use impl_cmp_mask;
-
-macro_rules! impl_cast {
-    ($( $tf:literal ),* : $opfn:ident ( $from:ty) -> $to:ident = $intrinsic:ident ) => {
-        #[inline]
-        #[target_feature( $( enable = $tf ),* )]
-        pub fn $opfn(a: $from) -> $to {
-            unsafe {
-                $intrinsic(a.into()).into()
-            }
-        }
-    };
-}
-pub(crate) use impl_cast;
-
-macro_rules! impl_select {
-    ($( $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident, $cast:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn select(a: <$ty as $crate::Simd>::Mask, b: $ty, c: $ty) -> $ty {
-            unsafe {
-                $intrinsic($cast(a.into()), b.into(), c.into()).into()
-            }
-        }
-    };
-    ($( $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident cba) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn select(a: <$ty as $crate::Simd>::Mask, b: $ty, c: $ty) -> $ty {
-            unsafe {
-                $intrinsic(c.into(), b.into(), a.into()).into()
-            }
-        }
-    };
-    ($( mask $tf:literal ),* : ( $ty:ty ) = $intrinsic:ident, $cast:ident ) => {
-        #[target_feature( $( enable = $tf ),* )]
-        #[inline]
-        pub fn select(a: $ty, b: $ty, c: $ty) -> $ty {
-            unsafe {
-                $intrinsic($cast(a.into()), b.into(), c.into()).into()
-            }
-        }
-    };
-}
-pub(crate) use impl_select;
+pub(crate) use impl_op;

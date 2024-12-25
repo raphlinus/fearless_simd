@@ -1,212 +1,119 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-pub trait Simd: Bytes {
-    const LEN: usize;
+use crate::Level;
 
-    type Element;
+use seal::Seal;
 
-    type Mask: Mask;
-
-    fn to_mask(self) -> Self::Mask;
-
-    fn from_mask(value: Self::Mask) -> Self;
+/// A trait for SIMD capability tokens.
+///
+/// The tokens are zero-sized and represent CPU features, which can be
+/// detected at runtime. Methods on this trait implement a common (but
+/// not exhaustive) set of SIMD operations, which use the efficient SIMD
+/// intrinsics.
+pub trait Simd: Seal + Sized + Clone + Copy + Send + Sync + 'static {
+    fn level(self) -> Level;
+    fn splat_f32x4(self, val: f32) -> f32x4<Self>;
+    fn add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn mul_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn mul_add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
+    fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
+    fn simd_gt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
+    fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
 }
 
-pub trait Mask: Bytes {
-    const LEN: usize;
+// Same as pulp
+pub trait WithSimd {
+    type Output;
 
-    type Element;
-
-    type Bytes: Simd;
+    fn with_simd<S: Simd>(self, simd: S) -> Self::Output;
 }
 
-pub trait Bytes {
-    type Bytes: Simd;
+impl<R, F: FnOnce(Level) -> R> WithSimd for F {
+    type Output = R;
 
-    fn to_bytes(self) -> Self::Bytes;
-
-    fn from_bytes(value: Self::Bytes) -> Self;
-}
-
-macro_rules! impl_basetype {
-    ($simd:ident, $element:ty, $n:expr) => {
-        // TODO: consider Debug, but our f16 doesn't
-        #[derive(Clone, Copy, Default)]
-        #[repr(transparent)]
-        pub struct $simd(pub [$element; $n]);
-
-        impl $simd {
-            #[inline]
-            pub const fn len(&self) -> usize {
-                $n
-            }
-
-            #[inline]
-            pub const fn as_array(&self) -> &[$element; $n] {
-                &self.0
-            }
-
-            #[inline]
-            pub fn as_mut_array(&mut self) -> &mut [$element; $n] {
-                &mut self.0
-            }
-
-            #[inline]
-            pub const unsafe fn load(ptr: *const [$element; $n]) -> Self {
-                // This is adapted from std::simd but all this is almost certainly
-                // not needed, because the alignment matches.
-                unsafe {
-                    let mut tmp = core::mem::MaybeUninit::<Self>::uninit();
-                    core::ptr::copy_nonoverlapping(ptr, tmp.as_mut_ptr().cast(), 1);
-                    tmp.assume_init()
-                }
-            }
-
-            #[inline]
-            pub unsafe fn store(self, ptr: *mut [$element; $n]) {
-                // Same comment as for `load`
-                unsafe {
-                    let tmp = self;
-                    core::ptr::copy_nonoverlapping(tmp.as_array(), ptr, 1);
-                }
-            }
-
-            #[inline]
-            pub const fn from_array(array: [$element; $n]) -> Self {
-                Self(array)
-            }
-
-            #[inline]
-            pub fn to_array(self) -> [$element; $n] {
-                self.0
-            }
-
-            #[must_use]
-            #[inline]
-            pub fn from_slice(slice: &[$element]) -> Self {
-                assert!(
-                    slice.len() >= $n,
-                    "slice length must be at least the number of elements"
-                );
-                unsafe { Self::load(slice.as_ptr().cast()) }
-            }
-        }
-
-        impl From<[$element; $n]> for $simd {
-            #[inline]
-            fn from(array: [$element; $n]) -> Self {
-                Self(array)
-            }
-        }
-
-        impl From<$simd> for [$element; $n] {
-            #[inline]
-            fn from(vector: $simd) -> Self {
-                vector.0
-            }
-        }
-
-        // TODO: TryFrom impls, following std::simd
-    };
-}
-
-macro_rules! impl_simd {
-    ($simd:ident, $element:ty, $n:expr, $mask:ty, $bytes:ty) => {
-        impl_basetype!($simd, $element, $n);
-        impl $crate::Bytes for $simd {
-            type Bytes = $bytes;
-
-            /// A bitcast into the bytes type, which must be the same size.
-            fn to_bytes(self) -> Self::Bytes {
-                unsafe { core::mem::transmute(self) }
-            }
-
-            /// A bitcast from the bytes type, which must be the same size.
-            fn from_bytes(bytes: Self::Bytes) -> Self {
-                unsafe { core::mem::transmute(bytes) }
-            }
-        }
-
-        impl $crate::Simd for $simd {
-            const LEN: usize = $n;
-
-            type Element = $element;
-
-            type Mask = $mask;
-
-            /// A bitcast into the mask type, which must be the same size.
-            fn to_mask(self) -> <Self as $crate::Simd>::Mask {
-                unsafe { core::mem::transmute(self) }
-            }
-
-            /// A bitcast from the mask type, which must be the same size.
-            fn from_mask(mask: <Self as $crate::Simd>::Mask) -> Self {
-                unsafe { core::mem::transmute(mask) }
-            }
-        }
-    };
-}
-
-macro_rules! impl_mask {
-    ($simd:ident, $element:ty, $n:expr, $bytes:ty) => {
-        impl_basetype!($simd, $element, $n);
-        impl $crate::Bytes for $simd {
-            type Bytes = $bytes;
-
-            /// A bitcast into the bytes type, which must be the same size.
-            fn to_bytes(self) -> Self::Bytes {
-                unsafe { core::mem::transmute(self) }
-            }
-
-            /// A bitcast from the bytes type, which must be the same size.
-            fn from_bytes(bytes: Self::Bytes) -> Self {
-                unsafe { core::mem::transmute(bytes) }
-            }
-        }
-
-        impl $crate::Mask for $simd {
-            const LEN: usize = $n;
-
-            type Element = $element;
-
-            type Bytes = $bytes;
-        }
-    };
-}
-
-// 64 bit types
-impl_simd!(u16x4, u16, 4, mask16x4, u8x8);
-impl_simd!(u8x8, u8, 8, mask8x8, u8x8);
-impl_mask!(mask16x4, i16, 4, u8x8);
-impl_mask!(mask8x8, i8, 8, u8x8);
-
-// 128 bit types
-impl_simd!(f32x4, f32, 4, mask32x4, u8x16);
-impl_simd!(u32x4, u32, 4, mask32x4, u8x16);
-impl_simd!(u16x8, u16, 8, mask16x8, u8x16);
-impl_simd!(u8x16, u8, 16, mask8x16, u8x16);
-impl_mask!(mask8x16, i8, 16, u8x16);
-impl_mask!(mask16x8, i16, 8, u8x16);
-impl_mask!(mask32x4, i32, 4, u8x16);
-
-// 256 bit types
-impl_simd!(f32x8, f32, 8, mask32x8, u8x32);
-impl_simd!(u8x32, u8, 32, mask8x32, u8x32);
-impl_mask!(mask8x32, i8, 32, u8x32);
-impl_mask!(mask32x8, i32, 8, u8x32);
-
-#[cfg(target_arch = "aarch64")]
-mod f16;
-#[cfg(target_arch = "aarch64")]
-pub use f16::*;
-
-pub trait Bitcast<T>: Sized {
-    fn bitcast(self) -> T;
-}
-
-impl<T: Bytes, U: Bytes<Bytes = T::Bytes>> Bitcast<U> for T {
-    fn bitcast(self) -> U {
-        U::from_bytes(self.to_bytes())
+    fn with_simd<S: Simd>(self, simd: S) -> Self::Output {
+        self(simd.level())
     }
 }
+
+pub(crate) mod seal {
+    pub trait Seal {}
+}
+
+/// Value conversion, adding a SIMD blessing.
+///
+/// Analogous to [`From`], but takes a SIMD token, which is used to bless
+/// the new value. Most such conversions are safe transmutes, but this
+/// trait also supports splats, and implementations can use the SIMD token
+/// to use an efficient splat intrinsic.
+///
+/// The [`SimdInto`] trait is also provided for convenience.
+pub trait SimdFrom<T, S: Simd> {
+    fn simd_from(value: T, simd: S) -> Self;
+}
+
+/// Value conversion, adding a SIMD blessing.
+///
+/// This trait is syntactic sugar for [`SimdFrom`] and exists only to allow
+/// `impl SimdInto` syntax in signatures, which would otherwise require
+/// cumbersome `where` clauses in terms of `SimdFrom`.
+///
+/// Avoid implementing this trait directly, prefer implementing [`SimdFrom`].
+pub trait SimdInto<T, S> {
+    fn simd_into(self, simd: S) -> T;
+}
+
+impl<F, T: SimdFrom<F, S>, S: Simd> SimdInto<T, S> for F {
+    fn simd_into(self, simd: S) -> T {
+        SimdFrom::simd_from(self, simd)
+    }
+}
+
+impl<T, S: Simd> SimdFrom<T, S> for T {
+    fn simd_from(value: T, _simd: S) -> Self {
+        value
+    }
+}
+
+macro_rules! impl_simd_type {
+    ($name:ident, $scalar:ty, $n:literal, $align:literal) => {
+        #[derive(Clone, Copy)]
+        #[repr(C, align($align))]
+        pub struct $name<S: Simd> {
+            pub val: [$scalar; $n],
+            pub simd: S,
+        }
+
+        impl<S: Simd> SimdFrom<[$scalar; $n], S> for $name<S> {
+            fn simd_from(val: [$scalar; $n], simd: S) -> Self {
+                $name { val, simd }
+            }
+        }
+
+        impl<S: Simd> From<$name<S>> for [$scalar; $n] {
+            #[inline(always)]
+            fn from(value: $name<S>) -> Self {
+                value.val
+            }
+        }
+
+        impl<S: Simd> std::ops::Deref for $name<S> {
+            type Target = [$scalar; $n];
+            #[inline(always)]
+            fn deref(&self) -> &Self::Target {
+                &self.val
+            }
+        }
+
+        impl<S: Simd> std::ops::DerefMut for $name<S> {
+            #[inline(always)]
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.val
+            }
+        }
+    };
+}
+
+impl_simd_type!(f32x4, f32, 4, 16);
+impl_simd_type!(mask32x4, i32, 4, 16);

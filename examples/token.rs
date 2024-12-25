@@ -3,7 +3,7 @@
 
 #![feature(target_feature_11)]
 
-use fearless_simd::token::{Aarch64, IntoSimdVec, Select, Simd, WithSimd, f32x4};
+use fearless_simd::token::{f32x4, Aarch64, IntoSimdVec, Select, Simd, WithSimd};
 
 #[allow(unused)]
 struct Foo;

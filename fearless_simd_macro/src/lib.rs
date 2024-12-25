@@ -3,14 +3,15 @@
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use quote::{ToTokens, quote};
+use quote::{quote, ToTokens};
 use syn::{
-    AttrStyle, Attribute, FnArg, GenericParam, Ident, LitBool, LitStr, Meta, Token, parenthesized,
+    parenthesized,
     parse::{Parse, Parser},
     punctuated::Punctuated,
     spanned::Spanned,
     token::Paren,
     visit_mut::VisitMut,
+    AttrStyle, Attribute, FnArg, GenericParam, Ident, LitBool, LitStr, Meta, Token,
 };
 
 type AttributeArgs = Punctuated<AttributeArg, Token![,]>;
@@ -95,7 +96,7 @@ fn detect_macro_for_arch(arch: &str) -> &'static str {
 /// requires applications to call `init_simd_detect()` on startup.
 #[proc_macro_attribute]
 pub fn simd_dispatch(args: TokenStream, input: TokenStream) -> TokenStream {
-    use syn::{Item, Signature, parse_macro_input};
+    use syn::{parse_macro_input, Item, Signature};
 
     let mut levels: Vec<String> = vec![];
     let mut opt_level_span = None;

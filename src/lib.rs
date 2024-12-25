@@ -3,13 +3,27 @@
 
 //! A helper library to make SIMD more friendly.
 
-// TODO: remove when target_feature is stabilized (hopefully soon)
-#![feature(target_feature_11)]
 #![allow(non_camel_case_types)]
 
 mod base;
-mod detect;
+mod fallback;
 mod macros;
+mod ops;
+
+#[cfg(target_arch = "x86_64")]
+pub mod avx2;
+
+#[cfg(target_arch = "x86_64")]
+pub use avx2::Level;
+
+pub use base::*;
+// TODO: be more consistent, either bring avx2 items to crate level
+// or make fallback a module too.
+pub use fallback::*;
+
+/*
+mod base;
+mod detect;
 
 pub use base::*;
 pub use detect::*;
@@ -31,6 +45,7 @@ pub use half_assed::f16;
 pub mod avx2;
 
 pub mod fallback;
+*/
 
 // Experimental
-pub mod token;
+// pub mod token;
