@@ -1,7 +1,7 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::WithSimd;
+use fearless_simd::{Level, Simd, WithSimd};
 
 struct Foo;
 
@@ -16,7 +16,8 @@ impl WithSimd for Foo {
 }
 
 fn main() {
-    let level = fearless_simd::Level::new();
+    let level = Level::new();
     let x = level.dispatch(Foo);
+
     println!("level = {level:?}, x = {x}");
 }

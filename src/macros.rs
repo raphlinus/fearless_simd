@@ -9,7 +9,7 @@
 
 // Adapted from similar macro in pulp
 macro_rules! delegate {
-    ( $(
+    ( $prefix:path : $(
         $(#[$attr: meta])*
         $(unsafe $($placeholder: lifetime)?)?
         fn $func: ident $(<$(const $generic: ident: $generic_ty: ty),* $(,)?>)?(
@@ -17,6 +17,7 @@ macro_rules! delegate {
         ) $(-> $ret: ty)?;
     )*) => {
         $(
+            #[doc=concat!("See [`", stringify!($prefix), "::", stringify!($func), "`].")]
             $(#[$attr])*
             #[inline(always)]
             pub $(unsafe $($placeholder)?)?
@@ -51,17 +52,28 @@ macro_rules! impl_simd_from_into {
 pub(crate) use impl_simd_from_into;
 
 macro_rules! impl_op {
-    ($opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $intrinsic:ident ) => {
+    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $intrinsic:ident ) => {
         #[inline(always)]
         fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
             self.$intrinsic( $($arg.into() ),* ).simd_into(self)
         }
     };
 
-    ($opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $cast:ident ( $intrinsic:ident ) ) => {
+    // Pattern used for SIMD comparisons
+    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $cast:ident ( $intrinsic:ident ) ) => {
         #[inline(always)]
         fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
             self.$cast(self.$intrinsic( $($arg.into() ),* )).simd_into(self)
+        }
+    };
+
+    // Pattern used for select on Intel
+    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
+        = $intrinsic:ident ( c, b, $cast:ident(a) )
+    ) => {
+        #[inline(always)]
+        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
+            self.$intrinsic($c.into(), $b.into(), self.$cast($a.into())).simd_into(self)
         }
     };
 }

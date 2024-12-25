@@ -18,8 +18,14 @@ pub trait Simd: Seal + Sized + Clone + Copy + Send + Sync + 'static {
     fn mul_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn mul_add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
+    fn sqrt_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
+    fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn simd_gt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
+}
+
+pub trait Select<T> {
+    fn select(self, if_true: T, if_false: T) -> T;
 }
 
 // Same as pulp
@@ -116,4 +122,46 @@ macro_rules! impl_simd_type {
 }
 
 impl_simd_type!(f32x4, f32, 4, 16);
+
+impl<S: Simd> SimdFrom<f32, S> for f32x4<S> {
+    fn simd_from(value: f32, simd: S) -> Self {
+        simd.splat_f32x4(value)
+    }
+}
+
+// TODO: macros to reduce boilerplate
+impl<S: Simd> f32x4<S> {
+    #[inline(always)]
+    pub fn abs(self) -> f32x4<S> {
+        self.simd.abs_f32x4(self)
+    }
+
+    #[inline(always)]
+    pub fn sqrt(self) -> f32x4<S> {
+        self.simd.sqrt_f32x4(self)
+    }
+
+    #[inline(always)]
+    pub fn copysign(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.copysign_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn mul_add(self, b: impl SimdInto<Self, S>, c: impl SimdInto<Self, S>) -> Self {
+        self.simd
+            .mul_add_f32x4(self, b.simd_into(self.simd), c.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
+    }
+}
+
 impl_simd_type!(mask32x4, i32, 4, 16);
+
+impl<S: Simd> Select<f32x4<S>> for mask32x4<S> {
+    fn select(self, if_true: f32x4<S>, if_false: f32x4<S>) -> f32x4<S> {
+        self.simd.select_f32x4(self, if_true, if_false)
+    }
+}

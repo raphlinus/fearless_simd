@@ -55,27 +55,21 @@ impl Level {
     }
 
     pub fn dispatch<W: WithSimd>(self, f: W) -> W::Output {
-        #[target_feature(enable = "avx,bmi2")]
+        #[target_feature(enable = "avx2,bmi2,f16c,fma,lzcnt")]
         #[inline]
         // unsafe not needed here with tf11, but can be justified
-        unsafe fn dispatch_neon<W: WithSimd>(f: W, n: Avx2) -> W::Output {
-            f.with_simd(n)
+        unsafe fn dispatch_avx2<W: WithSimd>(f: W, avx2: Avx2) -> W::Output {
+            f.with_simd(avx2)
         }
         match self {
             Level::Fallback(fallback) => f.with_simd(fallback),
-            Level::Avx2(avx2) => unsafe { dispatch_neon(f, avx2)},
+            Level::Avx2(avx2) => unsafe { dispatch_avx2(f, avx2) },
         }
     }
 }
 
 impl_simd_from_into!(f32x4, __m128);
 impl_simd_from_into!(mask32x4, __m128i);
-
-impl SimdFrom<f32, Avx2> for f32x4<Avx2> {
-    fn simd_from(value: f32, simd: Avx2) -> Self {
-        simd._mm_set1_ps(value).simd_into(simd)
-    }
-}
 
 impl Seal for Avx2 {}
 
@@ -87,12 +81,17 @@ impl Simd for Avx2 {
 
     #[inline(always)]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
-        val.simd_into(self)
+        self._mm_set1_ps(val).simd_into(self)
     }
 
     impl_op!(add_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_add_ps);
     impl_op!(mul_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_mul_ps);
     impl_op!(mul_add_f32x4(a: f32x4, b: f32x4, c: f32x4) -> f32x4 = _mm_fmadd_ps);
+
+    impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = _mm_castps_si128(_mm_cmpgt_ps));
+    impl_op!(select_f32x4(a: mask32x4, b: f32x4, c: f32x4) -> f32x4
+        = _mm_blendv_ps(c, b, _mm_castsi128_ps(a)));
+    impl_op!(sqrt_f32x4(a: f32x4) -> f32x4 = _mm_sqrt_ps);
 
     #[inline(always)]
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
@@ -100,17 +99,23 @@ impl Simd for Avx2 {
         self._mm_and_ps(sign_mask, a.into()).simd_into(self)
     }
 
-    impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = _mm_castps_si128(_mm_cmpgt_ps));
-
-    fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
-        todo!()
+    #[inline(always)]
+    fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        let sign_mask = self._mm_castsi128_ps(self._mm_set1_epi32(-0x8000_0000));
+        self._mm_or_ps(
+            self._mm_and_ps(sign_mask, b.into()),
+            self._mm_andnot_ps(sign_mask, a.into()),
+        )
+        .simd_into(self)
     }
 }
 
 // These implementations are cut and pasted from pulp. If we want to support
 // a level lower than avx2, then we'll want to split it up.
+
+/// Safety-wrapped intrinsics from avx2 level.
 impl Avx2 {
-    delegate! {
+    delegate! { core::arch::x86_64:
         // from Sse
         fn _mm_add_ss(a: __m128, b: __m128) -> __m128;
         fn _mm_add_ps(a: __m128, b: __m128) -> __m128;
