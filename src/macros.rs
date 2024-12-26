@@ -76,5 +76,25 @@ macro_rules! impl_op {
             self.$intrinsic($c.into(), $b.into(), self.$cast($a.into())).simd_into(self)
         }
     };
+
+    // Pattern used for select on Neon
+    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
+        = $intrinsic:ident ( $cast:ident(a), b, c )
+    ) => {
+        #[inline(always)]
+        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
+            self.$intrinsic(self.$cast($a.into()), $b.into(), $c.into()).simd_into(self)
+        }
+    };
+
+    // Pattern used by mul_add on Neon
+    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
+        = $intrinsic:ident ( c, a, b )
+    ) => {
+        #[inline(always)]
+        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
+            self.$intrinsic($c.into(), $a.into(), $b.into()).simd_into(self)
+        }
+    };
 }
 pub(crate) use impl_op;

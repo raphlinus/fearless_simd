@@ -3,10 +3,15 @@
 
 use fearless_simd::{f32x4, Level, Select, Simd, SimdInto, WithSimd};
 
-fn blend_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
+#[inline]
+fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
     #[cfg(target_arch = "x86_64")]
     if let Some(avx2) = a.simd.level().as_avx2() {
         return avx2._mm_blend_ps::<8>(a.into(), b.into()).simd_into(a.simd);
+    }
+    #[cfg(target_arch = "aarch64")]
+    if let Some(neon) = a.simd.level().as_neon() {
+        return neon.vcopyq_laneq_f32::<3, 3>(a.into(), b.into()).simd_into(a.simd);
     }
     let mut result = a;
     result[3] = b[3];
@@ -33,7 +38,7 @@ impl WithSimd for ToSrgb {
         let lin = vabs * 12.92;
         let z = vabs.simd_gt(0.0031308).select(poly, lin);
         let z_signed = z.copysign(v);
-        let result = blend_alpha(z_signed, v);
+        let result = copy_alpha(z_signed, v);
         result.into()
     }
 }

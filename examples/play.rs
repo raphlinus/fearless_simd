@@ -8,7 +8,7 @@ struct Foo;
 impl WithSimd for Foo {
     type Output = f32;
 
-    fn with_simd<S: fearless_simd::Simd>(self, simd: S) -> Self::Output {
+    fn with_simd<S: Simd>(self, simd: S) -> Self::Output {
         let a = simd.splat_f32x4(42.0);
         let b = a + a;
         b[0]

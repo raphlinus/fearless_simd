@@ -16,20 +16,21 @@ pub mod avx2;
 #[cfg(target_arch = "x86_64")]
 pub use avx2::Level;
 
+#[cfg(target_arch = "aarch64")]
+pub mod neon;
+
+#[cfg(target_arch = "aarch64")]
+pub use neon::Level;
+
 pub use base::*;
 // TODO: be more consistent, either bring avx2 items to crate level
 // or make fallback a module too.
 pub use fallback::*;
 
 /*
-mod base;
 mod detect;
 
-pub use base::*;
 pub use detect::*;
-
-#[cfg(target_arch = "aarch64")]
-pub mod neon;
 
 // For now, only bring in f16 on aarch64. We can also bring it in
 // on x86_64, but only Sapphire Rapids supports it.
@@ -41,10 +42,6 @@ mod half_assed;
 #[cfg(all(target_arch = "aarch64", not(feature = "half")))]
 pub use half_assed::f16;
 
-#[cfg(target_arch = "x86_64")]
-pub mod avx2;
-
-pub mod fallback;
 */
 
 // Experimental
