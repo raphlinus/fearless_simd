@@ -79,6 +79,17 @@ impl Simd for Avx2 {
         Level::Avx2(self)
     }
 
+    #[inline]
+    fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
+        #[target_feature(enable = "avx2,bmi2,f16c,fma,lzcnt")]
+        #[inline]
+        // unsafe not needed here with tf11, but can be justified
+        unsafe fn vectorize_avx2<F: FnOnce() -> R, R>(f: F) -> R {
+            f()
+        }
+        unsafe { vectorize_avx2(f) }
+    }
+
     #[inline(always)]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
         self._mm_set1_ps(val).simd_into(self)

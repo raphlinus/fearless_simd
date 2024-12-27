@@ -69,6 +69,16 @@ impl Simd for Neon {
         Level::Neon(self)
     }
 
+    fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
+        #[target_feature(enable = "neon")]
+        #[inline]
+        // unsafe not needed here with tf11, but can be justified
+        unsafe fn vectorize_neon<F: FnOnce() -> R, R>(f: F) -> R {
+            f()
+        }
+        unsafe { vectorize_neon(f) }
+    }
+
     #[inline(always)]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
         self.vdupq_n_f32(val).simd_into(self)

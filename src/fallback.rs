@@ -112,6 +112,11 @@ impl Simd for Fallback {
     }
 
     #[inline]
+    fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
+        f()
+    }
+
+    #[inline]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
         [val; 4].simd_into(self)
     }

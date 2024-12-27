@@ -13,6 +13,12 @@ use seal::Seal;
 /// intrinsics.
 pub trait Simd: Seal + Sized + Clone + Copy + Send + Sync + 'static {
     fn level(self) -> Level;
+
+    /// Call function with CPU features enabled.
+    ///
+    /// For performance, the provided function should be `#[inline(always)]`.
+    fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R;
+
     fn splat_f32x4(self, val: f32) -> f32x4<Self>;
     fn add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn sub_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
@@ -40,6 +46,7 @@ pub trait WithSimd {
 impl<R, F: FnOnce(Level) -> R> WithSimd for F {
     type Output = R;
 
+    #[inline(always)]
     fn with_simd<S: Simd>(self, simd: S) -> Self::Output {
         self(simd.level())
     }
