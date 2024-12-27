@@ -75,7 +75,9 @@ impl Simd for Neon {
     }
 
     impl_op!(add_f32x4(a: f32x4, b: f32x4) -> f32x4 = vaddq_f32);
+    impl_op!(sub_f32x4(a: f32x4, b: f32x4) -> f32x4 = vsubq_f32);
     impl_op!(mul_f32x4(a: f32x4, b: f32x4) -> f32x4 = vmulq_f32);
+    impl_op!(div_f32x4(a: f32x4, b: f32x4) -> f32x4 = vdivq_f32);
     impl_op!(mul_add_f32x4(a: f32x4, b: f32x4, c: f32x4) -> f32x4 = vfmaq_f32(c, a, b));
 
     impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = vreinterpretq_s32_u32(vcgtq_f32));
@@ -91,6 +93,8 @@ impl Simd for Neon {
             .simd_into(self)
     }
 }
+
+// These implementations are cut and pasted from pulp.
 
 type p8 = u8;
 type p16 = u16;

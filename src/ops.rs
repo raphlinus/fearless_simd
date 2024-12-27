@@ -37,4 +37,6 @@ macro_rules! impl_op_binary {
 }
 
 impl_op_binary!(Add, f32x4, f32, add, add_f32x4);
+impl_op_binary!(Sub, f32x4, f32, sub, sub_f32x4);
 impl_op_binary!(Mul, f32x4, f32, mul, mul_f32x4);
+impl_op_binary!(Div, f32x4, f32, div, div_f32x4);

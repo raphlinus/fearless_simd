@@ -15,7 +15,9 @@ pub trait Simd: Seal + Sized + Clone + Copy + Send + Sync + 'static {
     fn level(self) -> Level;
     fn splat_f32x4(self, val: f32) -> f32x4<Self>;
     fn add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn sub_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn mul_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn div_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn mul_add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
     fn sqrt_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;

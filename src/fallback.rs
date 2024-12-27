@@ -10,7 +10,7 @@
 // of operating on larger chunks of data, and encouraging autovectorization.
 // pub use f32_4 as f32s;
 
-use std::ops::{Add, Mul};
+use std::ops::{Add, Div, Mul, Sub};
 
 use crate::{f32x4, mask32x4, seal::Seal, Level, Simd, SimdInto};
 
@@ -97,7 +97,9 @@ impl Simd for Fallback {
     }
 
     impl_opx4!(add_f32x4(a: f32x4, b: f32x4) -> f32x4 = add);
+    impl_opx4!(sub_f32x4(a: f32x4, b: f32x4) -> f32x4 = sub);
     impl_opx4!(mul_f32x4(a: f32x4, b: f32x4) -> f32x4 = mul);
+    impl_opx4!(div_f32x4(a: f32x4, b: f32x4) -> f32x4 = div);
     impl_opx4!(copysign_f32x4(a: f32x4, b: f32x4) -> f32x4 = copysign);
     impl_opx4!(abs_f32x4(a: f32x4) -> f32x4 = abs);
     impl_opx4!(sqrt_f32x4(a: f32x4) -> f32x4 = sqrt);

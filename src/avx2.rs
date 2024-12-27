@@ -85,7 +85,9 @@ impl Simd for Avx2 {
     }
 
     impl_op!(add_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_add_ps);
+    impl_op!(sub_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_sub_ps);
     impl_op!(mul_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_mul_ps);
+    impl_op!(div_f32x4(a: f32x4, b: f32x4) -> f32x4 = _mm_div_ps);
     impl_op!(mul_add_f32x4(a: f32x4, b: f32x4, c: f32x4) -> f32x4 = _mm_fmadd_ps);
 
     impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = _mm_castps_si128(_mm_cmpgt_ps));

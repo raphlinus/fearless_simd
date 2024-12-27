@@ -27,8 +27,7 @@ impl WithSimd for ToSrgb {
     fn with_simd<S: Simd>(self, simd: S) -> Self::Output {
         let v: f32x4<S> = self.0.simd_into(simd);
         let vabs = v.abs();
-        // TODO: impl sub
-        let x = vabs + -5.35862651e-04;
+        let x = vabs - 5.35862651e-04;
         let x2 = x * x;
         let even1 = x.mul_add(-9.12795913e-01, -2.88143143e-02);
         let even2 = x2.mul_add(-7.29192910e-01, even1);
