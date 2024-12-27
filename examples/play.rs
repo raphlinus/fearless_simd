@@ -1,7 +1,7 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::{Level, Simd, WithSimd};
+use fearless_simd::{simd_dispatch, Level, Simd, WithSimd};
 
 struct Foo;
 
@@ -15,9 +15,16 @@ impl WithSimd for Foo {
     }
 }
 
+fn foo_inner<S: Simd>(simd: S, x: f32) -> f32 {
+    simd.splat_f32x4(x).sqrt()[0]
+}
+
+simd_dispatch!(foo(level, x: f32) -> f32 = foo_inner);
+
 fn main() {
     let level = Level::new();
     let x = level.dispatch(Foo);
+    let y = foo(level, 42.0);
 
-    println!("level = {level:?}, x = {x}");
+    println!("level = {level:?}, x = {x}, y = {y}");
 }

@@ -12,7 +12,27 @@
 
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::{f32x4, mask32x4, seal::Seal, Level, Simd, SimdInto};
+use crate::{f32x4, mask32x4, seal::Seal, Simd, SimdInto};
+
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+/// The level enum for the fallback case, where no SIMD is available.
+#[derive(Clone, Copy, Debug)]
+pub enum Level {
+    Fallback(Fallback),
+}
+
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+impl Level {
+    pub fn new() -> Self {
+        Level::Fallback(Fallback::new())
+    }
+
+    pub fn dispatch<W: crate::WithSimd>(self, f: W) -> W::Output {
+        match self {
+            Level::Fallback(fallback) => f.with_simd(fallback),
+        }
+    }
+}
 
 /// A SIMD token representing portable fallback.
 ///
@@ -76,6 +96,17 @@ fn sel1(a: i32, b: f32, c: f32) -> f32 {
 impl Seal for Fallback {}
 
 impl Simd for Fallback {
+    #[cfg(target_arch = "aarch64")]
+    fn level(self) -> crate::neon::Level {
+        crate::neon::Level::Fallback(self)
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    fn level(self) -> crate::avx2::Level {
+        crate::avx2::Level::Fallback(self)
+    }
+
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
     fn level(self) -> Level {
         Level::Fallback(self)
     }

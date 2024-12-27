@@ -1,100 +1,67 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-//! Macros used by implementations
+//! Macros publicly exported
 
-// Not all macros will be used by all implementations.
-#![allow(unused_macros)]
-#![allow(unused_imports)]
-
-// Adapted from similar macro in pulp
-macro_rules! delegate {
-    ( $prefix:path : $(
-        $(#[$attr: meta])*
-        $(unsafe $($placeholder: lifetime)?)?
-        fn $func: ident $(<$(const $generic: ident: $generic_ty: ty),* $(,)?>)?(
-            $($arg: ident: $ty: ty),* $(,)?
-        ) $(-> $ret: ty)?;
-    )*) => {
-        $(
-            #[doc=concat!("See [`", stringify!($prefix), "::", stringify!($func), "`].")]
-            $(#[$attr])*
-            #[inline(always)]
-            pub $(unsafe $($placeholder)?)?
-            fn $func $(<$(const $generic: $generic_ty),*>)?(self, $($arg: $ty),*) $(-> $ret)? {
-                unsafe { $func $(::<$($generic,)*>)?($($arg,)*) }
-            }
-        )*
-    };
-}
-pub(crate) use delegate;
-
-macro_rules! impl_simd_from_into {
-    ( $simd:ident, $arch:ty ) => {
-        impl<S: Simd> SimdFrom<$arch, S> for $simd<S> {
+#[cfg(target_arch = "aarch64")]
+#[macro_export]
+macro_rules! simd_dispatch {
+    (
+        $( #[$meta:meta] )* $vis:vis
+        $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
+        = $inner:ident
+    ) => {
+        $( #[$meta:meta] )* $vis
+        fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
+            #[target_feature(enable = "neon")]
             #[inline]
-            fn simd_from(arch: $arch, simd: S) -> Self {
-                $simd {
-                    val: unsafe { core::mem::transmute(arch) },
-                    simd,
-                }
+            unsafe fn inner_neon(neon: $crate::neon::Neon $( , $arg: $ty )* ) $( -> $ret )? {
+                $inner( neon $( , $arg )* )
+            }
+            match level {
+                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+                Level::Neon(neon) => unsafe { inner_neon (neon $( , $arg )* ) }
             }
         }
+    };
+}
 
-        impl<S: Simd> From<$simd<S>> for $arch {
+#[cfg(target_arch = "x86_64")]
+#[macro_export]
+macro_rules! simd_dispatch {
+    (
+        $( #[$meta:meta] )* $vis:vis
+        $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
+        = $inner:ident
+    ) => {
+        $( #[$meta:meta] )* $vis
+        fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
+            #[target_feature(enable = "avx2,bmi2,f16c,fma,lzcnt")]
             #[inline]
-            fn from(value: $simd<S>) -> Self {
-                unsafe { core::mem::transmute(value.val) }
+            unsafe fn inner_avx2(avx2: $crate::avx2::Avx2 $( , $arg: $ty )* ) $( -> $ret )? {
+                $inner( avx2 $( , $arg )* )
+            }
+            match level {
+                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+                Level::Avx2(avx2) => unsafe { inner_avx2 (avx2 $( , $arg )* ) }
             }
         }
     };
 }
-pub(crate) use impl_simd_from_into;
 
-macro_rules! impl_op {
-    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $intrinsic:ident ) => {
-        #[inline(always)]
-        fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
-            self.$intrinsic( $($arg.into() ),* ).simd_into(self)
-        }
-    };
-
-    // Pattern used for SIMD comparisons
-    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $cast:ident ( $intrinsic:ident ) ) => {
-        #[inline(always)]
-        fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
-            self.$cast(self.$intrinsic( $($arg.into() ),* )).simd_into(self)
-        }
-    };
-
-    // Pattern used for select on Intel
-    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( c, b, $cast:ident(a) )
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+#[macro_export]
+macro_rules! simd_dispatch {
+    (
+        $( #[$meta:meta] )* $vis:vis
+        $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
+        = $inner:ident
     ) => {
-        #[inline(always)]
-        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic($c.into(), $b.into(), self.$cast($a.into())).simd_into(self)
-        }
-    };
-
-    // Pattern used for select on Neon
-    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( $cast:ident(a), b, c )
-    ) => {
-        #[inline(always)]
-        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic(self.$cast($a.into()), $b.into(), $c.into()).simd_into(self)
-        }
-    };
-
-    // Pattern used by mul_add on Neon
-    ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( c, a, b )
-    ) => {
-        #[inline(always)]
-        fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic($c.into(), $a.into(), $b.into()).simd_into(self)
+        $( #[$meta:meta] )* $vis
+        fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
+            match level {
+                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+            }
         }
     };
 }
-pub(crate) use impl_op;

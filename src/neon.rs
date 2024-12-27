@@ -7,7 +7,7 @@ use core::arch::aarch64::*;
 
 use crate::{
     f32x4,
-    macros::{delegate, impl_op, impl_simd_from_into},
+    impl_macros::{delegate, impl_op, impl_simd_from_into},
     mask32x4,
     seal::Seal,
     Fallback, Simd, SimdFrom, SimdInto, WithSimd,

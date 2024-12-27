@@ -11,7 +11,9 @@ fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
     }
     #[cfg(target_arch = "aarch64")]
     if let Some(neon) = a.simd.level().as_neon() {
-        return neon.vcopyq_laneq_f32::<3, 3>(a.into(), b.into()).simd_into(a.simd);
+        return neon
+            .vcopyq_laneq_f32::<3, 3>(a.into(), b.into())
+            .simd_into(a.simd);
     }
     let mut result = a;
     result[3] = b[3];

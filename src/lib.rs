@@ -7,6 +7,7 @@
 
 mod base;
 mod fallback;
+mod impl_macros;
 mod macros;
 mod ops;
 
