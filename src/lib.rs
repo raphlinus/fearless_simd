@@ -6,6 +6,7 @@
 #![allow(non_camel_case_types)]
 
 mod base;
+pub mod core_arch;
 mod fallback;
 mod impl_macros;
 mod macros;
@@ -18,10 +19,10 @@ pub mod avx2;
 pub use avx2::Level;
 
 #[cfg(target_arch = "aarch64")]
-pub mod neon;
+pub mod aarch64;
 
 #[cfg(target_arch = "aarch64")]
-pub use neon::Level;
+pub use aarch64::Level;
 
 pub use base::*;
 // TODO: be more consistent, either bring avx2 items to crate level

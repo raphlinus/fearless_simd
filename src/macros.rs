@@ -15,7 +15,7 @@ macro_rules! simd_dispatch {
         fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
             #[target_feature(enable = "neon")]
             #[inline]
-            unsafe fn inner_neon(neon: $crate::neon::Neon $( , $arg: $ty )* ) $( -> $ret )? {
+            unsafe fn inner_neon(neon: $crate::aarch64::neon::Neon $( , $arg: $ty )* ) $( -> $ret )? {
                 $inner( neon $( , $arg )* )
             }
             match level {

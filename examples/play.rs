@@ -31,8 +31,8 @@ fn do_something_on_neon(_level: Level) -> f32 {
         return neon.vectorize(
             #[inline(always)]
             || {
-                let v = neon.vdupq_n_f32(42.0);
-                neon.vgetq_lane_f32::<0>(v)
+                let v = neon.neon.vdupq_n_f32(42.0);
+                neon.neon.vgetq_lane_f32::<0>(v)
             },
         );
     }

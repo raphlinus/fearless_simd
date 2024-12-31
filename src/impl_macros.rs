@@ -52,18 +52,20 @@ macro_rules! impl_simd_from_into {
 pub(crate) use impl_simd_from_into;
 
 macro_rules! impl_op {
-    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $intrinsic:ident ) => {
+    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $ns:ident . $intrinsic:ident ) => {
         #[inline(always)]
         fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
-            self.$intrinsic( $($arg.into() ),* ).simd_into(self)
+            self.$ns.$intrinsic( $($arg.into() ),* ).simd_into(self)
         }
     };
 
     // Pattern used for SIMD comparisons
-    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident = $cast:ident ( $intrinsic:ident ) ) => {
+    ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident
+        = $nsc:ident . $cast:ident ( $ns:ident . $intrinsic:ident )
+    ) => {
         #[inline(always)]
         fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
-            self.$cast(self.$intrinsic( $($arg.into() ),* )).simd_into(self)
+            self.$nsc.$cast(self.$ns.$intrinsic( $($arg.into() ),* )).simd_into(self)
         }
     };
 
@@ -79,21 +81,21 @@ macro_rules! impl_op {
 
     // Pattern used for select on Neon
     ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( $cast:ident(a), b, c )
+        = $ns:ident . $intrinsic:ident ( $nsc:ident . $cast:ident(a), b, c )
     ) => {
         #[inline(always)]
         fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic(self.$cast($a.into()), $b.into(), $c.into()).simd_into(self)
+            self.$ns.$intrinsic(self.$nsc.$cast($a.into()), $b.into(), $c.into()).simd_into(self)
         }
     };
 
     // Pattern used by mul_add on Neon
     ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( c, a, b )
+        = $ns:ident . $intrinsic:ident ( c, a, b )
     ) => {
         #[inline(always)]
         fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic($c.into(), $a.into(), $b.into()).simd_into(self)
+            self.$ns.$intrinsic($c.into(), $a.into(), $b.into()).simd_into(self)
         }
     };
 }

@@ -97,8 +97,8 @@ impl Seal for Fallback {}
 
 impl Simd for Fallback {
     #[cfg(target_arch = "aarch64")]
-    fn level(self) -> crate::neon::Level {
-        crate::neon::Level::Fallback(self)
+    fn level(self) -> crate::aarch64::Level {
+        crate::aarch64::Level::Fallback(self)
     }
 
     #[cfg(target_arch = "x86_64")]

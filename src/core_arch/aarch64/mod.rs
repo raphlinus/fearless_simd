@@ -1,110 +1,19 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-//! Support for the Neon level.
+//! Access to intrinsics on aarch64.
+
+// These implementations are cut and pasted from pulp.
 
 use core::arch::aarch64::*;
 
-use crate::{
-    f32x4,
-    impl_macros::{delegate, impl_op, impl_simd_from_into},
-    mask32x4,
-    seal::Seal,
-    Fallback, Simd, SimdFrom, SimdInto, WithSimd,
-};
+use crate::impl_macros::delegate;
 
-/// The level enum for aarch64 architectures.
-#[derive(Clone, Copy, Debug)]
-pub enum Level {
-    Fallback(Fallback),
-    Neon(Neon),
-    // TODO: fp16
-}
-
-/// The SIMD token for the "neon" level.
+/// A token for Neon intrinsics on aarch64.
 #[derive(Clone, Copy, Debug)]
 pub struct Neon {
     _private: (),
 }
-
-impl Level {
-    pub fn new() -> Self {
-        if std::arch::is_aarch64_feature_detected!("neon") {
-            Level::Neon(Neon { _private: () })
-        } else {
-            Level::Fallback(Fallback::new())
-        }
-    }
-
-    pub fn as_neon(self) -> Option<Neon> {
-        if let Level::Neon(neon) = self {
-            Some(neon)
-        } else {
-            None
-        }
-    }
-
-    pub fn dispatch<W: WithSimd>(self, f: W) -> W::Output {
-        #[target_feature(enable = "neon")]
-        #[inline]
-        // unsafe not needed here with tf11, but can be justified
-        unsafe fn dispatch_neon<W: WithSimd>(f: W, neon: Neon) -> W::Output {
-            f.with_simd(neon)
-        }
-        match self {
-            Level::Fallback(fallback) => f.with_simd(fallback),
-            Level::Neon(neon) => unsafe { dispatch_neon(f, neon) },
-        }
-    }
-}
-
-impl_simd_from_into!(f32x4, float32x4_t);
-impl_simd_from_into!(mask32x4, int32x4_t);
-
-impl Seal for Neon {}
-
-impl Simd for Neon {
-    #[inline(always)]
-    fn level(self) -> Level {
-        Level::Neon(self)
-    }
-
-    fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
-        #[target_feature(enable = "neon")]
-        #[inline]
-        // unsafe not needed here with tf11, but can be justified
-        unsafe fn vectorize_neon<F: FnOnce() -> R, R>(f: F) -> R {
-            f()
-        }
-        unsafe { vectorize_neon(f) }
-    }
-
-    #[inline(always)]
-    fn splat_f32x4(self, val: f32) -> f32x4<Self> {
-        self.vdupq_n_f32(val).simd_into(self)
-    }
-
-    impl_op!(add_f32x4(a: f32x4, b: f32x4) -> f32x4 = vaddq_f32);
-    impl_op!(sub_f32x4(a: f32x4, b: f32x4) -> f32x4 = vsubq_f32);
-    impl_op!(mul_f32x4(a: f32x4, b: f32x4) -> f32x4 = vmulq_f32);
-    impl_op!(div_f32x4(a: f32x4, b: f32x4) -> f32x4 = vdivq_f32);
-    impl_op!(mul_add_f32x4(a: f32x4, b: f32x4, c: f32x4) -> f32x4 = vfmaq_f32(c, a, b));
-
-    impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = vreinterpretq_s32_u32(vcgtq_f32));
-    impl_op!(select_f32x4(a: mask32x4, b: f32x4, c: f32x4) -> f32x4
-        = vbslq_f32(vreinterpretq_u32_s32(a), b, c));
-    impl_op!(sqrt_f32x4(a: f32x4) -> f32x4 = vsqrtq_f32);
-    impl_op!(abs_f32x4(a: f32x4) -> f32x4 = vabsq_f32);
-
-    #[inline(always)]
-    fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        let sign_mask = self.vdupq_n_u32(1 << 31);
-        self.vbslq_f32(sign_mask, b.into(), a.into())
-            .simd_into(self)
-    }
-}
-
-// These implementations are cut and pasted from pulp.
 
 type p8 = u8;
 type p16 = u16;
@@ -112,6 +21,15 @@ type p64 = u64;
 type p128 = u128;
 
 impl Neon {
+    /// Create a SIMD token.
+    ///
+    /// # Safety
+    ///
+    /// The required CPU features must be available.
+    pub unsafe fn new_unchecked() -> Self {
+        Neon { _private: () }
+    }
+
     delegate! { core::arch::aarch64:
         fn vand_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t;
         fn vandq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t;
