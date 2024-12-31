@@ -71,11 +71,11 @@ macro_rules! impl_op {
 
     // Pattern used for select on Intel
     ( $opfn:ident ( $a:ident : $aty:ident, $b:ident : $bty:ident, $c:ident : $cty:ident ) -> $ret:ident
-        = $intrinsic:ident ( c, b, $cast:ident(a) )
+        = $ns:ident . $intrinsic:ident ( c, b, $nsc:ident . $cast:ident(a) )
     ) => {
         #[inline(always)]
         fn $opfn( self, $a:$aty<Self>, $b:$bty<Self>, $c:$cty<Self> ) -> $ret<Self> {
-            self.$intrinsic($c.into(), $b.into(), self.$cast($a.into())).simd_into(self)
+            self.$ns.$intrinsic($c.into(), $b.into(), self.$nsc.$cast($a.into())).simd_into(self)
         }
     };
 

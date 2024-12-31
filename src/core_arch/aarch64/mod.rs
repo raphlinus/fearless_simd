@@ -27,7 +27,7 @@ impl Neon {
     ///
     /// The required CPU features must be available.
     pub unsafe fn new_unchecked() -> Self {
-        Neon { _private: () }
+        Self { _private: () }
     }
 
     delegate! { core::arch::aarch64:

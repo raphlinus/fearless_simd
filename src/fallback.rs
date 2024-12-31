@@ -102,8 +102,8 @@ impl Simd for Fallback {
     }
 
     #[cfg(target_arch = "x86_64")]
-    fn level(self) -> crate::avx2::Level {
-        crate::avx2::Level::Fallback(self)
+    fn level(self) -> crate::x86_64::Level {
+        crate::x86_64::Level::Fallback(self)
     }
 
     #[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]

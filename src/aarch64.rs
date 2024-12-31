@@ -3,10 +3,10 @@
 
 //! Support for Aarch64 SIMD capabilities.
 
-pub mod neon;
+mod neon;
 
 use crate::{Fallback, WithSimd};
-use neon::Neon;
+pub use neon::Neon;
 
 /// The level enum for aarch64 architectures.
 #[derive(Clone, Copy, Debug)]

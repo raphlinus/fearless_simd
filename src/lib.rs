@@ -13,10 +13,10 @@ mod macros;
 mod ops;
 
 #[cfg(target_arch = "x86_64")]
-pub mod avx2;
+pub mod x86_64;
 
 #[cfg(target_arch = "x86_64")]
-pub use avx2::Level;
+pub use x86_64::Level;
 
 #[cfg(target_arch = "aarch64")]
 pub mod aarch64;
