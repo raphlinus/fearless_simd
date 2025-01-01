@@ -174,3 +174,16 @@ impl<S: Simd> Select<f32x4<S>> for mask32x4<S> {
         self.simd.select_f32x4(self, if_true, if_false)
     }
 }
+
+impl_simd_type!(mask16x4, i16, 4, 8);
+impl_simd_type!(mask16x8, i16, 8, 16);
+
+#[cfg(target_arch = "aarch64")]
+mod f16 {
+    use crate::{f16, Simd, SimdFrom};
+
+    impl_simd_type!(f16x4, f16, 4, 8);
+    impl_simd_type!(f16x8, f16, 8, 16);
+}
+#[cfg(target_arch = "aarch64")]
+pub use f16::*;

@@ -8,7 +8,7 @@ use core::arch::aarch64::*;
 use crate::{
     f32x4,
     impl_macros::{impl_op, impl_simd_from_into},
-    mask32x4,
+    mask16x4, mask16x8, mask32x4,
     seal::Seal,
     Simd, SimdFrom, SimdInto,
 };
@@ -31,6 +31,8 @@ impl Neon {
 
 impl_simd_from_into!(f32x4, float32x4_t);
 impl_simd_from_into!(mask32x4, int32x4_t);
+impl_simd_from_into!(mask16x4, int16x4_t);
+impl_simd_from_into!(mask16x8, int16x8_t);
 
 impl Seal for Neon {}
 

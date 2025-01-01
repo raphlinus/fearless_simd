@@ -5,6 +5,10 @@
 
 // These implementations are cut and pasted from pulp.
 
+mod fp16;
+
+pub use fp16::{float16x4_t, float16x8_t, Fp16};
+
 use core::arch::aarch64::*;
 
 use crate::impl_macros::delegate;

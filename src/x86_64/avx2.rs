@@ -3,8 +3,14 @@
 
 //! Support for the Avx2 level.
 
+use crate::{
+    f32x4,
+    impl_macros::{impl_op, impl_simd_from_into},
+    mask32x4,
+    seal::Seal,
+    Simd, SimdFrom, SimdInto,
+};
 use core::arch::x86_64::*;
-use crate::{f32x4, impl_macros::{impl_op, impl_simd_from_into}, mask32x4, seal::Seal, Simd, SimdFrom, SimdInto};
 
 use super::Level;
 
@@ -86,17 +92,22 @@ impl Simd for Avx2 {
 
     #[inline(always)]
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        let sign_mask = self.sse2._mm_castsi128_ps(self.sse2._mm_set1_epi32(0x7fff_ffff));
+        let sign_mask = self
+            .sse2
+            ._mm_castsi128_ps(self.sse2._mm_set1_epi32(0x7fff_ffff));
         self.sse._mm_and_ps(sign_mask, a.into()).simd_into(self)
     }
 
     #[inline(always)]
     fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        let sign_mask = self.sse2._mm_castsi128_ps(self.sse2._mm_set1_epi32(-0x8000_0000));
-        self.sse._mm_or_ps(
-            self.sse._mm_and_ps(sign_mask, b.into()),
-            self.sse._mm_andnot_ps(sign_mask, a.into()),
-        )
-        .simd_into(self)
+        let sign_mask = self
+            .sse2
+            ._mm_castsi128_ps(self.sse2._mm_set1_epi32(-0x8000_0000));
+        self.sse
+            ._mm_or_ps(
+                self.sse._mm_and_ps(sign_mask, b.into()),
+                self.sse._mm_andnot_ps(sign_mask, a.into()),
+            )
+            .simd_into(self)
     }
 }

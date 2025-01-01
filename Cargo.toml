@@ -9,3 +9,6 @@ categories = ["hardware-support"]
 description = "Safer and easier SIMD"
 readme = "README.md"
 rust-version = "1.83"
+
+[dependencies]
+half = { version = "2.4.1", optional = true }

@@ -7,7 +7,10 @@ use fearless_simd::{f32x4, simd_dispatch, Level, Select, Simd, SimdInto};
 fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
     #[cfg(target_arch = "x86_64")]
     if let Some(avx2) = a.simd.level().as_avx2() {
-        return avx2.sse4_1._mm_blend_ps::<8>(a.into(), b.into()).simd_into(a.simd);
+        return avx2
+            .sse4_1
+            ._mm_blend_ps::<8>(a.into(), b.into())
+            .simd_into(a.simd);
     }
     #[cfg(target_arch = "aarch64")]
     if let Some(neon) = a.simd.level().as_neon() {

@@ -3,8 +3,8 @@
 
 //! Access to AVX intrinsics.
 
-use core::arch::x86_64::*;
 use crate::impl_macros::delegate;
+use core::arch::x86_64::*;
 
 /// A token for AVX intrinsics on x86_64.
 #[derive(Clone, Copy, Debug)]
@@ -21,7 +21,7 @@ impl Avx {
     pub unsafe fn new_unchecked() -> Self {
         Self { _private: () }
     }
-    
+
     delegate! { core::arch::x86_64:
         fn _mm256_add_pd(a: __m256d, b: __m256d) -> __m256d;
         fn _mm256_add_ps(a: __m256, b: __m256) -> __m256;

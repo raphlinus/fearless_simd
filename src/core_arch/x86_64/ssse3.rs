@@ -3,8 +3,8 @@
 
 //! Access to SSSE3 intrinsics.
 
-use core::arch::x86_64::*;
 use crate::impl_macros::delegate;
+use core::arch::x86_64::*;
 
 /// A token for SSSE3 intrinsics on x86_64.
 #[derive(Clone, Copy, Debug)]

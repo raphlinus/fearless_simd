@@ -3,9 +3,11 @@
 
 //! Support for Aarch64 SIMD capabilities.
 
+mod fp16;
 mod neon;
 
 use crate::{Fallback, WithSimd};
+pub use fp16::Fp16;
 pub use neon::Neon;
 
 /// The level enum for aarch64 architectures.
@@ -13,7 +15,7 @@ pub use neon::Neon;
 pub enum Level {
     Fallback(Fallback),
     Neon(Neon),
-    // TODO: fp16
+    Fp16(Fp16),
 }
 
 impl Level {
@@ -26,10 +28,10 @@ impl Level {
     }
 
     pub fn as_neon(self) -> Option<Neon> {
-        if let Level::Neon(neon) = self {
-            Some(neon)
-        } else {
-            None
+        match self {
+            Level::Neon(neon) => Some(neon),
+            Level::Fp16(fp16) => Some(fp16.to_neon()),
+            _ => None,
         }
     }
 
@@ -40,9 +42,16 @@ impl Level {
         unsafe fn dispatch_neon<W: WithSimd>(f: W, neon: Neon) -> W::Output {
             f.with_simd(neon)
         }
+        #[target_feature(enable = "neon,fp16")]
+        #[inline]
+        // unsafe not needed here with tf11, but can be justified
+        unsafe fn dispatch_fp16<W: WithSimd>(f: W, fp16: Fp16) -> W::Output {
+            f.with_simd(fp16)
+        }
         match self {
             Level::Fallback(fallback) => f.with_simd(fallback),
             Level::Neon(neon) => unsafe { dispatch_neon(f, neon) },
+            Level::Fp16(fp16) => unsafe { dispatch_fp16(f, fp16) },
         }
     }
 }

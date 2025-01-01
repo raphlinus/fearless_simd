@@ -3,8 +3,8 @@
 
 //! Access to AVX2 intrinsics.
 
-use core::arch::x86_64::*;
 use crate::impl_macros::delegate;
+use core::arch::x86_64::*;
 
 /// A token for AVX2 intrinsics on x86_64.
 #[derive(Clone, Copy, Debug)]
