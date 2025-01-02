@@ -22,6 +22,7 @@ pub struct Fp16 {
 }
 
 impl Fp16 {
+    #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Fp16 {
             neon: crate::core_arch::aarch64::Neon::new_unchecked(),
@@ -29,6 +30,7 @@ impl Fp16 {
         }
     }
 
+    #[inline]
     pub fn to_neon(self) -> super::Neon {
         // Safety: Fp16 is a superset of Neon
         unsafe { super::Neon::new_unchecked() }
@@ -46,6 +48,7 @@ impl Simd for Fp16 {
         Level::Fp16(self)
     }
 
+    #[inline]
     fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
         #[target_feature(enable = "neon,fp16")]
         #[inline]

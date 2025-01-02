@@ -21,12 +21,17 @@ pub enum Level {
 impl Level {
     pub fn new() -> Self {
         if std::arch::is_aarch64_feature_detected!("neon") {
-            unsafe { Level::Neon(Neon::new_unchecked()) }
+            if std::arch::is_aarch64_feature_detected!("fp16") {
+                unsafe { Level::Fp16(Fp16::new_unchecked()) }
+            } else {
+                unsafe { Level::Neon(Neon::new_unchecked()) }
+            }
         } else {
             Level::Fallback(Fallback::new())
         }
     }
 
+    #[inline]
     pub fn as_neon(self) -> Option<Neon> {
         match self {
             Level::Neon(neon) => Some(neon),
@@ -35,6 +40,15 @@ impl Level {
         }
     }
 
+    #[inline]
+    pub fn as_fp16(self) -> Option<Fp16> {
+        match self {
+            Level::Fp16(fp16) => Some(fp16),
+            _ => None,
+        }
+    }
+
+    #[inline]
     pub fn dispatch<W: WithSimd>(self, f: W) -> W::Output {
         #[target_feature(enable = "neon")]
         #[inline]

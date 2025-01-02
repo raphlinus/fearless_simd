@@ -22,6 +22,7 @@ pub struct Neon {
 }
 
 impl Neon {
+    #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Neon {
             neon: crate::core_arch::aarch64::Neon::new_unchecked(),
@@ -42,6 +43,7 @@ impl Simd for Neon {
         Level::Neon(self)
     }
 
+    #[inline]
     fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
         #[target_feature(enable = "neon")]
         #[inline]

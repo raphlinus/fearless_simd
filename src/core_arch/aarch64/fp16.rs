@@ -110,6 +110,7 @@ impl Fp16 {
     /// # Safety:
     ///
     /// The required CPU features must be available.
+    #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Self {
             neon: Neon::new_unchecked(),
@@ -159,13 +160,17 @@ impl Fp16 {
     neon_f16_binop!(vcltq_f16(float16x8_t, float16x8_t) -> uint16x8_t = "fcmlt.8h {0:v}, {1:v}, {2:v}");
     neon_f16_binop!(vcgtq_f16(float16x8_t, float16x8_t) -> uint16x8_t = "fcmgt.8h {0:v}, {1:v}, {2:v}");
     neon_f16_binop!(vcgeq_f16(float16x8_t, float16x8_t) -> uint16x8_t = "fcmge.8h {0:v}, {1:v}, {2:v}");
+    neon_f16_unaryop!(vceqzq_f16(float16x8_t) -> uint16x8_t = "fcmeq.8h {0:v}, {1:v}, #0");
     neon_f16_ternary!(vmlaq_f16(float16x8_t, float16x8_t, float16x8_t) -> float16x8_t = "fmla.8h {0:v}, {1:v}, {2:v}");
 
     neon_f16_unaryop!(vcvt_f32_f16(float16x4_t) -> float32x4_t = "fcvtl {0:v}.4s, {1:v}.4h");
     neon_f16_unaryop!(vcvt_high_f32_f16(float16x8_t) -> float32x4_t = "fcvtl2 {0:v}.4s, {1:v}.8h");
     neon_f16_unaryop!(vcvt_f16_f32(float32x4_t) -> float16x4_t = "fcvtn {0:v}.4h, {1:v}.4s");
     neon_f16_binop_inout!(vcvt_high_f16_f32(float16x4_t, float32x4_t) -> float16x4_t = "fcvtn2 {0:v}.8h, {1:v}.4s");
+    neon_f16_unaryop!(vcvtq_f16_u16(uint16x8_t) -> float16x8_t = "ucvtf.8h {0:v}, {1:v}");
+    neon_f16_unaryop!(vcvtnq_u16_f16(float16x8_t) -> uint16x8_t = "fcvtnu.8h {0:v}, {1:v}");
 
+    #[inline(always)]
     pub fn vbsl_f16(self, mask: uint16x4_t, a: float16x4_t, b: float16x4_t) -> float16x4_t {
         self.vreinterpret_f16_u16(self.neon.vbsl_u16(
             mask,
@@ -173,6 +178,8 @@ impl Fp16 {
             self.vreinterpret_u16_f16(b),
         ))
     }
+
+    #[inline(always)]
     pub fn vbslq_f16(self, mask: uint16x8_t, a: float16x8_t, b: float16x8_t) -> float16x8_t {
         self.vreinterpretq_f16_u16(self.neon.vbslq_u16(
             mask,
@@ -180,21 +187,33 @@ impl Fp16 {
             self.vreinterpretq_u16_f16(b),
         ))
     }
+
+    #[inline(always)]
     pub fn vdup_n_f16(self, value: f16) -> float16x4_t {
         self.vreinterpret_f16_u16(self.neon.vdup_n_u16(value.to_bits()))
     }
+
+    #[inline(always)]
     pub fn vdupq_n_f16(self, value: f16) -> float16x8_t {
         self.vreinterpretq_f16_u16(self.neon.vdupq_n_u16(value.to_bits()))
     }
+
+    #[inline(always)]
     pub fn vreinterpret_f16_u16(self, a: uint16x4_t) -> float16x4_t {
         a
     }
+
+    #[inline(always)]
     pub fn vreinterpret_u16_f16(self, a: float16x4_t) -> uint16x4_t {
         a
     }
+
+    #[inline(always)]
     pub fn vreinterpretq_f16_u16(self, a: uint16x8_t) -> float16x8_t {
         a
     }
+
+    #[inline(always)]
     pub fn vreinterpretq_u16_f16(self, a: float16x8_t) -> uint16x8_t {
         a
     }

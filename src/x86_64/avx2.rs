@@ -37,6 +37,7 @@ pub struct Avx2 {
 }
 
 impl Avx2 {
+    #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Avx2 {
             sse: crate::core_arch::x86_64::Sse::new_unchecked(),

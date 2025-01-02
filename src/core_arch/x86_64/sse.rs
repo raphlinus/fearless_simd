@@ -18,6 +18,7 @@ impl Sse {
     /// # Safety
     ///
     /// The required CPU features must be available.
+    #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Self { _private: () }
     }

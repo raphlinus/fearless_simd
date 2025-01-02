@@ -30,6 +30,7 @@ impl Level {
         }
     }
 
+    #[inline]
     pub fn as_avx2(self) -> Option<Avx2> {
         if let Level::Avx2(avx2) = self {
             Some(avx2)
@@ -38,6 +39,7 @@ impl Level {
         }
     }
 
+    #[inline]
     pub fn dispatch<W: WithSimd>(self, f: W) -> W::Output {
         #[target_feature(enable = "avx2,bmi2,f16c,fma,lzcnt")]
         #[inline]
