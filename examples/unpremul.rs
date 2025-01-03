@@ -1,8 +1,13 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::{aarch64::Fp16, f16, Level, Simd};
 
+use fearless_simd::{Level, Simd};
+
+#[cfg(target_arch = "aarch64")]
+use fearless_simd::{aarch64::Fp16, f16};
+
+#[cfg(target_arch = "aarch64")]
 #[inline(always)]
 fn unpremul_f1p6(fp16: Fp16, rgba: &mut [u8]) {
     let neon = fp16.neon;
@@ -43,9 +48,9 @@ fn unpremul_f1p6(fp16: Fp16, rgba: &mut [u8]) {
 }
 
 #[inline(never)]
-fn unpremultiply(level: Level, rgba: &mut [u8]) {
+fn unpremultiply(_level: Level, rgba: &mut [u8]) {
     #[cfg(target_arch = "aarch64")]
-    if let Some(fp16) = level.as_fp16() {
+    if let Some(fp16) = _level.as_fp16() {
         fp16.vectorize(#[inline(always)] || unpremul_f1p6(fp16, rgba));
         return;
     }
