@@ -1,7 +1,6 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-
 use fearless_simd::{Level, Simd};
 
 #[cfg(target_arch = "aarch64")]
@@ -33,7 +32,9 @@ fn unpremul_f1p6(fp16: Fp16, rgba: &mut [u8]) {
         let blue2 = fp16.fp16.vmulq_f16(blue, recip);
         let blue3 = fp16.fp16.vcvtnq_u16_f16(blue2);
         inp.2 = neon.vqmovn_u16(blue3);
-        unsafe { neon.vst4_u8(chunk.as_mut_ptr(), inp); }
+        unsafe {
+            neon.vst4_u8(chunk.as_mut_ptr(), inp);
+        }
     }
     for chunk in iter.into_remainder().chunks_exact_mut(4) {
         let alpha = chunk[3];
@@ -51,7 +52,10 @@ fn unpremul_f1p6(fp16: Fp16, rgba: &mut [u8]) {
 fn unpremultiply(_level: Level, rgba: &mut [u8]) {
     #[cfg(target_arch = "aarch64")]
     if let Some(fp16) = _level.as_fp16() {
-        fp16.vectorize(#[inline(always)] || unpremul_f1p6(fp16, rgba));
+        fp16.vectorize(
+            #[inline(always)]
+            || unpremul_f1p6(fp16, rgba),
+        );
         return;
     }
     for chunk in rgba.chunks_exact_mut(4) {

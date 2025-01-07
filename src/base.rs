@@ -28,8 +28,33 @@ pub trait Simd: Seal + Sized + Clone + Copy + Send + Sync + 'static {
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
     fn sqrt_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
     fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn simd_eq_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
+    fn simd_ne_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
+    fn simd_lt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
+    fn simd_le_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
+    fn simd_ge_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
     fn simd_gt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
+
+    fn splat_f32x8(self, val: f32) -> f32x8<Self>;
+    fn add_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn sub_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn mul_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn div_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn mul_add_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
+    fn abs_f32x8(self, a: f32x8<Self>) -> f32x8<Self>;
+    fn sqrt_f32x8(self, a: f32x8<Self>) -> f32x8<Self>;
+    fn copysign_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn simd_eq_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn simd_ne_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn simd_lt_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn simd_le_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn simd_ge_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn simd_gt_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
+    fn select_f32x8(self, a: mask32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
+
+    fn combine_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x8<Self>;
+    fn split_f32x8(self, a: f32x8<Self>) -> (f32x4<Self>, f32x4<Self>);
 }
 
 pub trait Select<T> {
@@ -131,6 +156,7 @@ macro_rules! impl_simd_type {
 }
 
 impl_simd_type!(f32x4, f32, 4, 16);
+impl_simd_type!(f32x8, f32, 8, 32);
 
 impl<S: Simd> SimdFrom<f32, S> for f32x4<S> {
     fn simd_from(value: f32, simd: S) -> Self {
@@ -162,16 +188,107 @@ impl<S: Simd> f32x4<S> {
     }
 
     #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_eq_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_ne(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_ne_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_lt_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_le_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_ge_f32x4(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
         self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
     }
 }
 
 impl_simd_type!(mask32x4, i32, 4, 16);
+impl_simd_type!(mask32x8, i32, 8, 32);
 
 impl<S: Simd> Select<f32x4<S>> for mask32x4<S> {
     fn select(self, if_true: f32x4<S>, if_false: f32x4<S>) -> f32x4<S> {
         self.simd.select_f32x4(self, if_true, if_false)
+    }
+}
+
+impl<S: Simd> SimdFrom<f32, S> for f32x8<S> {
+    fn simd_from(value: f32, simd: S) -> Self {
+        simd.splat_f32x8(value)
+    }
+}
+
+impl<S: Simd> f32x8<S> {
+    #[inline(always)]
+    pub fn abs(self) -> f32x8<S> {
+        self.simd.abs_f32x8(self)
+    }
+
+    #[inline(always)]
+    pub fn sqrt(self) -> f32x8<S> {
+        self.simd.sqrt_f32x8(self)
+    }
+
+    #[inline(always)]
+    pub fn copysign(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.copysign_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn mul_add(self, b: impl SimdInto<Self, S>, c: impl SimdInto<Self, S>) -> Self {
+        self.simd
+            .mul_add_f32x8(self, b.simd_into(self.simd), c.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_eq_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_ne(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_ne_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_lt_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_le_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_ge_f32x8(self, rhs.simd_into(self.simd))
+    }
+
+    #[inline(always)]
+    pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
+    }
+}
+
+impl<S: Simd> Select<f32x8<S>> for mask32x8<S> {
+    fn select(self, if_true: f32x8<S>, if_false: f32x8<S>) -> f32x8<S> {
+        self.simd.select_f32x8(self, if_true, if_false)
     }
 }
 

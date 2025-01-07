@@ -3,7 +3,7 @@
 
 //! Implementation of core ops for SIMD types
 
-use crate::{f32x4, Simd, SimdInto};
+use crate::{f32x4, f32x8, Simd, SimdInto};
 
 // Todo: macro-ify + more ops
 
@@ -16,6 +16,7 @@ macro_rules! impl_op_binary {
                 self.simd.$simd_fn(self, rhs)
             }
         }
+
         impl<S: Simd> core::ops::$trait<f32> for $ty<S> {
             type Output = Self;
 
@@ -40,3 +41,8 @@ impl_op_binary!(Add, f32x4, f32, add, add_f32x4);
 impl_op_binary!(Sub, f32x4, f32, sub, sub_f32x4);
 impl_op_binary!(Mul, f32x4, f32, mul, mul_f32x4);
 impl_op_binary!(Div, f32x4, f32, div, div_f32x4);
+
+impl_op_binary!(Add, f32x8, f32, add, add_f32x8);
+impl_op_binary!(Sub, f32x8, f32, sub, sub_f32x8);
+impl_op_binary!(Mul, f32x8, f32, mul, mul_f32x8);
+impl_op_binary!(Div, f32x8, f32, div, div_f32x8);

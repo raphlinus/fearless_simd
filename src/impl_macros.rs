@@ -61,11 +61,11 @@ macro_rules! impl_op {
 
     // Pattern used for SIMD comparisons
     ( $opfn:ident ( $( $arg:ident : $argty:ident ),* ) -> $ret:ident
-        = $nsc:ident . $cast:ident ( $ns:ident . $intrinsic:ident )
+        = $nsc:ident . $cast:ident ( $ns:ident . $intrinsic:ident $( < $imm:tt > )?)
     ) => {
         #[inline(always)]
         fn $opfn( self, $( $arg: $argty<Self> ),* ) -> $ret<Self> {
-            self.$nsc.$cast(self.$ns.$intrinsic( $($arg.into() ),* )).simd_into(self)
+            self.$nsc.$cast(self.$ns.$intrinsic $( ::< $imm > )? ( $($arg.into() ),* )).simd_into(self)
         }
     };
 
