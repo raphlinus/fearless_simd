@@ -77,6 +77,18 @@ impl<R, F: FnOnce(Level) -> R> WithSimd for F {
     }
 }
 
+pub trait Bytes: Sized {
+    type Bytes;
+
+    fn to_bytes(self) -> Self::Bytes;
+
+    fn from_bytes(value: Self::Bytes) -> Self;
+
+    fn bitcast<U: Bytes<Bytes = Self::Bytes>>(self) -> U {
+        U::from_bytes(self.to_bytes())
+    }
+}
+
 pub(crate) mod seal {
     pub trait Seal {}
 }
@@ -294,6 +306,44 @@ impl<S: Simd> Select<f32x8<S>> for mask32x8<S> {
 
 impl_simd_type!(mask16x4, i16, 4, 8);
 impl_simd_type!(mask16x8, i16, 8, 16);
+
+impl_simd_type!(u8x16, u8, 16, 16);
+impl_simd_type!(u8x32, u8, 32, 32);
+
+// Possibly fold this into impl_simd_type
+macro_rules! impl_bytes {
+    ($ty:ident, $bytes:ident) => {
+        impl<S: Simd> Bytes for $ty<S> {
+            type Bytes = $bytes<S>;
+
+            fn to_bytes(self) -> Self::Bytes {
+                unsafe {
+                    $bytes {
+                        val: core::mem::transmute(self.val),
+                        simd: self.simd,
+                    }
+                }
+            }
+
+            fn from_bytes(value: Self::Bytes) -> Self {
+                unsafe {
+                    Self {
+                        val: core::mem::transmute(value.val),
+                        simd: value.simd,
+                    }
+                }
+            }
+        }
+    };
+}
+
+impl_bytes!(f32x4, u8x16);
+impl_bytes!(mask32x4, u8x16);
+impl_bytes!(u8x16, u8x16);
+
+impl_bytes!(f32x8, u8x32);
+impl_bytes!(mask32x8, u8x32);
+impl_bytes!(u8x32, u8x32);
 
 #[cfg(target_arch = "aarch64")]
 mod f16 {
