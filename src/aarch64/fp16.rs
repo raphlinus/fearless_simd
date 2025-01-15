@@ -5,9 +5,9 @@
 
 use crate::{
     core_arch::aarch64::{float16x4_t, float16x8_t},
-    f16, f16x4, f16x8, f32x4,
+    f16, f16x4, f16x8, f32x4, f32x8,
     impl_macros::{impl_op, impl_simd_from_into},
-    mask16x4, mask16x8, mask32x4,
+    mask16x4, mask16x8, mask32x4, mask32x8,
     seal::Seal,
     Select, Simd, SimdFrom, SimdInto,
 };
@@ -42,6 +42,18 @@ impl_simd_from_into!(f16x8, float16x8_t);
 
 impl Seal for Fp16 {}
 
+// Discussion question: does delegation like this lead to slower compiles than
+// copy-paste?
+macro_rules! delegate_neon {
+    ($fn:ident(self $(, $arg:ident : $ty:ty )* ) -> $ret:ty) => {
+        #[inline(always)]
+        fn $fn(self $(, $arg : $ty )* ) -> $ret {
+            let neon = self.to_neon();
+            neon.$fn($($arg.val.simd_into(neon) ),* ).val.simd_into(self)
+        }
+    };
+}
+
 impl Simd for Fp16 {
     #[inline(always)]
     fn level(self) -> Level {
@@ -59,8 +71,6 @@ impl Simd for Fp16 {
         unsafe { vectorize_fp16(f) }
     }
 
-    // Lots of copy-paste here, probably should be replaced with delegation to neon,
-    // and that in turn might be a macro.
     #[inline(always)]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
         self.neon.vdupq_n_f32(val).simd_into(self)
@@ -72,6 +82,10 @@ impl Simd for Fp16 {
     impl_op!(div_f32x4(a: f32x4, b: f32x4) -> f32x4 = neon.vdivq_f32);
     impl_op!(mul_add_f32x4(a: f32x4, b: f32x4, c: f32x4) -> f32x4 = neon.vfmaq_f32(c, a, b));
 
+    impl_op!(simd_eq_f32x4(a: f32x4, b: f32x4) -> mask32x4 = neon.vreinterpretq_s32_u32(neon.vceqq_f32));
+    impl_op!(simd_lt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = neon.vreinterpretq_s32_u32(neon.vcltq_f32));
+    impl_op!(simd_le_f32x4(a: f32x4, b: f32x4) -> mask32x4 = neon.vreinterpretq_s32_u32(neon.vcleq_f32));
+    impl_op!(simd_ge_f32x4(a: f32x4, b: f32x4) -> mask32x4 = neon.vreinterpretq_s32_u32(neon.vcgeq_f32));
     impl_op!(simd_gt_f32x4(a: f32x4, b: f32x4) -> mask32x4 = neon.vreinterpretq_s32_u32(neon.vcgtq_f32));
     impl_op!(select_f32x4(a: mask32x4, b: f32x4, c: f32x4) -> f32x4
         = neon.vbslq_f32(neon.vreinterpretq_u32_s32(a), b, c));
@@ -84,6 +98,44 @@ impl Simd for Fp16 {
         self.neon
             .vbslq_f32(sign_mask, b.into(), a.into())
             .simd_into(self)
+    }
+
+    #[inline(always)]
+    fn simd_ne_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
+        let neon = self.to_neon();
+        neon.simd_ne_f32x4(a.val.simd_into(neon), b.val.simd_into(neon))
+            .val
+            .simd_into(self)
+    }
+
+    #[inline(always)]
+    fn splat_f32x8(self, val: f32) -> f32x8<Self> {
+        self.to_neon().splat_f32x8(val).val.simd_into(self)
+    }
+
+    delegate_neon!(add_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(sub_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(mul_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(div_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(mul_add_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(abs_f32x8(self, a: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(sqrt_f32x8(self, a: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(copysign_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>);
+    delegate_neon!(simd_eq_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(simd_ne_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(simd_lt_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(simd_le_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(simd_ge_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(simd_gt_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>);
+    delegate_neon!(select_f32x8(self, a: mask32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>);
+
+    delegate_neon!(combine_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x8<Self>);
+
+    #[inline(always)]
+    fn split_f32x8(self, a: f32x8<Self>) -> (f32x4<Self>, f32x4<Self>) {
+        let neon = self.to_neon();
+        let (b0, b1) = self.to_neon().split_f32x8(a.val.simd_into(neon));
+        (b0.val.simd_into(self), b1.val.simd_into(self))
     }
 }
 
