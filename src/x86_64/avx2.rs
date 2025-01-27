@@ -18,11 +18,6 @@ use super::Level;
 ///
 /// This is short for the "x86-64-v3 microarchitecture level". In this level, the
 /// following target_features are enabled: "avx2", "bmi2", "f16c", "fma", "lzcnt".
-
-/// The SIMD token for the "avx2" level.
-///
-/// This is short for the "x86-64-v3 microarchitecture level". In this level, the
-/// following target_features are enabled: "avx2", "bmi2", "f16c", "fma", "lzcnt".
 #[derive(Clone, Copy, Debug)]
 pub struct Avx2 {
     pub sse: crate::core_arch::x86_64::Sse,

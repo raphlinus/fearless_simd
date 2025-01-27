@@ -30,7 +30,7 @@ The [half] code was mentioned above. The proc macro was strongly inspired by the
 [target_feature 1.1]: https://github.com/rust-lang/rfcs/pull/2396
 [Towards fearless SIMD]: https://raphlinus.github.io/rust/simd/2018/10/19/fearless-simd.html
 [fearless_simd 0.1.1]: https://crates.io/crates/fearless_simd/0.1.1
-[half]: https://crates.io/crates/pulp
+[half]: https://crates.io/crates/half
 [x86-64 microarchitecture levels]: https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels
 [std::simd]: https://doc.rust-lang.org/std/simd/index.html
 [safe-arch-macro]: https://github.com/google/rbrotli-enc/blob/ce44d008ff1beff1eee843e808542d01951add45/safe-arch-macro/src/lib.rs

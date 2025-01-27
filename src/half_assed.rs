@@ -21,7 +21,7 @@ impl f16 {
     /// intrinsics, which allows it to be `const`. [`from_f32`][Self::from_f32] should be preferred
     /// in any non-`const` context.
     ///
-    /// This operation is lossy. If the 32-bit value is to large to fit in 16-bits, ±∞ will result.
+    /// This operation is lossy. If the 32-bit value is too large to fit in 16-bits, ±∞ will result.
     /// NaN values are preserved. 32-bit subnormal values are too tiny to be represented in 16-bits
     /// and result in ±0. Exponents that underflow the minimum 16-bit exponent will result in 16-bit
     /// subnormals or ±0. All other values are truncated and rounded to the nearest representable
