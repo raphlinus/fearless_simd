@@ -1,14 +1,7 @@
-[package]
-name = "fearless_simd"
-version = "0.2.0"
-license = "MIT/Apache-2.0"
-edition = "2021"
-authors = ["Raph Levien <raph.levien@gmail.com>"]
-keywords = ["simd"]
-categories = ["hardware-support"]
-description = "Safer and easier SIMD"
-readme = "README.md"
-rust-version = "1.85"
+[workspace]
+resolver = "2"
+members = ["fearless_simd", "fearless_simd_gen"]
 
-[dependencies]
-half = { version = "2.6", optional = true }
+[workspace.package]
+license = "MIT/Apache-2.0"
+edition = "2024"

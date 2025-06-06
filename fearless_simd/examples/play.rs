@@ -1,7 +1,7 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::{simd_dispatch, Level, Simd, WithSimd};
+use fearless_simd::{Level, Simd, WithSimd, simd_dispatch};
 
 // The WithSimd idea is adapted from pulp but is clunky; we
 // will probably prefer the `simd_dispatch!` macro.
