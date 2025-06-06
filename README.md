@@ -1,85 +1,38 @@
 # Towards "fearless SIMD"
 
-This crate provides safe wrappers to make it easier to write SIMD code. It doesn't yet deliver on the promise of "fearless SIMD", but shows a potential path towards it.
+This crate proposes an experimental way to use SIMD intrinsics reasonably safely, using the new [target_feature 1.1] feature in Rust, recently stabilized.
 
-It tries to solve these problems:
+A [much earlier version][fearless_simd 0.1.1] of this crate experimented with an approach that tried to accomplish safety in safe Rust as of 2018, using types that witnessed the SIMD capability of the CPU. There is a blog post, [Towards fearless SIMD], that wrote up the experiment. That approach couldn't quite be made to work, but was an interesting exploration at the time. A practical development along roughly similar lines is the [pulp] crate.
 
-* Automatically detecting the CPU level and running the best code.
+Some code has been cut and pasted from the [half] crate, which is released under identical license. That crate is also an optional dependency, for more full f16 support. This dependency will be removed when `f16` stabilizes.
 
-* No `unsafe` required to use.
+For more discussion about this crate, see [Towards fearless SIMD, 7 years later]. A planned future direction is to autogenerate the the SIMD types and methods, rather than having to maintain a significant amount of boilerplate code.
 
-* Access to advanced SIMD primitives such as rounding and approximate reciprocal.
+## SIMD types
 
-* Works with stable Rust.
+The SIMD types in this crate are a thin newtype around the corresponding array, for example `f32x4` is a newtype for `[f32; 4]`, and also contains a zero-sized token representing a witness to the CPU level. These types are in the crate root and have a number of methods, including loading and storing, that do not require intrinsics. The SIMD types are aligned, but this only affects storage.
 
-* Can be portable across multiple architectures (but only x86 currently supported by stable rust - might make arm optional so it can be compiled on nightly).
+## Levels
 
-It is limited in scope:
+A central idea is "levels," which represent a set of target features. Each level has a corresponding module. Each module for a level has a number of submodules, one for each type (though with an underscore instead of `x` to avoid name collision), with a large number of free functions for SIMD operations that operate on that type.
 
-* A focus on f32.
+On aarch64, the levels are `neon` and `fp16`. The `fp16` level implies `neon`.
 
-* Mostly (but not entirely) maps and generators for 1D unstructured data.
+On x86-64, the currently supported level is `avx2`. This is actually short for the x86-64-v3 [microarchitecture level][x86-64 microarchitecture levels], which corresponds roughly to Haswell. The `avx512` level is also planned, which is x86-64-v4.
 
-* No attempt to support aligned load/store. On modern CPUs, unaligned SIMD access is quite performant, and alignment is a very significant burden on the coder.
+## Credits
 
-It's possible the ideas in this crate could be extended to more applications.
+This crate was inspired by [pulp], [std::simd], among others in the Rust ecosystem, though makes many decisions differently. It benefited from conversations with Luca Versari, though he is not responsible for any of the mistakes or bad decisions.
 
-## Caveats and future prospects
+The [half] code was mentioned above. The proc macro was strongly inspired by the [safe-arch-macro] in [rbrotli-enc].
 
-I ran into a number of limitations of current Rust while writing this. I think it's likely some of these will improve. Partly why I'm publishing this crate is to shine a light on where more work might be useful.
-
-Getting inlining wrong will trigger rust-lang/rust#50154. That said, the `GeneratorF32` trait is designed so that iterator creation happens inside a target_feature wrapper, which should both reduce the chance of triggering that bug, and improve code quality.
-
-That bug is not the only inlining misfeature; the `#[cfg(target_feature)]` macro is resolved too early and does not report whether the feature is enabled if the function is inlined. This is discussed a bit in a [rust-internals thread](https://internals.rust-lang.org/t/packed-simd-cfg-target-feature-does-not-play-well-with-target-feature/8115). It's not clear to me that the [proposed approach forward](https://internals.rust-lang.org/t/using-run-time-feature-detection-in-core/8419) really fixes the issue, because runtime feature doesn't always match `[target_feature(enabled)]`. For example, runtime feature detection may show that AVX-512 is available, but the user may choose to use only AVX2 for [performance reasons](https://lemire.me/blog/2018/09/07/avx-512-when-and-how-to-use-these-new-instructions/).
-
-I wanted to make the `GeneratorF32` trait processor-independent and fully generic. In other words, I'd like to be able to write this:
-
-```rust
-pub trait GeneratorF32: Sized {
-    type Iter<S: SimdF32>: Iterator<Item=S>;
-    fn gen<S>(self, cap: S) -> Self::Iter<S>;
-}
-```
-This feature is in the works: generic associated types] (rust-lang/rust#44265).
-
-If `x` has a `SimdF32` value, it is possible to write, say, `x + 1.0`, but at the moment `1.0 + x` does not work. The relevant trait bounds do work if added to the `SimdF32` trait, but it would force a lot of boilerplate into client implementations, due to rust-lang/rust#23856. That looks like it might get improved when Chalk lands.
-
-I use the `SimdFnF32` trait to represent a function is generic in the actual SIMD type. Even better would be something like this:
-
-```rust
-pub trait GeneratorF32: Sized {
-    fn map<F>(self, f: F) where F: for<S: SimdF32> Fn(S) -> S;
-}
-```
-
-Currently the `for<>` syntax works for higher-ranked lifetimes but not higher-ranked generics in general. I'm not sure this will ever happen, but it shows a potential real-world example for why these exotic higher-ranked types might be useful.
-
-## Comparisons with other approaches
-
-There is a lot of inspiration from [faster], which has similar goals. However, faster relies on compile-time feature determination and doesn't seem to be able to switch at runtime.
-
-The safe wrappers are inspired by [packed_simd]. That crate is more ambitious for exposing a larger fragment of SIMD, but leaves the runtime feature detection to the user.
-
-The C/C++ ecosystem has done quite a bit of work in this space. They have a fairly sophisticated [Function Multi Versioning](https://lwn.net/Articles/691932/) mechanism, with runtime detection resolved by the dynamic loader. To a large extent, this crate tries to gain some of the benefits of that, without requiring extensions to the language or implementation. However, this crate "uses up" a dimension or two of the polymorphic type space, so it's a tradeoff to be examined.
-
-## Benchmarks
-
-These aren't meant to be rigorous, but should give a general impression of performance. The particular benchmark is generation of a sinewave with less than -100dB disortion, and times are given in ns to generate 64 samples.
-
-| CPU       | simd level      | time  |
-| --------- | --------------- | ----: |
-| i7 7700HQ | AVX             |   30  |
-| "         | SSE 4.2         |   49  |
-| "         | scalar fallback |  344  |
-| "         | sin() scalar    |  506  |
-| i5 430M   | SSE4.2          |  303  |
-| "         | scalar fallback |  717  |
-| "         | sin() scalar    | 1690  |
-
-## Acknowledgements
-
-Errors (including in judgment for going down this path) are my own, but I've benefitted from discussions with many people, including with James McCartney, Andrew Gallant ([burntsushi](https://github.com/BurntSushi)), [talchas](https://github.com/talchas), Colin Rofls, and Alex Crichton.
-
-[faster]: https://github.com/AdamNiederer/faster
-
-[packed_simd]: https://github.com/rust-lang-nursery/packed_simd
+[pulp]: https://crates.io/crates/pulp
+[target_feature 1.1]: https://github.com/rust-lang/rfcs/pull/2396
+[Towards fearless SIMD]: https://raphlinus.github.io/rust/simd/2018/10/19/fearless-simd.html
+[fearless_simd 0.1.1]: https://crates.io/crates/fearless_simd/0.1.1
+[half]: https://crates.io/crates/half
+[x86-64 microarchitecture levels]: https://en.wikipedia.org/wiki/X86-64#Microarchitecture_levels
+[std::simd]: https://doc.rust-lang.org/std/simd/index.html
+[safe-arch-macro]: https://github.com/google/rbrotli-enc/blob/ce44d008ff1beff1eee843e808542d01951add45/safe-arch-macro/src/lib.rs
+[rbrotli-enc]: https://github.com/google/rbrotli-enc
+[Towards fearless SIMD, 7 years later]: https://linebender.org/blog/towards-fearless-simd/
