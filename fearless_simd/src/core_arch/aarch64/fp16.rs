@@ -21,12 +21,14 @@ macro_rules! neon_f16_unaryop {
             #[inline]
             pub unsafe fn inner(a: $ty) -> $ret {
                 let result;
-                core::arch::asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) a,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
+                unsafe {
+                    core::arch::asm!(
+                        $asm,
+                        out(vreg) result,
+                        in(vreg) a,
+                        options(pure, nomem, nostack, preserves_flags)
+                    );
+                }
                 result
             }
             unsafe { inner(a) }
@@ -42,13 +44,15 @@ macro_rules! neon_f16_binop {
             #[inline]
             pub unsafe fn inner(a: $tya, b: $tyb) -> $ret {
                 let result;
-                core::arch::asm!(
-                    $asm,
-                    out(vreg) result,
-                    in(vreg) a,
-                    in(vreg) b,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
+                unsafe {
+                    core::arch::asm!(
+                        $asm,
+                        out(vreg) result,
+                        in(vreg) a,
+                        in(vreg) b,
+                        options(pure, nomem, nostack, preserves_flags)
+                    );
+                }
                 result
             }
             unsafe { inner(a, b) }
@@ -64,12 +68,14 @@ macro_rules! neon_f16_binop_inout {
             #[inline]
             pub unsafe fn inner(a: $tya, b: $tyb) -> $ret {
                 let result;
-                core::arch::asm!(
-                    $asm,
-                    inout(vreg) a => result,
-                    in(vreg) b,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
+                unsafe {
+                    core::arch::asm!(
+                        $asm,
+                        inout(vreg) a => result,
+                        in(vreg) b,
+                        options(pure, nomem, nostack, preserves_flags)
+                    );
+                }
                 result
             }
             unsafe { inner(a, b) }
@@ -85,13 +91,15 @@ macro_rules! neon_f16_ternary {
             #[inline]
             pub unsafe fn inner(a: $tya, b: $tyb, c: $tyc) -> $ret {
                 let result;
-                core::arch::asm!(
-                    $asm,
-                    inout(vreg) a => result,
-                    in(vreg) b,
-                    in(vreg) c,
-                    options(pure, nomem, nostack, preserves_flags)
-                );
+                unsafe {
+                    core::arch::asm!(
+                        $asm,
+                        inout(vreg) a => result,
+                        in(vreg) b,
+                        in(vreg) c,
+                        options(pure, nomem, nostack, preserves_flags)
+                    );
+                }
                 result
             }
             unsafe { inner(a, b, c) }
@@ -113,7 +121,7 @@ impl Fp16 {
     #[inline]
     pub unsafe fn new_unchecked() -> Self {
         Self {
-            neon: Neon::new_unchecked(),
+            neon: unsafe { Neon::new_unchecked() },
         }
     }
 

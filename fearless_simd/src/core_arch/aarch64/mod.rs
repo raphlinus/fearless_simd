@@ -7,7 +7,7 @@
 
 mod fp16;
 
-pub use fp16::{float16x4_t, float16x8_t, Fp16};
+pub use fp16::{Fp16, float16x4_t, float16x8_t};
 
 use core::arch::aarch64::*;
 
