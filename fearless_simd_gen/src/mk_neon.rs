@@ -87,7 +87,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, val: #scalar) -> #ty<Self> {
-                            self.neon.#expr.simd_into(self)
+                            unsafe {
+                                #expr.simd_into(self)
+                            }
                         }
                     }
                 }
@@ -97,7 +99,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ty<Self> {
-                            self.neon.#expr.simd_into(self)
+                            unsafe {
+                                #expr.simd_into(self)
+                            }
                         }
                     }
                 }
@@ -117,8 +121,10 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         quote! {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ty<Self> {
-                                let sign_mask = self.neon.#sign_mask;
-                                self.neon.#vbsl(sign_mask, b.into(), a.into()).simd_into(self)
+                                unsafe {
+                                    let sign_mask = #sign_mask;
+                                    #vbsl(sign_mask, b.into(), a.into()).simd_into(self)
+                                }
                             }
                         }
                     } else {
@@ -126,7 +132,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         quote! {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ty<Self> {
-                                self.neon.#expr.simd_into(self)
+                                unsafe {
+                                    #expr.simd_into(self)
+                                }
                             }
                         }
                     }
@@ -142,7 +150,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty<Self> {
-                            self.neon.#reinterpret(self.neon.#expr).simd_into(self)
+                            unsafe {
+                                #reinterpret(#expr).simd_into(self)
+                            }
                         }
                     }
                 }
@@ -156,7 +166,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ty<Self> {
-                            self.neon.#vbsl(self.neon.#reinterpret(a.into()), b.into(), c.into()).simd_into(self)
+                            unsafe {
+                                #vbsl(#reinterpret(a.into()), b.into(), c.into()).simd_into(self)
+                            }
                         }
                     }
                 }

@@ -36,78 +36,62 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_f32x4(self, val: f32) -> f32x4<Self> {
-        self.neon.vdupq_n_f32(val).simd_into(self)
+        unsafe { vdupq_n_f32(val).simd_into(self) }
     }
     #[inline(always)]
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vabsq_f32(a.into()).simd_into(self)
+        unsafe { vabsq_f32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sqrt_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vsqrtq_f32(a.into()).simd_into(self)
+        unsafe { vsqrtq_f32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn add_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vaddq_f32(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_f32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vsubq_f32(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_f32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vmulq_f32(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_f32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn div_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        self.neon.vdivq_f32(a.into(), b.into()).simd_into(self)
+        unsafe { vdivq_f32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn copysign_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        let sign_mask = self.neon.vdupq_n_u32(1 << 31);
-        self.neon
-            .vbslq_f32(sign_mask, b.into(), a.into())
-            .simd_into(self)
+        unsafe {
+            let sign_mask = vdupq_n_u32(1 << 31);
+            vbslq_f32(sign_mask, b.into(), a.into()).simd_into(self)
+        }
     }
     #[inline(always)]
     fn simd_eq_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vceqq_f32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vceqq_f32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcltq_f32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcltq_f32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcleq_f32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcleq_f32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgeq_f32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgeq_f32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgtq_f32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgtq_f32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
-        self.neon
-            .vbslq_f32(
-                self.neon.vreinterpretq_u32_s32(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_f32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x8<Self> {
@@ -118,55 +102,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_i8x16(self, val: i8) -> i8x16<Self> {
-        self.neon.vdupq_n_s8(val).simd_into(self)
+        unsafe { vdupq_n_s8(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        self.neon.vaddq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        self.neon.vsubq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        self.neon.vmulq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vceqq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vceqq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcltq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcltq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcleq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcleq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcgeq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcgeq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcgtq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcgtq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_i8x16(self, a: mask8x16<Self>, b: i8x16<Self>, c: i8x16<Self>) -> i8x16<Self> {
-        self.neon
-            .vbslq_s8(self.neon.vreinterpretq_u8_s8(a.into()), b.into(), c.into())
-            .simd_into(self)
+        unsafe { vbslq_s8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x32<Self> {
@@ -177,55 +149,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_u8x16(self, val: u8) -> u8x16<Self> {
-        self.neon.vdupq_n_u8(val).simd_into(self)
+        unsafe { vdupq_n_u8(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        self.neon.vaddq_u8(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_u8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        self.neon.vsubq_u8(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_u8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        self.neon.vmulq_u8(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_u8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vceqq_u8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vceqq_u8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcltq_u8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcltq_u8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcleq_u8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcleq_u8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcgeq_u8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcgeq_u8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vcgtq_u8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vcgtq_u8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_u8x16(self, a: mask8x16<Self>, b: u8x16<Self>, c: u8x16<Self>) -> u8x16<Self> {
-        self.neon
-            .vbslq_u8(self.neon.vreinterpretq_u8_s8(a.into()), b.into(), c.into())
-            .simd_into(self)
+        unsafe { vbslq_u8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x32<Self> {
@@ -236,19 +196,19 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn not_mask8x16(self, a: mask8x16<Self>) -> mask8x16<Self> {
-        self.neon.vmvnq_s8(a.into()).simd_into(self)
+        unsafe { vmvnq_s8(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn and_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        self.neon.vandq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { vandq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn or_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        self.neon.vorrq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { vorrq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn xor_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        self.neon.veorq_s8(a.into(), b.into()).simd_into(self)
+        unsafe { veorq_s8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn select_mask8x16(
@@ -257,15 +217,11 @@ impl Simd for Neon {
         b: mask8x16<Self>,
         c: mask8x16<Self>,
     ) -> mask8x16<Self> {
-        self.neon
-            .vbslq_s8(self.neon.vreinterpretq_u8_s8(a.into()), b.into(), c.into())
-            .simd_into(self)
+        unsafe { vbslq_s8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        self.neon
-            .vreinterpretq_s8_u8(self.neon.vceqq_s8(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s8_u8(vceqq_s8(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn combine_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x32<Self> {
@@ -276,59 +232,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_i16x8(self, val: i16) -> i16x8<Self> {
-        self.neon.vdupq_n_s16(val).simd_into(self)
+        unsafe { vdupq_n_s16(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        self.neon.vaddq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        self.neon.vsubq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        self.neon.vmulq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vceqq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vceqq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcltq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcltq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcleq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcleq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcgeq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcgeq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcgtq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcgtq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_i16x8(self, a: mask16x8<Self>, b: i16x8<Self>, c: i16x8<Self>) -> i16x8<Self> {
-        self.neon
-            .vbslq_s16(
-                self.neon.vreinterpretq_u16_s16(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_s16(vreinterpretq_u16_s16(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x16<Self> {
@@ -339,59 +279,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_u16x8(self, val: u16) -> u16x8<Self> {
-        self.neon.vdupq_n_u16(val).simd_into(self)
+        unsafe { vdupq_n_u16(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        self.neon.vaddq_u16(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_u16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        self.neon.vsubq_u16(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_u16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        self.neon.vmulq_u16(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_u16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vceqq_u16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vceqq_u16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcltq_u16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcltq_u16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcleq_u16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcleq_u16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcgeq_u16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcgeq_u16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vcgtq_u16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vcgtq_u16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_u16x8(self, a: mask16x8<Self>, b: u16x8<Self>, c: u16x8<Self>) -> u16x8<Self> {
-        self.neon
-            .vbslq_u16(
-                self.neon.vreinterpretq_u16_s16(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_u16(vreinterpretq_u16_s16(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x16<Self> {
@@ -402,19 +326,19 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn not_mask16x8(self, a: mask16x8<Self>) -> mask16x8<Self> {
-        self.neon.vmvnq_s16(a.into()).simd_into(self)
+        unsafe { vmvnq_s16(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn and_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        self.neon.vandq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { vandq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn or_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        self.neon.vorrq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { vorrq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn xor_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        self.neon.veorq_s16(a.into(), b.into()).simd_into(self)
+        unsafe { veorq_s16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn select_mask16x8(
@@ -423,19 +347,11 @@ impl Simd for Neon {
         b: mask16x8<Self>,
         c: mask16x8<Self>,
     ) -> mask16x8<Self> {
-        self.neon
-            .vbslq_s16(
-                self.neon.vreinterpretq_u16_s16(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_s16(vreinterpretq_u16_s16(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        self.neon
-            .vreinterpretq_s16_u16(self.neon.vceqq_s16(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s16_u16(vceqq_s16(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn combine_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x16<Self> {
@@ -446,59 +362,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_i32x4(self, val: i32) -> i32x4<Self> {
-        self.neon.vdupq_n_s32(val).simd_into(self)
+        unsafe { vdupq_n_s32(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        self.neon.vaddq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        self.neon.vsubq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        self.neon.vmulq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vceqq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vceqq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcltq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcltq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcleq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcleq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgeq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgeq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgtq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgtq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_i32x4(self, a: mask32x4<Self>, b: i32x4<Self>, c: i32x4<Self>) -> i32x4<Self> {
-        self.neon
-            .vbslq_s32(
-                self.neon.vreinterpretq_u32_s32(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_s32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x8<Self> {
@@ -509,59 +409,43 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn splat_u32x4(self, val: u32) -> u32x4<Self> {
-        self.neon.vdupq_n_u32(val).simd_into(self)
+        unsafe { vdupq_n_u32(val).simd_into(self) }
     }
     #[inline(always)]
     fn add_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        self.neon.vaddq_u32(a.into(), b.into()).simd_into(self)
+        unsafe { vaddq_u32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn sub_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        self.neon.vsubq_u32(a.into(), b.into()).simd_into(self)
+        unsafe { vsubq_u32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn mul_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        self.neon.vmulq_u32(a.into(), b.into()).simd_into(self)
+        unsafe { vmulq_u32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vceqq_u32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vceqq_u32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_lt_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcltq_u32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcltq_u32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_le_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcleq_u32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcleq_u32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_ge_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgeq_u32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgeq_u32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn simd_gt_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vcgtq_u32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vcgtq_u32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn select_u32x4(self, a: mask32x4<Self>, b: u32x4<Self>, c: u32x4<Self>) -> u32x4<Self> {
-        self.neon
-            .vbslq_u32(
-                self.neon.vreinterpretq_u32_s32(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_u32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x8<Self> {
@@ -572,19 +456,19 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn not_mask32x4(self, a: mask32x4<Self>) -> mask32x4<Self> {
-        self.neon.vmvnq_s32(a.into()).simd_into(self)
+        unsafe { vmvnq_s32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn and_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        self.neon.vandq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { vandq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn or_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        self.neon.vorrq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { vorrq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn xor_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        self.neon.veorq_s32(a.into(), b.into()).simd_into(self)
+        unsafe { veorq_s32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn select_mask32x4(
@@ -593,19 +477,11 @@ impl Simd for Neon {
         b: mask32x4<Self>,
         c: mask32x4<Self>,
     ) -> mask32x4<Self> {
-        self.neon
-            .vbslq_s32(
-                self.neon.vreinterpretq_u32_s32(a.into()),
-                b.into(),
-                c.into(),
-            )
-            .simd_into(self)
+        unsafe { vbslq_s32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
     #[inline(always)]
     fn simd_eq_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        self.neon
-            .vreinterpretq_s32_u32(self.neon.vceqq_s32(a.into(), b.into()))
-            .simd_into(self)
+        unsafe { vreinterpretq_s32_u32(vceqq_s32(a.into(), b.into())).simd_into(self) }
     }
     #[inline(always)]
     fn combine_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x8<Self> {

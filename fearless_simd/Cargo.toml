@@ -10,5 +10,8 @@ description = "Safer and easier SIMD"
 readme = "README.md"
 rust-version = "1.85"
 
+[features]
+safe_wrappers = []
+
 [dependencies]
 half = { version = "2.4.1", optional = true }

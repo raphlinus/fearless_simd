@@ -5,14 +5,16 @@
 
 use core::arch::aarch64::*;
 
-use crate::{core_arch::aarch64::Neon, f16};
+use crate::core_arch::aarch64::Neon;
 
 /// A token for FP16 intrinsics on aarch64.
 #[derive(Clone, Copy, Debug)]
 pub struct Fp16 {
+    #[allow(unused)]
     neon: Neon,
 }
 
+#[cfg(feature = "safe_wrappers")]
 macro_rules! neon_f16_unaryop {
     ( $opfn:ident ( $ty:ty ) -> $ret:ty = $asm:literal ) => {
         #[inline(always)]
@@ -36,6 +38,7 @@ macro_rules! neon_f16_unaryop {
     };
 }
 
+#[cfg(feature = "safe_wrappers")]
 macro_rules! neon_f16_binop {
     ( $opfn:ident ( $tya:ty, $tyb:ty ) -> $ret:ty = $asm:literal ) => {
         #[inline(always)]
@@ -60,6 +63,7 @@ macro_rules! neon_f16_binop {
     };
 }
 
+#[cfg(feature = "safe_wrappers")]
 macro_rules! neon_f16_binop_inout {
     ( $opfn:ident ( $tya:ty, $tyb:ty ) -> $ret:ty = $asm:literal ) => {
         #[inline(always)]
@@ -83,6 +87,7 @@ macro_rules! neon_f16_binop_inout {
     };
 }
 
+#[cfg(feature = "safe_wrappers")]
 macro_rules! neon_f16_ternary {
     ( $opfn:ident ( $tya:ty, $tyb:ty, $tyc:ty ) -> $ret:ty = $asm:literal ) => {
         #[inline(always)]
@@ -124,7 +129,13 @@ impl Fp16 {
             neon: unsafe { Neon::new_unchecked() },
         }
     }
+}
 
+#[cfg(feature = "safe_wrappers")]
+use crate::f16;
+
+#[cfg(feature = "safe_wrappers")]
+impl Fp16 {
     // This is a somewhat curated set for now, but we should make it reasonably complete.
     neon_f16_unaryop!(vabs_f16(float16x4_t) -> float16x4_t = "fabs.4h {0:v}, {1:v}");
     neon_f16_unaryop!(vrnd_f16(float16x4_t) -> float16x4_t = "frintz.4h {0:v}, {1:v}");

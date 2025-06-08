@@ -3,6 +3,9 @@
 
 use fearless_simd::{Level, Select, Simd, SimdInto, f32x4, simd_dispatch};
 
+// This block shows how to use safe wrappers for compile-time enforcement
+// of using valid SIMD intrinsics.
+#[cfg(feature = "safe_wrappers")]
 #[inline(always)]
 fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
     #[cfg(target_arch = "x86_64")]
@@ -18,6 +21,22 @@ fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
             .neon
             .vcopyq_laneq_f32::<3, 3>(a.into(), b.into())
             .simd_into(a.simd);
+    }
+    let mut result = a;
+    result[3] = b[3];
+    result
+}
+
+// This block lets the example compile without safe wrappers.
+#[cfg(not(feature = "safe_wrappers"))]
+#[inline(always)]
+fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
+    #[cfg(target_arch = "aarch64")]
+    if let Some(_neon) = a.simd.level().as_neon() {
+        unsafe {
+            return core::arch::aarch64::vcopyq_laneq_f32::<3, 3>(a.into(), b.into())
+                .simd_into(a.simd);
+        }
     }
     let mut result = a;
     result[3] = b[3];
