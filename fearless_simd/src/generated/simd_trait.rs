@@ -8,6 +8,15 @@ use crate::{
 /// TODO: docstring
 pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     type f32s: SimdFloat<f32, Self>;
+    type u8s: SimdInt<u8, Self>;
+    type i8s: SimdInt<i8, Self>;
+    type u16s: SimdInt<u16, Self>;
+    type i16s: SimdInt<i16, Self>;
+    type u32s: SimdInt<u32, Self>;
+    type i32s: SimdInt<i32, Self>;
+    type mask8s: SimdMask<i8, Self>;
+    type mask16s: SimdMask<i16, Self>;
+    type mask32s: SimdMask<i32, Self>;
     fn level(self) -> Level;
     /// Call function with CPU features enabled.
     ///
@@ -404,9 +413,15 @@ pub trait SimdFloat<
         Output = Self,
     > + core::ops::Sub<
         Output = Self,
+    > + core::ops::Sub<
+        Element,
+        Output = Self,
     > + core::ops::Mul<
         Output = Self,
-    > + core::ops::Mul<Element, Output = Self> + core::ops::Div<Output = Self> {
+    > + core::ops::Mul<
+        Element,
+        Output = Self,
+    > + core::ops::Div<Output = Self> + core::ops::Div<Element, Output = Self> {
     fn abs(self) -> Self;
     fn sqrt(self) -> Self;
     fn copysign(self, rhs: impl SimdInto<Self, S>) -> Self;
@@ -424,19 +439,46 @@ pub trait SimdInt<
         S,
     > + core::ops::Add<
         Output = Self,
+    > + core::ops::Add<
+        Element,
+        Output = Self,
     > + core::ops::Sub<
+        Output = Self,
+    > + core::ops::Sub<
+        Element,
         Output = Self,
     > + core::ops::Mul<
         Output = Self,
+    > + core::ops::Mul<
+        Element,
+        Output = Self,
     > + core::ops::BitAnd<
         Output = Self,
-    > + core::ops::BitOr<Output = Self> + core::ops::BitXor<Output = Self> {
+    > + core::ops::BitAnd<
+        Element,
+        Output = Self,
+    > + core::ops::BitOr<
+        Output = Self,
+    > + core::ops::BitOr<
+        Element,
+        Output = Self,
+    > + core::ops::BitXor<Output = Self> + core::ops::BitXor<Element, Output = Self> {
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_le(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
 }
-pub trait SimdMask<Element: SimdElement, S: Simd>: SimdBase<Element, S> {
+pub trait SimdMask<
+    Element: SimdElement,
+    S: Simd,
+>: SimdBase<
+        Element,
+        S,
+    > + core::ops::Not<
+        Output = Self,
+    > + core::ops::BitAnd<
+        Output = Self,
+    > + core::ops::BitOr<Output = Self> + core::ops::BitXor<Output = Self> {
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
 }
