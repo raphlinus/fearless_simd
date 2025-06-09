@@ -133,6 +133,7 @@ fn simd_impl(ty: &VecType) -> TokenStream {
             // select is currently done by trait, but maybe we'll implement for
             // masks.
             OpSig::Select => continue,
+            OpSig::Zip => continue,
             OpSig::Split => quote! { self },
         };
         let ret_ty = match sig {
@@ -196,7 +197,7 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
         let args = match sig {
             OpSig::Splat => continue,
             OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare => {
+            OpSig::Binary | OpSig::Compare | OpSig::Zip => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
             // select is currently done by trait, but maybe we'll implement for
@@ -213,11 +214,12 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
                 let double = VecType::new(ty.scalar, ty.scalar_bits, ty.len * 2).rust();
                 quote! { #double<S> }
             }
+            OpSig::Zip => quote! { (Self, Self) },
             _ => quote! { #name<S> },
         };
         let call_args = match sig {
             OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine => {
+            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, rhs.simd_into(self.simd) }
             }
             _ => quote! { todo!() },

@@ -12,6 +12,7 @@ pub enum OpSig {
     Select,
     Combine,
     Split,
+    Zip,
     // TODO: fma
 }
 
@@ -30,6 +31,8 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
+    ("zip", OpSig::Zip),
+    ("unzip", OpSig::Zip),
     // TODO: simd_ne, but this requires additional implementation work on Neon
     ("select", OpSig::Select),
 ];
@@ -48,6 +51,8 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
+    ("zip", OpSig::Zip),
+    ("unzip", OpSig::Zip),
     ("select", OpSig::Select),
 ];
 
@@ -58,6 +63,8 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
     ("or", OpSig::Binary),
     ("xor", OpSig::Binary),
     ("select", OpSig::Select),
+    ("zip", OpSig::Zip),
+    ("unzip", OpSig::Zip),
     ("simd_eq", OpSig::Compare),
 ];
 

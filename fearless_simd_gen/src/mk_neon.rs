@@ -73,7 +73,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let scalar_bits = vec_ty.scalar_bits;
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
-        for (method, sig) in ops_for_type(&vec_ty) {
+        for (method, sig) in ops_for_type(vec_ty) {
             if vec_ty.n_bits() > 128 && method != "split" {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
@@ -83,7 +83,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
             let method = match sig {
                 OpSig::Splat => {
                     let scalar = vec_ty.scalar.rust(scalar_bits);
-                    let expr = Neon.expr(method, &vec_ty, &[quote! { val }]);
+                    let expr = Neon.expr(method, vec_ty, &[quote! { val }]);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, val: #scalar) -> #ty<Self> {
@@ -95,7 +95,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
-                    let expr = Neon.expr(method, &vec_ty, &args);
+                    let expr = Neon.expr(method, vec_ty, &args);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ty<Self> {
@@ -116,7 +116,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         );
                         let sign_mask =
                             Neon.expr("splat", &unsigned_ty, &[quote! { 1 << #shift_amt }]);
-                        let vbsl = simple_intrinsic("vbsl", &vec_ty);
+                        let vbsl = simple_intrinsic("vbsl", vec_ty);
 
                         quote! {
                             #[inline(always)]
@@ -128,7 +128,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             }
                         }
                     } else {
-                        let expr = Neon.expr(method, &vec_ty, &args);
+                        let expr = Neon.expr(method, vec_ty, &args);
                         quote! {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ty<Self> {
@@ -141,9 +141,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Compare => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
-                    let expr = Neon.expr(method, &vec_ty, &args);
+                    let expr = Neon.expr(method, vec_ty, &args);
                     let ret_ty = vec_ty.mask_ty().rust();
-                    let opt_q = crate::arch::opt_q(&vec_ty);
+                    let opt_q = crate::arch::opt_q(vec_ty);
                     let reinterpret_str =
                         format!("vreinterpret{opt_q}_s{scalar_bits}_u{scalar_bits}");
                     let reinterpret = Ident::new(&reinterpret_str, Span::call_site());
@@ -157,12 +157,12 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Select => {
-                    let opt_q = crate::arch::opt_q(&vec_ty);
+                    let opt_q = crate::arch::opt_q(vec_ty);
                     let mask_ty = vec_ty.mask_ty().rust();
                     let reinterpret_str =
                         format!("vreinterpret{opt_q}_u{scalar_bits}_s{scalar_bits}");
                     let reinterpret = Ident::new(&reinterpret_str, Span::call_site());
-                    let vbsl = simple_intrinsic("vbsl", &vec_ty);
+                    let vbsl = simple_intrinsic("vbsl", vec_ty);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ty<Self> {
@@ -172,8 +172,30 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::Combine => generic_combine(&vec_ty),
-                OpSig::Split => generic_split(&vec_ty),
+                OpSig::Combine => generic_combine(vec_ty),
+                OpSig::Split => generic_split(vec_ty),
+                OpSig::Zip => {
+                    let neon = match method {
+                        "zip" => "vzip",
+                        "unzip" => "vuzp",
+                        _ => todo!(),
+                    };
+                    let zip1 = simple_intrinsic(&format!("{neon}1"), vec_ty);
+                    let zip2 = simple_intrinsic(&format!("{neon}2"), vec_ty);
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> (#ty<Self>, #ty<Self>) {
+                            let x = a.into();
+                            let y = b.into();
+                            unsafe {
+                                (
+                                    #zip1(x, y).simd_into(self),
+                                    #zip2(x, y).simd_into(self),
+                                )
+                            }
+                        }
+                    }
+                }
             };
             methods.push(method);
         }

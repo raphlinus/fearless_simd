@@ -41,6 +41,12 @@ pub fn mk_simd_trait() -> TokenStream {
                     });
                     continue;
                 }
+                OpSig::Zip => {
+                    methods.extend(quote! {
+                        fn #method(self, a: #ty<Self>, b: #ty<Self>) -> (#ty<Self>, #ty<Self>);
+                    });
+                    continue;
+                }
             };
             let ret_ty = match sig {
                 OpSig::Compare => vec_ty.mask_ty().rust(),
@@ -167,7 +173,7 @@ fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
         let args = match sig {
             OpSig::Splat => continue,
             OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare => {
+            OpSig::Binary | OpSig::Compare | OpSig::Zip => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
             // select is currently done by trait, but maybe we'll implement for
@@ -178,6 +184,7 @@ fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
         };
         let ret_ty = match sig {
             OpSig::Compare => quote! { Self::Mask },
+            OpSig::Zip => quote! { (Self, Self) },
             _ => quote! { Self },
         };
         methods.push(quote! {
