@@ -17,6 +17,7 @@ pub struct Neon;
 fn translate_op(op: &str) -> Option<&'static str> {
     Some(match op {
         "abs" => "vabs",
+        "neg" => "vneg",
         "sqrt" => "vsqrt",
         "add" => "vadd",
         "sub" => "vsub",

@@ -1,7 +1,7 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::{Level, Simd, WithSimd, simd_dispatch};
+use fearless_simd::{Level, Simd, SimdBase, WithSimd, simd_dispatch};
 
 // The WithSimd idea is adapted from pulp but is clunky; we
 // will probably prefer the `simd_dispatch!` macro.
@@ -20,6 +20,8 @@ impl WithSimd for Foo {
 
 #[inline(always)]
 fn foo_inner<S: Simd>(simd: S, x: f32) -> f32 {
+    let n = S::f32s::N;
+    println!("n = {n}");
     simd.splat_f32x4(x).sqrt()[0]
 }
 

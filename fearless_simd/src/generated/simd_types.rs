@@ -71,6 +71,10 @@ impl<S: Simd> f32x4<S> {
         self.simd.abs_f32x4(self)
     }
     #[inline(always)]
+    pub fn neg(self) -> f32x4<S> {
+        self.simd.neg_f32x4(self)
+    }
+    #[inline(always)]
     pub fn sqrt(self) -> f32x4<S> {
         self.simd.sqrt_f32x4(self)
     }
@@ -117,6 +121,62 @@ impl<S: Simd> f32x4<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.combine_f32x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<f32, S> for f32x4<S> {
+    const N: usize = 4;
+    type Mask = mask32x4<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[f32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [f32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[f32]) -> Self {
+        let mut val = [0.0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: f32) -> Self {
+        simd.splat_f32x4(val)
+    }
+}
+impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
+    #[inline(always)]
+    fn abs(self) -> f32x4<S> {
+        self.simd.abs_f32x4(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f32x4<S> {
+        self.simd.sqrt_f32x4(self)
+    }
+    #[inline(always)]
+    fn copysign(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.copysign_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_eq_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_lt_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_le_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_ge_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -185,6 +245,10 @@ impl<S: Simd> Bytes for i8x16<S> {
 }
 impl<S: Simd> i8x16<S> {
     #[inline(always)]
+    pub fn not(self) -> i8x16<S> {
+        self.simd.not_i8x16(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
         self.simd.add_i8x16(self, rhs.simd_into(self.simd))
     }
@@ -195,6 +259,18 @@ impl<S: Simd> i8x16<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
         self.simd.mul_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.and_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.or_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.xor_i8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
@@ -219,6 +295,50 @@ impl<S: Simd> i8x16<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.combine_i8x16(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i8, S> for i8x16<S> {
+    const N: usize = 16;
+    type Mask = mask8x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i8]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i8) -> Self {
+        simd.splat_i8x16(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i8, S> for i8x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_eq_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_lt_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_le_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_ge_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_gt_i8x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -287,6 +407,10 @@ impl<S: Simd> Bytes for u8x16<S> {
 }
 impl<S: Simd> u8x16<S> {
     #[inline(always)]
+    pub fn not(self) -> u8x16<S> {
+        self.simd.not_u8x16(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
         self.simd.add_u8x16(self, rhs.simd_into(self.simd))
     }
@@ -297,6 +421,18 @@ impl<S: Simd> u8x16<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
         self.simd.mul_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.and_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.or_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.xor_u8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
@@ -321,6 +457,50 @@ impl<S: Simd> u8x16<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.combine_u8x16(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u8, S> for u8x16<S> {
+    const N: usize = 16;
+    type Mask = mask8x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u8]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u8) -> Self {
+        simd.splat_u8x16(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u8, S> for u8x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_eq_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_lt_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_le_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_ge_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_gt_u8x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -407,6 +587,34 @@ impl<S: Simd> mask8x16<S> {
         self.simd.combine_mask8x16(self, rhs.simd_into(self.simd))
     }
 }
+impl<S: Simd> crate::SimdBase<i8, S> for mask8x16<S> {
+    const N: usize = 16;
+    type Mask = mask8x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i8]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i8) -> Self {
+        simd.splat_mask8x16(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i8, S> for mask8x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x16<S> {
+        self.simd.simd_eq_mask8x16(self, rhs.simd_into(self.simd))
+    }
+}
 #[derive(Clone, Copy)]
 #[repr(C, align(16))]
 pub struct i16x8<S: Simd> {
@@ -473,6 +681,10 @@ impl<S: Simd> Bytes for i16x8<S> {
 }
 impl<S: Simd> i16x8<S> {
     #[inline(always)]
+    pub fn not(self) -> i16x8<S> {
+        self.simd.not_i16x8(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
         self.simd.add_i16x8(self, rhs.simd_into(self.simd))
     }
@@ -483,6 +695,18 @@ impl<S: Simd> i16x8<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
         self.simd.mul_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.and_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.or_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.xor_i16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
@@ -507,6 +731,50 @@ impl<S: Simd> i16x8<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.combine_i16x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i16, S> for i16x8<S> {
+    const N: usize = 8;
+    type Mask = mask16x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i16]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i16) -> Self {
+        simd.splat_i16x8(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i16, S> for i16x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_eq_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_lt_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_le_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_ge_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_gt_i16x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -575,6 +843,10 @@ impl<S: Simd> Bytes for u16x8<S> {
 }
 impl<S: Simd> u16x8<S> {
     #[inline(always)]
+    pub fn not(self) -> u16x8<S> {
+        self.simd.not_u16x8(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
         self.simd.add_u16x8(self, rhs.simd_into(self.simd))
     }
@@ -585,6 +857,18 @@ impl<S: Simd> u16x8<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
         self.simd.mul_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.and_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.or_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.xor_u16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
@@ -609,6 +893,50 @@ impl<S: Simd> u16x8<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.combine_u16x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u16, S> for u16x8<S> {
+    const N: usize = 8;
+    type Mask = mask16x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u16]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u16) -> Self {
+        simd.splat_u16x8(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u16, S> for u16x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_eq_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_lt_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_le_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_ge_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_gt_u16x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -695,6 +1023,34 @@ impl<S: Simd> mask16x8<S> {
         self.simd.combine_mask16x8(self, rhs.simd_into(self.simd))
     }
 }
+impl<S: Simd> crate::SimdBase<i16, S> for mask16x8<S> {
+    const N: usize = 8;
+    type Mask = mask16x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i16]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i16) -> Self {
+        simd.splat_mask16x8(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i16, S> for mask16x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x8<S> {
+        self.simd.simd_eq_mask16x8(self, rhs.simd_into(self.simd))
+    }
+}
 #[derive(Clone, Copy)]
 #[repr(C, align(16))]
 pub struct i32x4<S: Simd> {
@@ -761,6 +1117,10 @@ impl<S: Simd> Bytes for i32x4<S> {
 }
 impl<S: Simd> i32x4<S> {
     #[inline(always)]
+    pub fn not(self) -> i32x4<S> {
+        self.simd.not_i32x4(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
         self.simd.add_i32x4(self, rhs.simd_into(self.simd))
     }
@@ -771,6 +1131,18 @@ impl<S: Simd> i32x4<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
         self.simd.mul_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.and_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.or_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.xor_i32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
@@ -795,6 +1167,50 @@ impl<S: Simd> i32x4<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.combine_i32x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i32, S> for i32x4<S> {
+    const N: usize = 4;
+    type Mask = mask32x4<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i32]) -> Self {
+        let mut val = [0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i32) -> Self {
+        simd.splat_i32x4(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i32, S> for i32x4<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_eq_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_lt_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_le_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_ge_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_gt_i32x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -863,6 +1279,10 @@ impl<S: Simd> Bytes for u32x4<S> {
 }
 impl<S: Simd> u32x4<S> {
     #[inline(always)]
+    pub fn not(self) -> u32x4<S> {
+        self.simd.not_u32x4(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
         self.simd.add_u32x4(self, rhs.simd_into(self.simd))
     }
@@ -873,6 +1293,18 @@ impl<S: Simd> u32x4<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
         self.simd.mul_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.and_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.or_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.xor_u32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
@@ -897,6 +1329,50 @@ impl<S: Simd> u32x4<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.combine_u32x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u32, S> for u32x4<S> {
+    const N: usize = 4;
+    type Mask = mask32x4<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u32]) -> Self {
+        let mut val = [0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u32) -> Self {
+        simd.splat_u32x4(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u32, S> for u32x4<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_eq_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_lt_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_le_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_ge_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_gt_u32x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy)]
@@ -983,6 +1459,34 @@ impl<S: Simd> mask32x4<S> {
         self.simd.combine_mask32x4(self, rhs.simd_into(self.simd))
     }
 }
+impl<S: Simd> crate::SimdBase<i32, S> for mask32x4<S> {
+    const N: usize = 4;
+    type Mask = mask32x4<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i32]) -> Self {
+        let mut val = [0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i32) -> Self {
+        simd.splat_mask32x4(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i32, S> for mask32x4<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
+        self.simd.simd_eq_mask32x4(self, rhs.simd_into(self.simd))
+    }
+}
 #[derive(Clone, Copy)]
 #[repr(C, align(32))]
 pub struct f32x8<S: Simd> {
@@ -1053,6 +1557,10 @@ impl<S: Simd> f32x8<S> {
         self.simd.abs_f32x8(self)
     }
     #[inline(always)]
+    pub fn neg(self) -> f32x8<S> {
+        self.simd.neg_f32x8(self)
+    }
+    #[inline(always)]
     pub fn sqrt(self) -> f32x8<S> {
         self.simd.sqrt_f32x8(self)
     }
@@ -1094,6 +1602,62 @@ impl<S: Simd> f32x8<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<f32, S> for f32x8<S> {
+    const N: usize = 8;
+    type Mask = mask32x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[f32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [f32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[f32]) -> Self {
+        let mut val = [0.0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: f32) -> Self {
+        simd.splat_f32x8(val)
+    }
+}
+impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
+    #[inline(always)]
+    fn abs(self) -> f32x8<S> {
+        self.simd.abs_f32x8(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f32x8<S> {
+        self.simd.sqrt_f32x8(self)
+    }
+    #[inline(always)]
+    fn copysign(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.copysign_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_eq_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_lt_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_le_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_ge_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1163,6 +1727,10 @@ impl<S: Simd> Bytes for i8x32<S> {
 }
 impl<S: Simd> i8x32<S> {
     #[inline(always)]
+    pub fn not(self) -> i8x32<S> {
+        self.simd.not_i8x32(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.add_i8x32(self, rhs.simd_into(self.simd))
     }
@@ -1173,6 +1741,18 @@ impl<S: Simd> i8x32<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.mul_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.and_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.or_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.xor_i8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
@@ -1192,6 +1772,50 @@ impl<S: Simd> i8x32<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_gt_i8x32(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i8, S> for i8x32<S> {
+    const N: usize = 32;
+    type Mask = mask8x32<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i8]) -> Self {
+        let mut val = [0; 32];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i8) -> Self {
+        simd.splat_i8x32(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i8, S> for i8x32<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_eq_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_lt_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_le_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_ge_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
         self.simd.simd_gt_i8x32(self, rhs.simd_into(self.simd))
     }
 }
@@ -1261,6 +1885,10 @@ impl<S: Simd> Bytes for u8x32<S> {
 }
 impl<S: Simd> u8x32<S> {
     #[inline(always)]
+    pub fn not(self) -> u8x32<S> {
+        self.simd.not_u8x32(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.add_u8x32(self, rhs.simd_into(self.simd))
     }
@@ -1271,6 +1899,18 @@ impl<S: Simd> u8x32<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.mul_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.and_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.or_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.xor_u8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
@@ -1290,6 +1930,50 @@ impl<S: Simd> u8x32<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_gt_u8x32(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u8, S> for u8x32<S> {
+    const N: usize = 32;
+    type Mask = mask8x32<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u8]) -> Self {
+        let mut val = [0; 32];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u8) -> Self {
+        simd.splat_u8x32(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u8, S> for u8x32<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_eq_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_lt_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_le_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_ge_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
         self.simd.simd_gt_u8x32(self, rhs.simd_into(self.simd))
     }
 }
@@ -1373,6 +2057,34 @@ impl<S: Simd> mask8x32<S> {
         self.simd.simd_eq_mask8x32(self, rhs.simd_into(self.simd))
     }
 }
+impl<S: Simd> crate::SimdBase<i8, S> for mask8x32<S> {
+    const N: usize = 32;
+    type Mask = mask8x32<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i8] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i8] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i8]) -> Self {
+        let mut val = [0; 32];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i8) -> Self {
+        simd.splat_mask8x32(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i8, S> for mask8x32<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
+        self.simd.simd_eq_mask8x32(self, rhs.simd_into(self.simd))
+    }
+}
 #[derive(Clone, Copy)]
 #[repr(C, align(32))]
 pub struct i16x16<S: Simd> {
@@ -1439,6 +2151,10 @@ impl<S: Simd> Bytes for i16x16<S> {
 }
 impl<S: Simd> i16x16<S> {
     #[inline(always)]
+    pub fn not(self) -> i16x16<S> {
+        self.simd.not_i16x16(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.add_i16x16(self, rhs.simd_into(self.simd))
     }
@@ -1449,6 +2165,18 @@ impl<S: Simd> i16x16<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.mul_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd.and_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd.or_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd.xor_i16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
@@ -1468,6 +2196,50 @@ impl<S: Simd> i16x16<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_gt_i16x16(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i16, S> for i16x16<S> {
+    const N: usize = 16;
+    type Mask = mask16x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i16]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i16) -> Self {
+        simd.splat_i16x16(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i16, S> for i16x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_eq_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_lt_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_le_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_ge_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
         self.simd.simd_gt_i16x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -1537,6 +2309,10 @@ impl<S: Simd> Bytes for u16x16<S> {
 }
 impl<S: Simd> u16x16<S> {
     #[inline(always)]
+    pub fn not(self) -> u16x16<S> {
+        self.simd.not_u16x16(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.add_u16x16(self, rhs.simd_into(self.simd))
     }
@@ -1547,6 +2323,18 @@ impl<S: Simd> u16x16<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.mul_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd.and_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd.or_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd.xor_u16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
@@ -1566,6 +2354,50 @@ impl<S: Simd> u16x16<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_gt_u16x16(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u16, S> for u16x16<S> {
+    const N: usize = 16;
+    type Mask = mask16x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u16]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u16) -> Self {
+        simd.splat_u16x16(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u16, S> for u16x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_eq_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_lt_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_le_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_ge_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
         self.simd.simd_gt_u16x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -1649,6 +2481,34 @@ impl<S: Simd> mask16x16<S> {
         self.simd.simd_eq_mask16x16(self, rhs.simd_into(self.simd))
     }
 }
+impl<S: Simd> crate::SimdBase<i16, S> for mask16x16<S> {
+    const N: usize = 16;
+    type Mask = mask16x16<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i16] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i16] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i16]) -> Self {
+        let mut val = [0; 16];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i16) -> Self {
+        simd.splat_mask16x16(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i16, S> for mask16x16<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
+        self.simd.simd_eq_mask16x16(self, rhs.simd_into(self.simd))
+    }
+}
 #[derive(Clone, Copy)]
 #[repr(C, align(32))]
 pub struct i32x8<S: Simd> {
@@ -1715,6 +2575,10 @@ impl<S: Simd> Bytes for i32x8<S> {
 }
 impl<S: Simd> i32x8<S> {
     #[inline(always)]
+    pub fn not(self) -> i32x8<S> {
+        self.simd.not_i32x8(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.add_i32x8(self, rhs.simd_into(self.simd))
     }
@@ -1725,6 +2589,18 @@ impl<S: Simd> i32x8<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.mul_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.and_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.or_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.xor_i32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
@@ -1744,6 +2620,50 @@ impl<S: Simd> i32x8<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_gt_i32x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i32, S> for i32x8<S> {
+    const N: usize = 8;
+    type Mask = mask32x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i32]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i32) -> Self {
+        simd.splat_i32x8(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<i32, S> for i32x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_eq_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_lt_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_le_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_ge_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_i32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1813,6 +2733,10 @@ impl<S: Simd> Bytes for u32x8<S> {
 }
 impl<S: Simd> u32x8<S> {
     #[inline(always)]
+    pub fn not(self) -> u32x8<S> {
+        self.simd.not_u32x8(self)
+    }
+    #[inline(always)]
     pub fn add(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.add_u32x8(self, rhs.simd_into(self.simd))
     }
@@ -1823,6 +2747,18 @@ impl<S: Simd> u32x8<S> {
     #[inline(always)]
     pub fn mul(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.mul_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.and_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.or_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.xor_u32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
@@ -1842,6 +2778,50 @@ impl<S: Simd> u32x8<S> {
     }
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_gt_u32x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<u32, S> for u32x8<S> {
+    const N: usize = 8;
+    type Mask = mask32x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[u32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [u32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[u32]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: u32) -> Self {
+        simd.splat_u32x8(val)
+    }
+}
+impl<S: Simd> crate::SimdInt<u32, S> for u32x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_eq_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_lt_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_le_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_ge_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_u32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1922,6 +2902,34 @@ impl<S: Simd> mask32x8<S> {
     }
     #[inline(always)]
     pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
+        self.simd.simd_eq_mask32x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i32, S> for mask32x8<S> {
+    const N: usize = 8;
+    type Mask = mask32x8<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i32] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i32] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i32]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i32) -> Self {
+        simd.splat_mask32x8(val)
+    }
+}
+impl<S: Simd> crate::SimdMask<i32, S> for mask32x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_eq_mask32x8(self, rhs.simd_into(self.simd))
     }
 }

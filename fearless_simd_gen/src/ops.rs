@@ -18,6 +18,7 @@ pub enum OpSig {
 pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("splat", OpSig::Splat),
     ("abs", OpSig::Unary),
+    ("neg", OpSig::Unary),
     ("sqrt", OpSig::Unary),
     ("add", OpSig::Binary),
     ("sub", OpSig::Binary),
@@ -35,9 +36,13 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
 
 pub const INT_OPS: &[(&str, OpSig)] = &[
     ("splat", OpSig::Splat),
+    ("not", OpSig::Unary),
     ("add", OpSig::Binary),
     ("sub", OpSig::Binary),
     ("mul", OpSig::Binary),
+    ("and", OpSig::Binary),
+    ("or", OpSig::Binary),
+    ("xor", OpSig::Binary),
     ("simd_eq", OpSig::Compare),
     ("simd_lt", OpSig::Compare),
     ("simd_le", OpSig::Compare),
@@ -47,6 +52,7 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
 ];
 
 pub const MASK_OPS: &[(&str, OpSig)] = &[
+    ("splat", OpSig::Splat),
     ("not", OpSig::Unary),
     ("and", OpSig::Binary),
     ("or", OpSig::Binary),
@@ -54,6 +60,9 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
     ("select", OpSig::Select),
     ("simd_eq", OpSig::Compare),
 ];
+
+/// Ops covered by core::ops
+pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor"];
 
 pub fn ops_for_type(ty: &VecType) -> Vec<(&str, OpSig)> {
     let base = match ty.scalar {

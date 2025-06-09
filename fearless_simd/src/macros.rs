@@ -11,7 +11,7 @@ macro_rules! simd_dispatch {
         $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
         = $inner:ident
     ) => {
-        $( #[$meta:meta] )* $vis
+        $( #[$meta] )* $vis
         fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
             #[target_feature(enable = "neon")]
             #[inline]

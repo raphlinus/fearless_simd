@@ -182,6 +182,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
     // be factored out for DRY.
     quote! {
         impl Simd for #level_tok {
+            type f32s = f32x4<Self>;
             #[inline(always)]
             fn level(self) -> Level {
                 Level::#level_tok(self)

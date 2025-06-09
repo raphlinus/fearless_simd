@@ -73,3 +73,35 @@ impl<T, S: Simd> SimdFrom<T, S> for T {
         value
     }
 }
+
+pub trait SimdElement {
+    type Mask: SimdElement;
+}
+
+impl SimdElement for f32 {
+    type Mask = i32;
+}
+
+impl SimdElement for u8 {
+    type Mask = i8;
+}
+
+impl SimdElement for i8 {
+    type Mask = i8;
+}
+
+impl SimdElement for u16 {
+    type Mask = i16;
+}
+
+impl SimdElement for i16 {
+    type Mask = i16;
+}
+
+impl SimdElement for u32 {
+    type Mask = i32;
+}
+
+impl SimdElement for i32 {
+    type Mask = i32;
+}

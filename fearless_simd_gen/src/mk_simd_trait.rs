@@ -6,7 +6,7 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    ops::{OpSig, ops_for_type},
+    ops::{CORE_OPS, FLOAT_OPS, INT_OPS, MASK_OPS, OpSig, ops_for_type},
     types::{SIMD_TYPES, VecType, type_imports},
 };
 
@@ -54,12 +54,13 @@ pub fn mk_simd_trait() -> TokenStream {
             });
         }
     }
-    quote! {
-        use crate::{seal::Seal, Level};
+    let mut code = quote! {
+        use crate::{seal::Seal, Level, SimdElement, SimdInto};
         #imports
         /// TODO: docstring
         // TODO: Seal
         pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
+            type f32s: SimdFloat<f32, Self>;
             fn level(self) -> Level;
 
             /// Call function with CPU features enabled.
@@ -68,5 +69,114 @@ pub fn mk_simd_trait() -> TokenStream {
             fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R;
             #( #methods )*
         }
+    };
+    code.extend(mk_simd_base());
+    code.extend(mk_simd_float());
+    code.extend(mk_simd_int());
+    code.extend(mk_simd_mask());
+    code
+}
+
+fn mk_simd_base() -> TokenStream {
+    quote! {
+        pub trait SimdBase<Element: SimdElement, S: Simd>:
+            Copy + Sync + Send + 'static
+            + crate::Bytes
+        {
+            const N: usize;
+            type Mask: SimdMask<Element::Mask, S>;
+            fn as_slice(&self) -> &[Element];
+            fn as_mut_slice(&mut self) -> &mut [Element];
+            fn from_slice(simd: S, slice: &[Element]) -> Self;
+            fn splat(simd: S, val: Element) -> Self;
+        }
     }
+}
+
+fn mk_simd_float() -> TokenStream {
+    let methods = methods_for_vec_trait(FLOAT_OPS);
+    quote! {
+        pub trait SimdFloat<Element: SimdElement, S: Simd>: SimdBase<Element, S>
+            + core::ops::Neg<Output = Self>
+            + core::ops::Add<Output = Self>
+            + core::ops::Add<Element, Output = Self>
+            + core::ops::Sub<Output = Self>
+            + core::ops::Sub<Element, Output = Self>
+            + core::ops::Mul<Output = Self>
+            + core::ops::Mul<Element, Output = Self>
+            + core::ops::Div<Output = Self>
+            + core::ops::Div<Element, Output = Self>
+        {
+            #( #methods )*
+        }
+    }
+}
+
+fn mk_simd_int() -> TokenStream {
+    let methods = methods_for_vec_trait(INT_OPS);
+    quote! {
+        pub trait SimdInt<Element: SimdElement, S: Simd>: SimdBase<Element, S>
+            + core::ops::Add<Output = Self>
+            + core::ops::Add<Element, Output = Self>
+            + core::ops::Sub<Output = Self>
+            + core::ops::Sub<Element, Output = Self>
+            + core::ops::Mul<Output = Self>
+            + core::ops::Mul<Element, Output = Self>
+            + core::ops::BitAnd<Output = Self>
+            + core::ops::BitAnd<Element, Output = Self>
+            + core::ops::BitOr<Output = Self>
+            + core::ops::BitOr<Element, Output = Self>
+            + core::ops::BitXor<Output = Self>
+            + core::ops::BitXor<Element, Output = Self>
+        {
+            #( #methods )*
+        }
+    }
+}
+
+fn mk_simd_mask() -> TokenStream {
+    let methods = methods_for_vec_trait(MASK_OPS);
+    quote! {
+        pub trait SimdMask<Element: SimdElement, S: Simd>: SimdBase<Element, S>
+            + core::ops::Not<Output = Self>
+            + core::ops::BitAnd<Output = Self>
+            + core::ops::BitAnd<Element, Output = Self>
+            + core::ops::BitOr<Output = Self>
+            + core::ops::BitOr<Element, Output = Self>
+            + core::ops::BitXor<Output = Self>
+            + core::ops::BitXor<Element, Output = Self>
+        {
+            #( #methods )*
+        }
+    }
+}
+
+fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
+    let mut methods = vec![];
+    for (method, sig) in ops {
+        if CORE_OPS.contains(method) || *method == "splat" {
+            continue;
+        }
+        let method_name = Ident::new(method, Span::call_site());
+        let args = match sig {
+            OpSig::Splat => continue,
+            OpSig::Unary => quote! { self },
+            OpSig::Binary | OpSig::Compare => {
+                quote! { self, rhs: impl SimdInto<Self, S> }
+            }
+            // select is currently done by trait, but maybe we'll implement for
+            // masks.
+            OpSig::Select => continue,
+            // These signatures involve types not in the Simd trait
+            OpSig::Split | OpSig::Combine => continue,
+        };
+        let ret_ty = match sig {
+            OpSig::Compare => quote! { Self::Mask },
+            _ => quote! { Self },
+        };
+        methods.push(quote! {
+            fn #method_name(#args) -> #ret_ty;
+        })
+    }
+    methods
 }
