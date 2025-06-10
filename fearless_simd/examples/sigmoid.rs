@@ -20,5 +20,31 @@ fn main() {
     let inp = [0.1, -0.2, 0.001, 0.4, 1., 2., 3., 4.];
     let mut out = [0.; 8];
     sigmoid(level, &inp, &mut out);
-    println!("{out:?}");
+    js::log(&format!("{out:?}"));
+}
+
+
+// Some temporary WASM glue so I can run this in the browser and see the result.
+
+#[cfg(target_arch = "wasm32")]
+mod js {
+    #[link(wasm_import_module = "console")]
+    unsafe extern "C" {
+        #[link_name = "log"]
+        fn console_log_str(ptr: *const u8, len: usize);
+        
+    }
+    
+    pub fn log(s: &str) {
+        unsafe {
+            console_log_str(s.as_ptr(), s.len());
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+mod js {
+    pub fn log(s: &str) {
+        println!("{}", s);
+    }
 }

@@ -55,7 +55,31 @@ macro_rules! simd_dispatch {
     };
 }
 
-#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]
+#[cfg(target_arch = "wasm32")]
+#[macro_export]
+macro_rules! simd_dispatch {
+    (
+        $( #[$meta:meta] )* $vis:vis
+        $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
+        = $inner:ident
+    ) => {
+        $( #[$meta] )* $vis
+        fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
+            #[target_feature(enable = "simd128")]
+            #[inline]
+            unsafe fn inner_wasm_simd128(simd128: $crate::wasm32::WasmSimd128 $( , $arg: $ty )* ) $( -> $ret )? {
+                $inner( simd128 $( , $arg )* )
+            }
+            // TODO: Pretty sure we can just inline this, and skip the runtime check because WASM
+            // SIMD is determined at compile time.
+            match level {
+                $crate::Level::WasmSimd128(simd128) => unsafe { inner_wasm_simd128 (simd128 $( , $arg )* ) }
+            }
+        }
+    };
+}
+
+#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64", target_arch = "wasm32")))]
 #[macro_export]
 macro_rules! simd_dispatch {
     (
