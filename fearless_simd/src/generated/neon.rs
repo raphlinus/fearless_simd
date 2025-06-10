@@ -910,9 +910,9 @@ impl Simd for Neon {
     fn unzip_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> (f32x8<Self>, f32x8<Self>) {
         let (a0, a1) = self.split_f32x8(a);
         let (b0, b1) = self.split_f32x8(b);
-        let (c00, c01) = self.unzip_f32x4(a0, b0);
-        let (c10, c11) = self.unzip_f32x4(a1, b1);
-        (self.combine_f32x4(c00, c01), self.combine_f32x4(c10, c11))
+        let (c00, c01) = self.unzip_f32x4(a0, a1);
+        let (c10, c11) = self.unzip_f32x4(b0, b1);
+        (self.combine_f32x4(c00, c10), self.combine_f32x4(c01, c11))
     }
     #[inline(always)]
     fn select_f32x8(
@@ -1022,9 +1022,9 @@ impl Simd for Neon {
     fn unzip_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> (i8x32<Self>, i8x32<Self>) {
         let (a0, a1) = self.split_i8x32(a);
         let (b0, b1) = self.split_i8x32(b);
-        let (c00, c01) = self.unzip_i8x16(a0, b0);
-        let (c10, c11) = self.unzip_i8x16(a1, b1);
-        (self.combine_i8x16(c00, c01), self.combine_i8x16(c10, c11))
+        let (c00, c01) = self.unzip_i8x16(a0, a1);
+        let (c10, c11) = self.unzip_i8x16(b0, b1);
+        (self.combine_i8x16(c00, c10), self.combine_i8x16(c01, c11))
     }
     #[inline(always)]
     fn select_i8x32(
@@ -1134,9 +1134,9 @@ impl Simd for Neon {
     fn unzip_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> (u8x32<Self>, u8x32<Self>) {
         let (a0, a1) = self.split_u8x32(a);
         let (b0, b1) = self.split_u8x32(b);
-        let (c00, c01) = self.unzip_u8x16(a0, b0);
-        let (c10, c11) = self.unzip_u8x16(a1, b1);
-        (self.combine_u8x16(c00, c01), self.combine_u8x16(c10, c11))
+        let (c00, c01) = self.unzip_u8x16(a0, a1);
+        let (c10, c11) = self.unzip_u8x16(b0, b1);
+        (self.combine_u8x16(c00, c10), self.combine_u8x16(c01, c11))
     }
     #[inline(always)]
     fn select_u8x32(
@@ -1221,9 +1221,9 @@ impl Simd for Neon {
     ) -> (mask8x32<Self>, mask8x32<Self>) {
         let (a0, a1) = self.split_mask8x32(a);
         let (b0, b1) = self.split_mask8x32(b);
-        let (c00, c01) = self.unzip_mask8x16(a0, b0);
-        let (c10, c11) = self.unzip_mask8x16(a1, b1);
-        (self.combine_mask8x16(c00, c01), self.combine_mask8x16(c10, c11))
+        let (c00, c01) = self.unzip_mask8x16(a0, a1);
+        let (c10, c11) = self.unzip_mask8x16(b0, b1);
+        (self.combine_mask8x16(c00, c10), self.combine_mask8x16(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask8x32(self, a: mask8x32<Self>, b: mask8x32<Self>) -> mask8x32<Self> {
@@ -1338,9 +1338,9 @@ impl Simd for Neon {
     ) -> (i16x16<Self>, i16x16<Self>) {
         let (a0, a1) = self.split_i16x16(a);
         let (b0, b1) = self.split_i16x16(b);
-        let (c00, c01) = self.unzip_i16x8(a0, b0);
-        let (c10, c11) = self.unzip_i16x8(a1, b1);
-        (self.combine_i16x8(c00, c01), self.combine_i16x8(c10, c11))
+        let (c00, c01) = self.unzip_i16x8(a0, a1);
+        let (c10, c11) = self.unzip_i16x8(b0, b1);
+        (self.combine_i16x8(c00, c10), self.combine_i16x8(c01, c11))
     }
     #[inline(always)]
     fn select_i16x16(
@@ -1458,9 +1458,9 @@ impl Simd for Neon {
     ) -> (u16x16<Self>, u16x16<Self>) {
         let (a0, a1) = self.split_u16x16(a);
         let (b0, b1) = self.split_u16x16(b);
-        let (c00, c01) = self.unzip_u16x8(a0, b0);
-        let (c10, c11) = self.unzip_u16x8(a1, b1);
-        (self.combine_u16x8(c00, c01), self.combine_u16x8(c10, c11))
+        let (c00, c01) = self.unzip_u16x8(a0, a1);
+        let (c10, c11) = self.unzip_u16x8(b0, b1);
+        (self.combine_u16x8(c00, c10), self.combine_u16x8(c01, c11))
     }
     #[inline(always)]
     fn select_u16x16(
@@ -1545,9 +1545,9 @@ impl Simd for Neon {
     ) -> (mask16x16<Self>, mask16x16<Self>) {
         let (a0, a1) = self.split_mask16x16(a);
         let (b0, b1) = self.split_mask16x16(b);
-        let (c00, c01) = self.unzip_mask16x8(a0, b0);
-        let (c10, c11) = self.unzip_mask16x8(a1, b1);
-        (self.combine_mask16x8(c00, c01), self.combine_mask16x8(c10, c11))
+        let (c00, c01) = self.unzip_mask16x8(a0, a1);
+        let (c10, c11) = self.unzip_mask16x8(b0, b1);
+        (self.combine_mask16x8(c00, c10), self.combine_mask16x8(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask16x16(
@@ -1658,9 +1658,9 @@ impl Simd for Neon {
     fn unzip_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> (i32x8<Self>, i32x8<Self>) {
         let (a0, a1) = self.split_i32x8(a);
         let (b0, b1) = self.split_i32x8(b);
-        let (c00, c01) = self.unzip_i32x4(a0, b0);
-        let (c10, c11) = self.unzip_i32x4(a1, b1);
-        (self.combine_i32x4(c00, c01), self.combine_i32x4(c10, c11))
+        let (c00, c01) = self.unzip_i32x4(a0, a1);
+        let (c10, c11) = self.unzip_i32x4(b0, b1);
+        (self.combine_i32x4(c00, c10), self.combine_i32x4(c01, c11))
     }
     #[inline(always)]
     fn select_i32x8(
@@ -1770,9 +1770,9 @@ impl Simd for Neon {
     fn unzip_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> (u32x8<Self>, u32x8<Self>) {
         let (a0, a1) = self.split_u32x8(a);
         let (b0, b1) = self.split_u32x8(b);
-        let (c00, c01) = self.unzip_u32x4(a0, b0);
-        let (c10, c11) = self.unzip_u32x4(a1, b1);
-        (self.combine_u32x4(c00, c01), self.combine_u32x4(c10, c11))
+        let (c00, c01) = self.unzip_u32x4(a0, a1);
+        let (c10, c11) = self.unzip_u32x4(b0, b1);
+        (self.combine_u32x4(c00, c10), self.combine_u32x4(c01, c11))
     }
     #[inline(always)]
     fn select_u32x8(
@@ -1857,9 +1857,9 @@ impl Simd for Neon {
     ) -> (mask32x8<Self>, mask32x8<Self>) {
         let (a0, a1) = self.split_mask32x8(a);
         let (b0, b1) = self.split_mask32x8(b);
-        let (c00, c01) = self.unzip_mask32x4(a0, b0);
-        let (c10, c11) = self.unzip_mask32x4(a1, b1);
-        (self.combine_mask32x4(c00, c01), self.combine_mask32x4(c10, c11))
+        let (c00, c01) = self.unzip_mask32x4(a0, a1);
+        let (c10, c11) = self.unzip_mask32x4(b0, b1);
+        (self.combine_mask32x4(c00, c10), self.combine_mask32x4(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask32x8(self, a: mask32x8<Self>, b: mask32x8<Self>) -> mask32x8<Self> {

@@ -232,10 +232,28 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
         });
     }
     let mask_ty = ty.mask_ty().rust();
+    let block_ty = VecType::new(ty.scalar, ty.scalar_bits, 128 / ty.scalar_bits).rust();
+    let block_splat_body = match ty.n_bits() {
+        64 => quote! {
+            block.split().0
+        },
+        128 => quote! {
+            block
+        },
+        256 => quote! {
+            block.combine(block)
+        },
+        512 => quote! {
+            let block2 = block.combine(block);
+            block2.combine(block2)
+        },
+        _ => unreachable!(),
+    };
     quote! {
         impl<S: Simd> crate::SimdBase<#scalar, S> for #name<S> {
             const N: usize = #len;
             type Mask = #mask_ty<S>;
+            type Block = #block_ty<S>;
 
             #[inline(always)]
             fn as_slice(&self) -> &[#scalar] {
@@ -258,6 +276,12 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
             fn splat(simd: S, val: #scalar) -> Self {
                 simd.#splat(val)
             }
+
+            #[inline(always)]
+            fn block_splat(block: Self::Block) -> Self {
+                #block_splat_body
+            }
+
         }
         impl<S: Simd> crate::#vec_trait_id<#scalar, S> for #name<S> {
             #( #methods )*

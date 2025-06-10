@@ -127,17 +127,31 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             }
         }
         OpSig::Zip => {
-            quote! {
-                #[inline(always)]
-                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> (#ty_rust<Self>, #ty_rust<Self>) {
-                    let (a0, a1) = self.#split(a);
-                    let (b0, b1) = self.#split(b);
+            let body = match op {
+                "zip" => quote! {
                     let (c00, c01) = self.#do_half(a0, b0);
                     let (c10, c11) = self.#do_half(a1, b1);
                     (
                         self.#combine(c00, c01),
                         self.#combine(c10, c11),
                     )
+                },
+                "unzip" => quote! {
+                    let (c00, c01) = self.#do_half(a0, a1);
+                    let (c10, c11) = self.#do_half(b0, b1);
+                    (
+                        self.#combine(c00, c10),
+                        self.#combine(c01, c11),
+                    )
+                },
+                _ => unreachable!(),
+            };
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> (#ty_rust<Self>, #ty_rust<Self>) {
+                    let (a0, a1) = self.#split(a);
+                    let (b0, b1) = self.#split(b);
+                    #body
                 }
             }
         }

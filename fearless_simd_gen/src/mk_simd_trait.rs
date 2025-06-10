@@ -66,16 +66,16 @@ pub fn mk_simd_trait() -> TokenStream {
         /// TODO: docstring
         // TODO: Seal
         pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
-            type f32s: SimdFloat<f32, Self>;
-            type u8s: SimdInt<u8, Self>;
-            type i8s: SimdInt<i8, Self>;
-            type u16s: SimdInt<u16, Self>;
-            type i16s: SimdInt<i16, Self>;
-            type u32s: SimdInt<u32, Self>;
-            type i32s: SimdInt<i32, Self>;
-            type mask8s: SimdMask<i8, Self>;
-            type mask16s: SimdMask<i16, Self>;
-            type mask32s: SimdMask<i32, Self>;
+            type f32s: SimdFloat<f32, Self, Block = f32x4<Self>>;
+            type u8s: SimdInt<u8, Self, Block = u8x16<Self>>;
+            type i8s: SimdInt<i8, Self, Block = i8x16<Self>>;
+            type u16s: SimdInt<u16, Self, Block = u16x8<Self>>;
+            type i16s: SimdInt<i16, Self, Block = i16x8<Self>>;
+            type u32s: SimdInt<u32, Self, Block = u32x4<Self>>;
+            type i32s: SimdInt<i32, Self, Block = i32x4<Self>>;
+            type mask8s: SimdMask<i8, Self, Block = mask8x16<Self>>;
+            type mask16s: SimdMask<i16, Self, Block = mask16x8<Self>>;
+            type mask32s: SimdMask<i32, Self, Block = mask32x4<Self>>;
             fn level(self) -> Level;
 
             /// Call function with CPU features enabled.
@@ -99,11 +99,25 @@ fn mk_simd_base() -> TokenStream {
             + crate::Bytes
         {
             const N: usize;
+            /// A SIMD vector mask with the same number of elements.
+            ///
+            /// The mask element is represented as an integer which is
+            /// all-0 for `false` and all-1 for `true`. When we get deep
+            /// into AVX-512, we need to think about predication masks.
+            ///
+            /// One possiblity to consider is that the SIMD trait grows
+            /// `maskAxB` associated types.
             type Mask: SimdMask<Element::Mask, S>;
+            /// A 128 bit SIMD vector of the same scalar type.
+            type Block: SimdBase<Element, S>;
             fn as_slice(&self) -> &[Element];
             fn as_mut_slice(&mut self) -> &mut [Element];
+            /// Create a SIMD vector from a slice.
+            ///
+            /// The slice must be the proper width.
             fn from_slice(simd: S, slice: &[Element]) -> Self;
             fn splat(simd: S, val: Element) -> Self;
+            fn block_splat(block: Self::Block) -> Self;
         }
     }
 }

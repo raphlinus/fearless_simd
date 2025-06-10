@@ -126,6 +126,7 @@ impl<S: Simd> f32x4<S> {
 impl<S: Simd> crate::SimdBase<f32, S> for f32x4<S> {
     const N: usize = 4;
     type Mask = mask32x4<S>;
+    type Block = f32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[f32] {
         &self.val
@@ -143,6 +144,10 @@ impl<S: Simd> crate::SimdBase<f32, S> for f32x4<S> {
     #[inline(always)]
     fn splat(simd: S, val: f32) -> Self {
         simd.splat_f32x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
@@ -308,6 +313,7 @@ impl<S: Simd> i8x16<S> {
 impl<S: Simd> crate::SimdBase<i8, S> for i8x16<S> {
     const N: usize = 16;
     type Mask = mask8x16<S>;
+    type Block = i8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i8] {
         &self.val
@@ -325,6 +331,10 @@ impl<S: Simd> crate::SimdBase<i8, S> for i8x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: i8) -> Self {
         simd.splat_i8x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<i8, S> for i8x16<S> {
@@ -478,6 +488,7 @@ impl<S: Simd> u8x16<S> {
 impl<S: Simd> crate::SimdBase<u8, S> for u8x16<S> {
     const N: usize = 16;
     type Mask = mask8x16<S>;
+    type Block = u8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u8] {
         &self.val
@@ -495,6 +506,10 @@ impl<S: Simd> crate::SimdBase<u8, S> for u8x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: u8) -> Self {
         simd.splat_u8x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<u8, S> for u8x16<S> {
@@ -614,6 +629,7 @@ impl<S: Simd> mask8x16<S> {
 impl<S: Simd> crate::SimdBase<i8, S> for mask8x16<S> {
     const N: usize = 16;
     type Mask = mask8x16<S>;
+    type Block = mask8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i8] {
         &self.val
@@ -631,6 +647,10 @@ impl<S: Simd> crate::SimdBase<i8, S> for mask8x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: i8) -> Self {
         simd.splat_mask8x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdMask<i8, S> for mask8x16<S> {
@@ -768,6 +788,7 @@ impl<S: Simd> i16x8<S> {
 impl<S: Simd> crate::SimdBase<i16, S> for i16x8<S> {
     const N: usize = 8;
     type Mask = mask16x8<S>;
+    type Block = i16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i16] {
         &self.val
@@ -785,6 +806,10 @@ impl<S: Simd> crate::SimdBase<i16, S> for i16x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: i16) -> Self {
         simd.splat_i16x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<i16, S> for i16x8<S> {
@@ -938,6 +963,7 @@ impl<S: Simd> u16x8<S> {
 impl<S: Simd> crate::SimdBase<u16, S> for u16x8<S> {
     const N: usize = 8;
     type Mask = mask16x8<S>;
+    type Block = u16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u16] {
         &self.val
@@ -955,6 +981,10 @@ impl<S: Simd> crate::SimdBase<u16, S> for u16x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: u16) -> Self {
         simd.splat_u16x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<u16, S> for u16x8<S> {
@@ -1074,6 +1104,7 @@ impl<S: Simd> mask16x8<S> {
 impl<S: Simd> crate::SimdBase<i16, S> for mask16x8<S> {
     const N: usize = 8;
     type Mask = mask16x8<S>;
+    type Block = mask16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i16] {
         &self.val
@@ -1091,6 +1122,10 @@ impl<S: Simd> crate::SimdBase<i16, S> for mask16x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: i16) -> Self {
         simd.splat_mask16x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdMask<i16, S> for mask16x8<S> {
@@ -1228,6 +1263,7 @@ impl<S: Simd> i32x4<S> {
 impl<S: Simd> crate::SimdBase<i32, S> for i32x4<S> {
     const N: usize = 4;
     type Mask = mask32x4<S>;
+    type Block = i32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i32] {
         &self.val
@@ -1245,6 +1281,10 @@ impl<S: Simd> crate::SimdBase<i32, S> for i32x4<S> {
     #[inline(always)]
     fn splat(simd: S, val: i32) -> Self {
         simd.splat_i32x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<i32, S> for i32x4<S> {
@@ -1398,6 +1438,7 @@ impl<S: Simd> u32x4<S> {
 impl<S: Simd> crate::SimdBase<u32, S> for u32x4<S> {
     const N: usize = 4;
     type Mask = mask32x4<S>;
+    type Block = u32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u32] {
         &self.val
@@ -1415,6 +1456,10 @@ impl<S: Simd> crate::SimdBase<u32, S> for u32x4<S> {
     #[inline(always)]
     fn splat(simd: S, val: u32) -> Self {
         simd.splat_u32x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdInt<u32, S> for u32x4<S> {
@@ -1534,6 +1579,7 @@ impl<S: Simd> mask32x4<S> {
 impl<S: Simd> crate::SimdBase<i32, S> for mask32x4<S> {
     const N: usize = 4;
     type Mask = mask32x4<S>;
+    type Block = mask32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i32] {
         &self.val
@@ -1551,6 +1597,10 @@ impl<S: Simd> crate::SimdBase<i32, S> for mask32x4<S> {
     #[inline(always)]
     fn splat(simd: S, val: i32) -> Self {
         simd.splat_mask32x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
     }
 }
 impl<S: Simd> crate::SimdMask<i32, S> for mask32x4<S> {
@@ -1688,6 +1738,7 @@ impl<S: Simd> f32x8<S> {
 impl<S: Simd> crate::SimdBase<f32, S> for f32x8<S> {
     const N: usize = 8;
     type Mask = mask32x8<S>;
+    type Block = f32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[f32] {
         &self.val
@@ -1705,6 +1756,10 @@ impl<S: Simd> crate::SimdBase<f32, S> for f32x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: f32) -> Self {
         simd.splat_f32x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
@@ -1866,6 +1921,7 @@ impl<S: Simd> i8x32<S> {
 impl<S: Simd> crate::SimdBase<i8, S> for i8x32<S> {
     const N: usize = 32;
     type Mask = mask8x32<S>;
+    type Block = i8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i8] {
         &self.val
@@ -1883,6 +1939,10 @@ impl<S: Simd> crate::SimdBase<i8, S> for i8x32<S> {
     #[inline(always)]
     fn splat(simd: S, val: i8) -> Self {
         simd.splat_i8x32(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<i8, S> for i8x32<S> {
@@ -2032,6 +2092,7 @@ impl<S: Simd> u8x32<S> {
 impl<S: Simd> crate::SimdBase<u8, S> for u8x32<S> {
     const N: usize = 32;
     type Mask = mask8x32<S>;
+    type Block = u8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u8] {
         &self.val
@@ -2049,6 +2110,10 @@ impl<S: Simd> crate::SimdBase<u8, S> for u8x32<S> {
     #[inline(always)]
     fn splat(simd: S, val: u8) -> Self {
         simd.splat_u8x32(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<u8, S> for u8x32<S> {
@@ -2164,6 +2229,7 @@ impl<S: Simd> mask8x32<S> {
 impl<S: Simd> crate::SimdBase<i8, S> for mask8x32<S> {
     const N: usize = 32;
     type Mask = mask8x32<S>;
+    type Block = mask8x16<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i8] {
         &self.val
@@ -2181,6 +2247,10 @@ impl<S: Simd> crate::SimdBase<i8, S> for mask8x32<S> {
     #[inline(always)]
     fn splat(simd: S, val: i8) -> Self {
         simd.splat_mask8x32(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdMask<i8, S> for mask8x32<S> {
@@ -2314,6 +2384,7 @@ impl<S: Simd> i16x16<S> {
 impl<S: Simd> crate::SimdBase<i16, S> for i16x16<S> {
     const N: usize = 16;
     type Mask = mask16x16<S>;
+    type Block = i16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i16] {
         &self.val
@@ -2331,6 +2402,10 @@ impl<S: Simd> crate::SimdBase<i16, S> for i16x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: i16) -> Self {
         simd.splat_i16x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<i16, S> for i16x16<S> {
@@ -2480,6 +2555,7 @@ impl<S: Simd> u16x16<S> {
 impl<S: Simd> crate::SimdBase<u16, S> for u16x16<S> {
     const N: usize = 16;
     type Mask = mask16x16<S>;
+    type Block = u16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u16] {
         &self.val
@@ -2497,6 +2573,10 @@ impl<S: Simd> crate::SimdBase<u16, S> for u16x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: u16) -> Self {
         simd.splat_u16x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<u16, S> for u16x16<S> {
@@ -2612,6 +2692,7 @@ impl<S: Simd> mask16x16<S> {
 impl<S: Simd> crate::SimdBase<i16, S> for mask16x16<S> {
     const N: usize = 16;
     type Mask = mask16x16<S>;
+    type Block = mask16x8<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i16] {
         &self.val
@@ -2629,6 +2710,10 @@ impl<S: Simd> crate::SimdBase<i16, S> for mask16x16<S> {
     #[inline(always)]
     fn splat(simd: S, val: i16) -> Self {
         simd.splat_mask16x16(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdMask<i16, S> for mask16x16<S> {
@@ -2762,6 +2847,7 @@ impl<S: Simd> i32x8<S> {
 impl<S: Simd> crate::SimdBase<i32, S> for i32x8<S> {
     const N: usize = 8;
     type Mask = mask32x8<S>;
+    type Block = i32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i32] {
         &self.val
@@ -2779,6 +2865,10 @@ impl<S: Simd> crate::SimdBase<i32, S> for i32x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: i32) -> Self {
         simd.splat_i32x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<i32, S> for i32x8<S> {
@@ -2928,6 +3018,7 @@ impl<S: Simd> u32x8<S> {
 impl<S: Simd> crate::SimdBase<u32, S> for u32x8<S> {
     const N: usize = 8;
     type Mask = mask32x8<S>;
+    type Block = u32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[u32] {
         &self.val
@@ -2945,6 +3036,10 @@ impl<S: Simd> crate::SimdBase<u32, S> for u32x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: u32) -> Self {
         simd.splat_u32x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdInt<u32, S> for u32x8<S> {
@@ -3060,6 +3155,7 @@ impl<S: Simd> mask32x8<S> {
 impl<S: Simd> crate::SimdBase<i32, S> for mask32x8<S> {
     const N: usize = 8;
     type Mask = mask32x8<S>;
+    type Block = mask32x4<S>;
     #[inline(always)]
     fn as_slice(&self) -> &[i32] {
         &self.val
@@ -3077,6 +3173,10 @@ impl<S: Simd> crate::SimdBase<i32, S> for mask32x8<S> {
     #[inline(always)]
     fn splat(simd: S, val: i32) -> Self {
         simd.splat_mask32x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
     }
 }
 impl<S: Simd> crate::SimdMask<i32, S> for mask32x8<S> {
