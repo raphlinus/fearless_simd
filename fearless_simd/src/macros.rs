@@ -32,6 +32,44 @@ macro_rules! simd_dispatch {
     };
 }
 
+#[macro_export]
+macro_rules! simd_dispatch_explicit {
+    (
+        $( #[$meta:meta] )* $vis:vis
+        $func:ident $args:tt -> $ret:ty
+        = match level {
+            $(
+                $level:ident => $inner:ident,
+            )*
+        }
+    ) => {
+        $( #[$meta] )* $vis
+        simd_dispatch_explicit!(@funny $func lv $args -> $ret {
+            $(
+                simd_dispatch_explicit!(@case lv $level => $inner $args -> $ret);
+            )*
+            unreachable!()
+        });
+    };
+    (
+        @funny $func:ident $lv: ident ( $( $arg:ident : $ty:ty ),* ) $( -> $ret:ty )? $body:block
+    ) => {
+        fn $func( $lv: $crate::Level $(, $arg: $ty )* ) $( -> $ret )? $body
+    };
+    (
+        @case $lv:ident neon => $inner:ident ( $( $arg:ident : $ty:ty $(,)? ),* ) $( -> $ret:ty )?
+    ) => {
+        #[target_feature(enable = "neon")]
+        #[inline]
+        unsafe fn inner_neon(neon: $crate::aarch64::Neon $( , $arg: $ty )* ) $( -> $ret )? {
+            $inner( neon $( , $arg )* )
+        }
+        if let Some(neon) = $lv.as_neon() {
+            return unsafe { inner_neon( neon $(, $arg )* ) };
+        }
+    }
+}
+
 #[cfg(target_arch = "x86_64")]
 #[macro_export]
 macro_rules! simd_dispatch {

@@ -1,7 +1,9 @@
 // Copyright 2024 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use fearless_simd::{Level, Select, Simd, SimdInto, f32x4, simd_dispatch};
+use std::arch::aarch64::float32x4_t;
+
+use fearless_simd::{f32x4, simd_dispatch, simd_dispatch_explicit, Level, Neon, Select, Simd, SimdInto};
 
 // This block shows how to use safe wrappers for compile-time enforcement
 // of using valid SIMD intrinsics.
@@ -43,6 +45,20 @@ fn copy_alpha<S: Simd>(a: f32x4<S>, b: f32x4<S>) -> f32x4<S> {
     result
 }
 
+#[target_feature(enable = "neon")]
+fn copy_alpha_neon(_neon: Neon, a: [f32; 4], b: [f32; 4]) -> [f32; 4] {
+    let a = unsafe { core::mem::transmute(a) };
+    let b = unsafe { core::mem::transmute(b) };
+    let c = core::arch::aarch64::vcopyq_laneq_f32::<3, 3>(a, b);
+    unsafe { core::mem::transmute(c) }
+}
+
+simd_dispatch_explicit!(copy_alpha_exp(a: [f32; 4], b: [f32; 4]) -> [f32; 4] =
+    match level {
+        neon => copy_alpha_neon,
+    }
+);
+
 #[inline(always)]
 fn to_srgb_impl<S: Simd>(simd: S, rgba: [f32; 4]) -> [f32; 4] {
     let v: f32x4<S> = rgba.simd_into(simd);
@@ -57,7 +73,7 @@ fn to_srgb_impl<S: Simd>(simd: S, rgba: [f32; 4]) -> [f32; 4] {
     let lin = vabs * 12.92;
     let z = vabs.simd_gt(0.0031308).select(poly, lin);
     let z_signed = z.copysign(v);
-    let result = copy_alpha(z_signed, v);
+    let result = copy_alpha_exp(simd.level(), z_signed.into(), v.into());
     result.into()
 }
 
