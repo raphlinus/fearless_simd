@@ -11,6 +11,7 @@ pub enum OpSig {
     Splat,
     Unary,
     Binary,
+    Ternary,
     Compare,
     Select,
     Combine,
@@ -37,6 +38,12 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("simd_gt", OpSig::Compare),
     ("zip", OpSig::Zip),
     ("unzip", OpSig::Zip),
+    ("max", OpSig::Binary),
+    ("max_precise", OpSig::Binary),
+    ("min", OpSig::Binary),
+    ("min_precise", OpSig::Binary),
+    ("madd", OpSig::Ternary),
+    ("floor", OpSig::Unary),
     // TODO: simd_ne, but this requires additional implementation work on Neon
     ("select", OpSig::Select),
 ];
@@ -117,6 +124,9 @@ impl OpSig {
             OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
+            OpSig::Ternary => {
+                quote! { self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self> }   
+            }
             OpSig::Select => {
                 let mask_ty = vec_ty.mask_ty().rust();
                 quote! { self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self> }
@@ -131,6 +141,9 @@ impl OpSig {
             OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
+            OpSig::Ternary => {
+                quote! { self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S> }
+            },
             // select is currently done by trait, but maybe we'll implement for
             // masks.
             OpSig::Select => return None,
@@ -146,7 +159,7 @@ impl OpSig {
             TyFlavor::VecImpl => quote! { <S> },
         };
         match self {
-            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select => {
+            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select | OpSig::Ternary => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }

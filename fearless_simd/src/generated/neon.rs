@@ -116,6 +116,30 @@ impl Simd for Neon {
         unsafe { (vuzp1q_f32(x, y).simd_into(self), vuzp2q_f32(x, y).simd_into(self)) }
     }
     #[inline(always)]
+    fn max_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vmaxq_f32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vmaxnmq_f32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn min_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vminq_f32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn min_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vminnmq_f32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn madd_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vfmaq_f32(a.into(), b.into(), c.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn floor_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
+        unsafe { vrndmq_f32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_f32x4(
         self,
         a: mask32x4<Self>,
@@ -917,6 +941,48 @@ impl Simd for Neon {
         let (c00, c01) = self.unzip_f32x4(a0, a1);
         let (c10, c11) = self.unzip_f32x4(b0, b1);
         (self.combine_f32x4(c00, c10), self.combine_f32x4(c01, c11))
+    }
+    #[inline(always)]
+    fn max_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(self.max_f32x4(a0, b0), self.max_f32x4(a1, b1))
+    }
+    #[inline(always)]
+    fn max_precise_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(
+            self.max_precise_f32x4(a0, b0),
+            self.max_precise_f32x4(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn min_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(self.min_f32x4(a0, b0), self.min_f32x4(a1, b1))
+    }
+    #[inline(always)]
+    fn min_precise_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(
+            self.min_precise_f32x4(a0, b0),
+            self.min_precise_f32x4(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn madd_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        let (c0, c1) = self.split_f32x8(c);
+        self.combine_f32x4(self.madd_f32x4(a0, b0, c0), self.madd_f32x4(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn floor_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f32x4(self.floor_f32x4(a0), self.floor_f32x4(a1))
     }
     #[inline(always)]
     fn select_f32x8(

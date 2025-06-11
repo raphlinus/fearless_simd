@@ -119,6 +119,26 @@ impl<S: Simd> f32x4<S> {
         self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f32x4<S> {
+        self.simd.floor_f32x4(self)
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.combine_f32x4(self, rhs.simd_into(self.simd))
     }
@@ -194,6 +214,30 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
     #[inline(always)]
     fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x4<S>, f32x4<S>) {
         self.simd.unzip_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.madd_f32x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f32x4<S> {
+        self.simd.floor_f32x4(self)
     }
 }
 #[derive(Clone, Copy)]
@@ -1739,6 +1783,26 @@ impl<S: Simd> f32x8<S> {
         self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f32x8<S> {
+        self.simd.floor_f32x8(self)
+    }
+    #[inline(always)]
     pub fn cvt_u32(self) -> u32x8<S> {
         self.simd.cvt_u32_f32x8(self)
     }
@@ -1810,6 +1874,30 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
     #[inline(always)]
     fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x8<S>, f32x8<S>) {
         self.simd.unzip_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.madd_f32x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f32x8<S> {
+        self.simd.floor_f32x8(self)
     }
 }
 #[derive(Clone, Copy)]

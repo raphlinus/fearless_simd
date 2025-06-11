@@ -140,6 +140,19 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
+                OpSig::Ternary => {
+                    let args = [quote! { a.into() }, quote! { b.into() }, quote! { c.into() }];
+
+                    let expr = Neon.expr(method, vec_ty, &args);
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
+                            unsafe {
+                                #expr.simd_into(self)
+                            }
+                        }
+                    }
+                }
                 OpSig::Compare => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);

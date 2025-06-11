@@ -18,6 +18,7 @@ fn translate_op(op: &str) -> Option<&'static str> {
     Some(match op {
         "abs" => "vabs",
         "neg" => "vneg",
+        "floor" => "vrndm",
         "sqrt" => "vsqrt",
         "add" => "vadd",
         "sub" => "vsub",
@@ -32,6 +33,11 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "and" => "vand",
         "or" => "vorr",
         "xor" => "veor",
+        "max" => "vmax",
+        "min" => "vmin",
+        "max_precise" => "vmaxnm",
+        "min_precise" => "vminnm",
+        "madd" => "vfma",
         _ => return None,
     })
 }

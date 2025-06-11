@@ -96,6 +96,17 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
+        OpSig::Ternary => {
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>, c: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    let (b0, b1) = self.#split(b);
+                    let (c0, c1) = self.#split(c);
+                    self.#combine(self.#do_half(a0, b0, c0), self.#do_half(a1, b1, c1))
+                }
+            }
+        }
         OpSig::Compare => {
             let half_mask = VecType::new(ScalarType::Mask, ty.scalar_bits, ty.len / 2);
             let combine_mask = Ident::new(
