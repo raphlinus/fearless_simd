@@ -45,6 +45,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: f32x4<Self>,
     ) -> f32x4<Self>;
     fn combine_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x8<Self>;
+    fn cvt_u32_f32x4(self, a: f32x4<Self>) -> u32x4<Self>;
     fn splat_i8x16(self, val: i8) -> i8x16<Self>;
     fn not_i8x16(self, a: i8x16<Self>) -> i8x16<Self>;
     fn add_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self>;
@@ -269,6 +270,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: f32x8<Self>,
     ) -> f32x8<Self>;
     fn split_f32x8(self, a: f32x8<Self>) -> (f32x4<Self>, f32x4<Self>);
+    fn cvt_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self>;
     fn splat_i8x32(self, val: i8) -> i8x32<Self>;
     fn not_i8x32(self, a: i8x32<Self>) -> i8x32<Self>;
     fn add_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self>;
@@ -501,11 +503,16 @@ pub trait SimdBase<
     /// The mask element is represented as an integer which is
     /// all-0 for `false` and all-1 for `true`. When we get deep
     /// into AVX-512, we need to think about predication masks.
+    ///
+    /// One possiblity to consider is that the SIMD trait grows
+    /// `maskAxB` associated types.
     type Mask: SimdMask<Element::Mask, S>;
     /// A 128 bit SIMD vector of the same scalar type.
     type Block: SimdBase<Element, S>;
     fn as_slice(&self) -> &[Element];
     fn as_mut_slice(&mut self) -> &mut [Element];
+    /// Create a SIMD vector from a slice.
+    ///
     /// The slice must be the proper width.
     fn from_slice(simd: S, slice: &[Element]) -> Self;
     fn splat(simd: S, val: Element) -> Self;

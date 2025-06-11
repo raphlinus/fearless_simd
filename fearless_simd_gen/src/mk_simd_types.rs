@@ -6,7 +6,7 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    ops::{CORE_OPS, OpSig, ops_for_type},
+    ops::{CORE_OPS, OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, ScalarType, VecType},
 };
 
@@ -121,46 +121,30 @@ fn simd_impl(ty: &VecType) -> TokenStream {
     let name = ty.rust();
     let ty_name = ty.rust_name();
     let mut methods = vec![];
-    for (method, sig) in ops_for_type(ty) {
+    for (method, sig) in ops_for_type(ty, true) {
         let method_name = Ident::new(method, Span::call_site());
         let trait_method = Ident::new(&format!("{method}_{ty_name}"), Span::call_site());
-        let args = match sig {
-            OpSig::Splat => continue,
-            OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine => {
-                quote! { self, rhs: impl SimdInto<Self, S> }
+        if matches!(
+            sig,
+            OpSig::Unary | OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Cvt(_, _)
+        ) {
+            if let Some(args) = sig.vec_trait_args() {
+                let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
+                let call_args = match sig {
+                    OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
+                    OpSig::Binary | OpSig::Compare | OpSig::Combine => {
+                        quote! { self, rhs.simd_into(self.simd) }
+                    }
+                    _ => quote! { todo!() },
+                };
+                methods.push(quote! {
+                    #[inline(always)]
+                    pub fn #method_name(#args) -> #ret_ty {
+                        self.simd.#trait_method(#call_args)
+                    }
+                });
             }
-            // select is currently done by trait, but maybe we'll implement for
-            // masks.
-            OpSig::Select => continue,
-            OpSig::Zip => continue,
-            OpSig::Split => quote! { self },
-        };
-        let ret_ty = match sig {
-            OpSig::Split => continue,
-            OpSig::Compare => {
-                let mask = ty.mask_ty().rust();
-                quote! { #mask<S> }
-            }
-            OpSig::Combine => {
-                let double = VecType::new(ty.scalar, ty.scalar_bits, ty.len * 2).rust();
-                quote! { #double<S> }
-            }
-            _ => quote! { #name<S> },
-        };
-        let call_args = match sig {
-            OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine => {
-                quote! { self, rhs.simd_into(self.simd) }
-            }
-            _ => quote! { todo!() },
-        };
-        methods.push(quote! {
-            #[inline(always)]
-            pub fn #method_name(#args) -> #ret_ty {
-                self.simd.#trait_method(#call_args)
-            }
-        });
+        }
     }
     let vec_impl = simd_vec_impl(ty);
     quote! {
@@ -188,48 +172,28 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
     let vec_trait_id = Ident::new(vec_trait, Span::call_site());
     let splat = Ident::new(&format!("splat_{}", ty.rust_name()), Span::call_site());
     let mut methods = vec![];
-    for (method, sig) in ops_for_type(ty) {
-        if CORE_OPS.contains(&method) {
+    for (method, sig) in ops_for_type(ty, false) {
+        if CORE_OPS.contains(&method) || matches!(sig, OpSig::Combine) {
             continue;
         }
         let method_name = Ident::new(method, Span::call_site());
         let trait_method = Ident::new(&format!("{method}_{ty_name}"), Span::call_site());
-        let args = match sig {
-            OpSig::Splat => continue,
-            OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Zip => {
-                quote! { self, rhs: impl SimdInto<Self, S> }
-            }
-            // select is currently done by trait, but maybe we'll implement for
-            // masks.
-            OpSig::Select => continue,
-            OpSig::Split | OpSig::Combine => continue,
-        };
-        let ret_ty = match sig {
-            OpSig::Compare => {
-                let mask = ty.mask_ty().rust();
-                quote! { #mask<S> }
-            }
-            OpSig::Combine => {
-                let double = VecType::new(ty.scalar, ty.scalar_bits, ty.len * 2).rust();
-                quote! { #double<S> }
-            }
-            OpSig::Zip => quote! { (Self, Self) },
-            _ => quote! { #name<S> },
-        };
-        let call_args = match sig {
-            OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
-                quote! { self, rhs.simd_into(self.simd) }
-            }
-            _ => quote! { todo!() },
-        };
-        methods.push(quote! {
-            #[inline(always)]
-            fn #method_name(#args) -> #ret_ty {
-                self.simd.#trait_method(#call_args)
-            }
-        });
+        if let Some(args) = sig.vec_trait_args() {
+            let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
+            let call_args = match sig {
+                OpSig::Unary => quote! { self },
+                OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
+                    quote! { self, rhs.simd_into(self.simd) }
+                }
+                _ => quote! { todo!() },
+            };
+            methods.push(quote! {
+                #[inline(always)]
+                fn #method_name(#args) -> #ret_ty {
+                    self.simd.#trait_method(#call_args)
+                }
+            });
+        }
     }
     let mask_ty = ty.mask_ty().rust();
     let block_ty = VecType::new(ty.scalar, ty.scalar_bits, 128 / ty.scalar_bits).rust();

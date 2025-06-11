@@ -96,3 +96,12 @@ pub fn split_intrinsic(name: &str, name2: &str, ty: &VecType) -> Ident {
         Span::call_site(),
     )
 }
+
+pub fn cvt_intrinsic(name: &str, to_ty: &VecType, from_ty: &VecType) -> Ident {
+    let (opt_q, from_scalar_c, from_size) = neon_array_type(from_ty);
+    let (_opt_q, to_scalar_c, to_size) = neon_array_type(to_ty);
+    Ident::new(
+        &format!("{name}{opt_q}_{to_scalar_c}{to_size}_{from_scalar_c}{from_size}"),
+        Span::call_site(),
+    )
+}

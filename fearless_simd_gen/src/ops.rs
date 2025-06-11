@@ -1,6 +1,9 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
+use proc_macro2::TokenStream;
+use quote::quote;
+
 use crate::types::{ScalarType, VecType};
 
 #[derive(Clone, Copy)]
@@ -13,6 +16,7 @@ pub enum OpSig {
     Combine,
     Split,
     Zip,
+    Cvt(ScalarType, usize),
     // TODO: fma
 }
 
@@ -71,7 +75,7 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
 /// Ops covered by core::ops
 pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor"];
 
-pub fn ops_for_type(ty: &VecType) -> Vec<(&str, OpSig)> {
+pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     let base = match ty.scalar {
         ScalarType::Float => FLOAT_OPS,
         ScalarType::Int | ScalarType::Unsigned => INT_OPS,
@@ -84,5 +88,90 @@ pub fn ops_for_type(ty: &VecType) -> Vec<(&str, OpSig)> {
     if ty.n_bits() > 128 {
         ops.push(("split", OpSig::Split));
     }
+    if cvt {
+        match (ty.scalar, ty.scalar_bits) {
+            (ScalarType::Float, 32) => ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32))),
+            _ => (),
+        }
+    }
     ops
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum TyFlavor {
+    /// Types for methods in the `Simd` trait; `f32x4<Self>`
+    SimdTrait,
+    /// Types for methods in the vec trait; `f32x4<S>`
+    VecImpl,
+}
+
+impl OpSig {
+    pub fn simd_trait_args(&self, vec_ty: &VecType) -> TokenStream {
+        let ty = vec_ty.rust();
+        match self {
+            OpSig::Splat => {
+                let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
+                quote! { self, val: #scalar }
+            }
+            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) => quote! { self, a: #ty<Self> },
+            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
+                quote! { self, a: #ty<Self>, b: #ty<Self> }
+            }
+            OpSig::Select => {
+                let mask_ty = vec_ty.mask_ty().rust();
+                quote! { self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self> }
+            }
+        }
+    }
+
+    pub fn vec_trait_args(&self) -> Option<TokenStream> {
+        let args = match self {
+            OpSig::Splat => return None,
+            OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
+            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
+                quote! { self, rhs: impl SimdInto<Self, S> }
+            }
+            // select is currently done by trait, but maybe we'll implement for
+            // masks.
+            OpSig::Select => return None,
+            // These signatures involve types not in the Simd trait
+            OpSig::Split => return None,
+        };
+        Some(args)
+    }
+
+    pub fn ret_ty(&self, ty: &VecType, flavor: TyFlavor) -> TokenStream {
+        let quant = match flavor {
+            TyFlavor::SimdTrait => quote! { <Self> },
+            TyFlavor::VecImpl => quote! { <S> },
+        };
+        match self {
+            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select => {
+                let rust = ty.rust();
+                quote! { #rust #quant }
+            }
+            OpSig::Compare => {
+                let rust = ty.mask_ty().rust();
+                quote! { #rust #quant }
+            }
+            OpSig::Combine => {
+                let n2 = ty.len * 2;
+                let result = VecType::new(ty.scalar, ty.scalar_bits, n2).rust();
+                quote! { #result #quant }
+            }
+            OpSig::Split => {
+                let len = ty.len / 2;
+                let result = VecType::new(ty.scalar, ty.scalar_bits, len).rust();
+                quote! { ( #result #quant, #result #quant ) }
+            }
+            OpSig::Zip => {
+                let rust = ty.rust();
+                quote! { ( #rust #quant, #rust #quant ) }
+            }
+            OpSig::Cvt(scalar, scalar_bits) => {
+                let result = VecType::new(*scalar, *scalar_bits, ty.len).rust();
+                quote! { #result #quant }
+            }
+        }
+    }
 }

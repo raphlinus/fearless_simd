@@ -6,9 +6,9 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    arch::{Arch, Neon, simple_intrinsic},
+    arch::{Arch, Neon, cvt_intrinsic, simple_intrinsic},
     generic::{generic_combine, generic_op, generic_split},
-    ops::{OpSig, ops_for_type},
+    ops::{OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, VecType, type_imports},
 };
 
@@ -73,20 +73,21 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let scalar_bits = vec_ty.scalar_bits;
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
-        for (method, sig) in ops_for_type(vec_ty) {
+        for (method, sig) in ops_for_type(vec_ty, true) {
             if vec_ty.n_bits() > 128 && method != "split" {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
             let method_name = format!("{method}_{ty_name}");
             let method_ident = Ident::new(&method_name, Span::call_site());
+            let ret_ty = sig.ret_ty(vec_ty, TyFlavor::SimdTrait);
             let method = match sig {
                 OpSig::Splat => {
                     let scalar = vec_ty.scalar.rust(scalar_bits);
                     let expr = Neon.expr(method, vec_ty, &[quote! { val }]);
                     quote! {
                         #[inline(always)]
-                        fn #method_ident(self, val: #scalar) -> #ty<Self> {
+                        fn #method_ident(self, val: #scalar) -> #ret_ty {
                             unsafe {
                                 #expr.simd_into(self)
                             }
@@ -98,7 +99,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     let expr = Neon.expr(method, vec_ty, &args);
                     quote! {
                         #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>) -> #ty<Self> {
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
                             unsafe {
                                 #expr.simd_into(self)
                             }
@@ -120,7 +121,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
 
                         quote! {
                             #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ty<Self> {
+                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                                 unsafe {
                                     let sign_mask = #sign_mask;
                                     #vbsl(sign_mask, b.into(), a.into()).simd_into(self)
@@ -131,7 +132,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         let expr = Neon.expr(method, vec_ty, &args);
                         quote! {
                             #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ty<Self> {
+                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                                 unsafe {
                                     #expr.simd_into(self)
                                 }
@@ -142,14 +143,13 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 OpSig::Compare => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);
-                    let ret_ty = vec_ty.mask_ty().rust();
                     let opt_q = crate::arch::opt_q(vec_ty);
                     let reinterpret_str =
                         format!("vreinterpret{opt_q}_s{scalar_bits}_u{scalar_bits}");
                     let reinterpret = Ident::new(&reinterpret_str, Span::call_site());
                     quote! {
                         #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty<Self> {
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             unsafe {
                                 #reinterpret(#expr).simd_into(self)
                             }
@@ -165,7 +165,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     let vbsl = simple_intrinsic("vbsl", vec_ty);
                     quote! {
                         #[inline(always)]
-                        fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ty<Self> {
+                        fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
                             unsafe {
                                 #vbsl(#reinterpret(a.into()), b.into(), c.into()).simd_into(self)
                             }
@@ -184,7 +184,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     let zip2 = simple_intrinsic(&format!("{neon}2"), vec_ty);
                     quote! {
                         #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> (#ty<Self>, #ty<Self>) {
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             let x = a.into();
                             let y = b.into();
                             unsafe {
@@ -192,6 +192,18 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                     #zip1(x, y).simd_into(self),
                                     #zip2(x, y).simd_into(self),
                                 )
+                            }
+                        }
+                    }
+                }
+                OpSig::Cvt(scalar, scalar_bits) => {
+                    let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
+                    let neon = cvt_intrinsic("vcvtn", to_ty, vec_ty);
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            unsafe {
+                                #neon(a.into()).simd_into(self)
                             }
                         }
                     }

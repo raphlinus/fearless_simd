@@ -6,7 +6,7 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    ops::OpSig,
+    ops::{OpSig, TyFlavor},
     types::{ScalarType, VecType},
 };
 
@@ -65,12 +65,13 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
     let half = VecType::new(ty.scalar, ty.scalar_bits, ty.len / 2);
     let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
     let do_half = Ident::new(&format!("{op}_{}", half.rust_name()), Span::call_site());
+    let ret_ty = sig.ret_ty(ty, TyFlavor::SimdTrait);
     match sig {
         OpSig::Splat => {
             let scalar = ty.scalar.rust(ty.scalar_bits);
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #scalar) -> #ty_rust<Self> {
+                fn #name(self, a: #scalar) -> #ret_ty {
                     let half = self.#do_half(a);
                     self.#combine(half, half)
                 }
@@ -79,7 +80,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
         OpSig::Unary => {
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #ty_rust<Self>) -> #ty_rust<Self> {
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
                     let (a0, a1) = self.#split(a);
                     self.#combine(self.#do_half(a0), self.#do_half(a1))
                 }
@@ -88,7 +89,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
         OpSig::Binary => {
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ty_rust<Self> {
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
                     let (a0, a1) = self.#split(a);
                     let (b0, b1) = self.#split(b);
                     self.#combine(self.#do_half(a0, b0), self.#do_half(a1, b1))
@@ -96,7 +97,6 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             }
         }
         OpSig::Compare => {
-            let mask = VecType::new(ScalarType::Mask, ty.scalar_bits, ty.len).rust();
             let half_mask = VecType::new(ScalarType::Mask, ty.scalar_bits, ty.len / 2);
             let combine_mask = Ident::new(
                 &format!("combine_{}", half_mask.rust_name()),
@@ -104,7 +104,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             );
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #mask<Self> {
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
                     let (a0, a1) = self.#split(a);
                     let (b0, b1) = self.#split(b);
                     self.#combine_mask(self.#do_half(a0, b0), self.#do_half(a1, b1))
@@ -118,7 +118,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 Ident::new(&format!("split_{}", mask_ty.rust_name()), Span::call_site());
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #mask<Self>, b: #ty_rust<Self>, c: #ty_rust<Self>) -> #ty_rust<Self> {
+                fn #name(self, a: #mask<Self>, b: #ty_rust<Self>, c: #ty_rust<Self>) -> #ret_ty {
                     let (a0, a1) = self.#split_mask(a);
                     let (b0, b1) = self.#split(b);
                     let (c0, c1) = self.#split(c);
@@ -148,10 +148,21 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             };
             quote! {
                 #[inline(always)]
-                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> (#ty_rust<Self>, #ty_rust<Self>) {
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
                     let (a0, a1) = self.#split(a);
                     let (b0, b1) = self.#split(b);
                     #body
+                }
+            }
+        }
+        OpSig::Cvt(scalar, scalar_bits) => {
+            let half = VecType::new(scalar, scalar_bits, ty.len / 2);
+            let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0), self.#do_half(a1))
                 }
             }
         }

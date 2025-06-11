@@ -122,6 +122,10 @@ impl<S: Simd> f32x4<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.combine_f32x4(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn cvt_u32(self) -> u32x4<S> {
+        self.simd.cvt_u32_f32x4(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<f32, S> for f32x4<S> {
     const N: usize = 4;
@@ -184,11 +188,11 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
         self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (f32x4<S>, f32x4<S>) {
         self.simd.zip_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x4<S>, f32x4<S>) {
         self.simd.unzip_f32x4(self, rhs.simd_into(self.simd))
     }
 }
@@ -359,11 +363,11 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x16<S> {
         self.simd.simd_gt_i8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i8x16<S>, i8x16<S>) {
         self.simd.zip_i8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i8x16<S>, i8x16<S>) {
         self.simd.unzip_i8x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -534,11 +538,11 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x16<S> {
         self.simd.simd_gt_u8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u8x16<S>, u8x16<S>) {
         self.simd.zip_u8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u8x16<S>, u8x16<S>) {
         self.simd.unzip_u8x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -655,11 +659,11 @@ impl<S: Simd> crate::SimdBase<i8, S> for mask8x16<S> {
 }
 impl<S: Simd> crate::SimdMask<i8, S> for mask8x16<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask8x16<S>, mask8x16<S>) {
         self.simd.zip_mask8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask8x16<S>, mask8x16<S>) {
         self.simd.unzip_mask8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
@@ -834,11 +838,11 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x8<S> {
         self.simd.simd_gt_i16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i16x8<S>, i16x8<S>) {
         self.simd.zip_i16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i16x8<S>, i16x8<S>) {
         self.simd.unzip_i16x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1009,11 +1013,11 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x8<S> {
         self.simd.simd_gt_u16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u16x8<S>, u16x8<S>) {
         self.simd.zip_u16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u16x8<S>, u16x8<S>) {
         self.simd.unzip_u16x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1130,11 +1134,11 @@ impl<S: Simd> crate::SimdBase<i16, S> for mask16x8<S> {
 }
 impl<S: Simd> crate::SimdMask<i16, S> for mask16x8<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask16x8<S>, mask16x8<S>) {
         self.simd.zip_mask16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask16x8<S>, mask16x8<S>) {
         self.simd.unzip_mask16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
@@ -1309,11 +1313,11 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x4<S> {
         self.simd.simd_gt_i32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i32x4<S>, i32x4<S>) {
         self.simd.zip_i32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i32x4<S>, i32x4<S>) {
         self.simd.unzip_i32x4(self, rhs.simd_into(self.simd))
     }
 }
@@ -1484,11 +1488,11 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x4<S> {
         self.simd.simd_gt_u32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u32x4<S>, u32x4<S>) {
         self.simd.zip_u32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u32x4<S>, u32x4<S>) {
         self.simd.unzip_u32x4(self, rhs.simd_into(self.simd))
     }
 }
@@ -1605,11 +1609,11 @@ impl<S: Simd> crate::SimdBase<i32, S> for mask32x4<S> {
 }
 impl<S: Simd> crate::SimdMask<i32, S> for mask32x4<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask32x4<S>, mask32x4<S>) {
         self.simd.zip_mask32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask32x4<S>, mask32x4<S>) {
         self.simd.unzip_mask32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
@@ -1734,6 +1738,10 @@ impl<S: Simd> f32x8<S> {
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn cvt_u32(self) -> u32x8<S> {
+        self.simd.cvt_u32_f32x8(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<f32, S> for f32x8<S> {
     const N: usize = 8;
@@ -1796,11 +1804,11 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
         self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (f32x8<S>, f32x8<S>) {
         self.simd.zip_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x8<S>, f32x8<S>) {
         self.simd.unzip_f32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -1967,11 +1975,11 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x32<S> {
         self.simd.simd_gt_i8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i8x32<S>, i8x32<S>) {
         self.simd.zip_i8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i8x32<S>, i8x32<S>) {
         self.simd.unzip_i8x32(self, rhs.simd_into(self.simd))
     }
 }
@@ -2138,11 +2146,11 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x32<S> {
         self.simd.simd_gt_u8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u8x32<S>, u8x32<S>) {
         self.simd.zip_u8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u8x32<S>, u8x32<S>) {
         self.simd.unzip_u8x32(self, rhs.simd_into(self.simd))
     }
 }
@@ -2255,11 +2263,11 @@ impl<S: Simd> crate::SimdBase<i8, S> for mask8x32<S> {
 }
 impl<S: Simd> crate::SimdMask<i8, S> for mask8x32<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask8x32<S>, mask8x32<S>) {
         self.simd.zip_mask8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask8x32<S>, mask8x32<S>) {
         self.simd.unzip_mask8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
@@ -2430,11 +2438,11 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x16<S> {
         self.simd.simd_gt_i16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i16x16<S>, i16x16<S>) {
         self.simd.zip_i16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i16x16<S>, i16x16<S>) {
         self.simd.unzip_i16x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -2601,11 +2609,11 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x16<S> {
         self.simd.simd_gt_u16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u16x16<S>, u16x16<S>) {
         self.simd.zip_u16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u16x16<S>, u16x16<S>) {
         self.simd.unzip_u16x16(self, rhs.simd_into(self.simd))
     }
 }
@@ -2718,11 +2726,11 @@ impl<S: Simd> crate::SimdBase<i16, S> for mask16x16<S> {
 }
 impl<S: Simd> crate::SimdMask<i16, S> for mask16x16<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask16x16<S>, mask16x16<S>) {
         self.simd.zip_mask16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask16x16<S>, mask16x16<S>) {
         self.simd.unzip_mask16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
@@ -2893,11 +2901,11 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x8<S> {
         self.simd.simd_gt_i32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (i32x8<S>, i32x8<S>) {
         self.simd.zip_i32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (i32x8<S>, i32x8<S>) {
         self.simd.unzip_i32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -3064,11 +3072,11 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x8<S> {
         self.simd.simd_gt_u32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (u32x8<S>, u32x8<S>) {
         self.simd.zip_u32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (u32x8<S>, u32x8<S>) {
         self.simd.unzip_u32x8(self, rhs.simd_into(self.simd))
     }
 }
@@ -3181,11 +3189,11 @@ impl<S: Simd> crate::SimdBase<i32, S> for mask32x8<S> {
 }
 impl<S: Simd> crate::SimdMask<i32, S> for mask32x8<S> {
     #[inline(always)]
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn zip(self, rhs: impl SimdInto<Self, S>) -> (mask32x8<S>, mask32x8<S>) {
         self.simd.zip_mask32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self) {
+    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (mask32x8<S>, mask32x8<S>) {
         self.simd.unzip_mask32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]

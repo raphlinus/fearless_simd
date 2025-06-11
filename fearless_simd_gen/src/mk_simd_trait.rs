@@ -6,8 +6,8 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    ops::{CORE_OPS, FLOAT_OPS, INT_OPS, MASK_OPS, OpSig, ops_for_type},
-    types::{SIMD_TYPES, VecType, type_imports},
+    ops::{CORE_OPS, FLOAT_OPS, INT_OPS, MASK_OPS, OpSig, TyFlavor, ops_for_type},
+    types::{SIMD_TYPES, type_imports},
 };
 
 pub fn mk_simd_trait() -> TokenStream {
@@ -16,47 +16,13 @@ pub fn mk_simd_trait() -> TokenStream {
     // Float methods
     for vec_ty in SIMD_TYPES {
         let ty_name = vec_ty.rust_name();
-        let ty = vec_ty.rust();
-        for (method, sig) in &ops_for_type(&vec_ty) {
+        for (method, sig) in &ops_for_type(&vec_ty, true) {
             let method_name = format!("{method}_{ty_name}");
             let method = Ident::new(&method_name, Span::call_site());
-            let args = match sig {
-                OpSig::Splat => {
-                    let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
-                    quote! { self, val: #scalar }
-                }
-                OpSig::Unary => quote! { self, a: #ty<Self> },
-                OpSig::Binary | OpSig::Compare | OpSig::Combine => {
-                    quote! { self, a: #ty<Self>, b: #ty<Self> }
-                }
-                OpSig::Select => {
-                    let mask_ty = vec_ty.mask_ty().rust();
-                    quote! { self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self> }
-                }
-                OpSig::Split => {
-                    let ret_ty =
-                        VecType::new(vec_ty.scalar, vec_ty.scalar_bits, vec_ty.len / 2).rust();
-                    methods.extend(quote! {
-                        fn #method(self, a: #ty<Self>) -> (#ret_ty<Self>, #ret_ty<Self>);
-                    });
-                    continue;
-                }
-                OpSig::Zip => {
-                    methods.extend(quote! {
-                        fn #method(self, a: #ty<Self>, b: #ty<Self>) -> (#ty<Self>, #ty<Self>);
-                    });
-                    continue;
-                }
-            };
-            let ret_ty = match sig {
-                OpSig::Compare => vec_ty.mask_ty().rust(),
-                OpSig::Combine => {
-                    VecType::new(vec_ty.scalar, vec_ty.scalar_bits, vec_ty.len * 2).rust()
-                }
-                _ => vec_ty.rust(),
-            };
+            let args = sig.simd_trait_args(vec_ty);
+            let ret_ty = sig.ret_ty(vec_ty, TyFlavor::SimdTrait);
             methods.extend(quote! {
-                fn #method(#args) -> #ret_ty<Self>;
+                fn #method(#args) -> #ret_ty;
             });
         }
     }
@@ -180,30 +146,20 @@ fn mk_simd_mask() -> TokenStream {
 fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
     let mut methods = vec![];
     for (method, sig) in ops {
-        if CORE_OPS.contains(method) || *method == "splat" {
+        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Combine) {
             continue;
         }
         let method_name = Ident::new(method, Span::call_site());
-        let args = match sig {
-            OpSig::Splat => continue,
-            OpSig::Unary => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Zip => {
-                quote! { self, rhs: impl SimdInto<Self, S> }
-            }
-            // select is currently done by trait, but maybe we'll implement for
-            // masks.
-            OpSig::Select => continue,
-            // These signatures involve types not in the Simd trait
-            OpSig::Split | OpSig::Combine => continue,
-        };
-        let ret_ty = match sig {
-            OpSig::Compare => quote! { Self::Mask },
-            OpSig::Zip => quote! { (Self, Self) },
-            _ => quote! { Self },
-        };
-        methods.push(quote! {
-            fn #method_name(#args) -> #ret_ty;
-        })
+        if let Some(args) = sig.vec_trait_args() {
+            let ret_ty = match sig {
+                OpSig::Compare => quote! { Self::Mask },
+                OpSig::Zip => quote! { (Self, Self) },
+                _ => quote! { Self },
+            };
+            methods.push(quote! {
+                fn #method_name(#args) -> #ret_ty;
+            });
+        }
     }
     methods
 }
