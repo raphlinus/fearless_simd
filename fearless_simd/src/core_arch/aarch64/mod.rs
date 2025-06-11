@@ -7,22 +7,13 @@
 
 mod fp16;
 
-pub use fp16::{float16x4_t, float16x8_t, Fp16};
-
-use core::arch::aarch64::*;
-
-use crate::impl_macros::delegate;
+pub use fp16::{Fp16, float16x4_t, float16x8_t};
 
 /// A token for Neon intrinsics on aarch64.
 #[derive(Clone, Copy, Debug)]
 pub struct Neon {
     _private: (),
 }
-
-type p8 = u8;
-type p16 = u16;
-type p64 = u64;
-type p128 = u128;
 
 impl Neon {
     /// Create a SIMD token.
@@ -34,7 +25,22 @@ impl Neon {
     pub unsafe fn new_unchecked() -> Self {
         Self { _private: () }
     }
+}
 
+#[cfg(feature = "safe_wrappers")]
+use {crate::impl_macros::delegate, core::arch::aarch64::*};
+
+#[cfg(feature = "safe_wrappers")]
+type p8 = u8;
+#[cfg(feature = "safe_wrappers")]
+type p16 = u16;
+#[cfg(feature = "safe_wrappers")]
+type p64 = u64;
+#[cfg(feature = "safe_wrappers")]
+type p128 = u128;
+
+#[cfg(feature = "safe_wrappers")]
+impl Neon {
     delegate! { core::arch::aarch64:
         fn vand_s8(a: int8x8_t, b: int8x8_t) -> int8x8_t;
         fn vandq_s8(a: int8x16_t, b: int8x16_t) -> int8x16_t;

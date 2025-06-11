@@ -11,22 +11,22 @@ macro_rules! simd_dispatch {
         $func:ident ( level $( , $arg:ident : $ty:ty $(,)? )* ) $( -> $ret:ty )?
         = $inner:ident
     ) => {
-        $( #[$meta:meta] )* $vis
+        $( #[$meta] )* $vis
         fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
             #[target_feature(enable = "neon")]
             #[inline]
             unsafe fn inner_neon(neon: $crate::aarch64::Neon $( , $arg: $ty )* ) $( -> $ret )? {
                 $inner( neon $( , $arg )* )
             }
-            #[target_feature(enable = "neon,fp16")]
-            #[inline]
-            unsafe fn inner_fp16(fp16: $crate::aarch64::Fp16 $( , $arg: $ty )* ) $( -> $ret )? {
-                $inner( fp16 $( , $arg )* )
-            }
+            //#[target_feature(enable = "neon,fp16")]
+            //#[inline]
+            //unsafe fn inner_fp16(fp16: $crate::aarch64::Fp16 $( , $arg: $ty )* ) $( -> $ret )? {
+            //    $inner( fp16 $( , $arg )* )
+            //}
             match level {
-                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+                //Level::Fallback(fb) => $inner(fb $( , $arg )* ),
                 Level::Neon(neon) => unsafe { inner_neon (neon $( , $arg )* ) }
-                Level::Fp16(fp16) => unsafe { inner_fp16 (fp16 $( , $arg )* ) }
+                //Level::Fp16(fp16) => unsafe { inner_fp16 (fp16 $( , $arg )* ) }
             }
         }
     };
