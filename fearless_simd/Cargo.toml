@@ -1,0 +1,17 @@
+[package]
+name = "fearless_simd"
+version = "0.2.0"
+license.workspace = true
+edition.workspace = true
+authors = ["Raph Levien <raph.levien@gmail.com>"]
+keywords = ["simd"]
+categories = ["hardware-support"]
+description = "Safer and easier SIMD"
+readme = "README.md"
+rust-version = "1.85"
+
+[features]
+safe_wrappers = []
+
+[dependencies]
+half = { version = "2.4.1", optional = true }
