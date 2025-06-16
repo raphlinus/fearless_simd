@@ -130,6 +130,8 @@ fn mk_simd_impl() -> TokenStream {
                     ];
 
                     if method == "madd" {
+                        // TODO: This is has slightly different semantics than a fused multiply-add,
+                        // since we are not actually fusing it, should this be documented?
                         quote! {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {

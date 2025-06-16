@@ -28,8 +28,6 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "min" => "min",
         "max_precise" => "max",
         "min_precise" => "min",
-        // TODO: Should we really use `multiply_add` here, or just simulate with `+` and `*`.
-        "madd" => "multiply_add",
         _ => return None,
     })
 }
