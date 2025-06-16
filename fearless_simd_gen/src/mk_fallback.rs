@@ -266,7 +266,7 @@ fn mk_simd_impl() -> TokenStream {
             methods.push(method);
         }
     }
-    // Note: the `vectorize` implemenation is pretty boilerplate and should probably
+    // Note: the `vectorize` implementation is pretty boilerplate and should probably
     // be factored out for DRY.
     quote! {
         impl Simd for #level_tok {
