@@ -1,7 +1,7 @@
-use proc_macro2::{Ident, Span, TokenStream};
-use quote::quote;
 use crate::arch::Arch;
 use crate::types::{ScalarType, VecType};
+use proc_macro2::{Ident, Span, TokenStream};
+use quote::quote;
 
 pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
     Some(match op {
@@ -32,13 +32,12 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "madd" => "multiply_add",
         _ => return None,
     })
-    
 }
 
 pub fn simple_intrinsic(name: &str, ty: &VecType) -> TokenStream {
     let ty_prefix = Fallback.arch_ty(ty);
     let ident = Ident::new(name, Span::call_site());
-    
+
     quote! {#ty_prefix::#ident}
 }
 
@@ -60,7 +59,7 @@ impl Arch for Fallback {
         if let Some(translated) = translate_op(op) {
             let intrinsic = simple_intrinsic(translated, ty);
             quote! { #intrinsic ( #( #args ),* ) }
-        }   else {
+        } else {
             unimplemented!("missing {op}")
         }
     }

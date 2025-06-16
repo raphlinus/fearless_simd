@@ -1,7 +1,7 @@
-use proc_macro2::{Ident, Span, TokenStream};
-use quote::quote;
 use crate::arch::Arch;
 use crate::types::{ScalarType, VecType};
+use proc_macro2::{Ident, Span, TokenStream};
+use quote::quote;
 
 pub struct Neon;
 

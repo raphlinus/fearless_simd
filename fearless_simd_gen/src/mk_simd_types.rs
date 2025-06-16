@@ -135,7 +135,9 @@ fn simd_impl(ty: &VecType) -> TokenStream {
                     OpSig::Binary | OpSig::Compare | OpSig::Combine => {
                         quote! { self, rhs.simd_into(self.simd) }
                     }
-                    OpSig::Ternary => quote! { self, op1.simd_into(self.simd), op2.simd_into(self.simd) },
+                    OpSig::Ternary => {
+                        quote! { self, op1.simd_into(self.simd), op2.simd_into(self.simd) }
+                    }
                     _ => quote! { todo!() },
                 };
                 methods.push(quote! {
@@ -185,8 +187,10 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
                 OpSig::Unary => quote! { self },
                 OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                     quote! { self, rhs.simd_into(self.simd) }
-                },
-                OpSig::Ternary => quote! { self, op1.simd_into(self.simd), op2.simd_into(self.simd) },
+                }
+                OpSig::Ternary => {
+                    quote! { self, op1.simd_into(self.simd), op2.simd_into(self.simd) }
+                }
                 _ => quote! { todo!() },
             };
             methods.push(quote! {

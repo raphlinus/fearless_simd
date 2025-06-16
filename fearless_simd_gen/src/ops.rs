@@ -125,7 +125,7 @@ impl OpSig {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
             OpSig::Ternary => {
-                quote! { self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self> }   
+                quote! { self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self> }
             }
             OpSig::Select => {
                 let mask_ty = vec_ty.mask_ty().rust();
@@ -143,7 +143,7 @@ impl OpSig {
             }
             OpSig::Ternary => {
                 quote! { self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S> }
-            },
+            }
             // select is currently done by trait, but maybe we'll implement for
             // masks.
             OpSig::Select => return None,
