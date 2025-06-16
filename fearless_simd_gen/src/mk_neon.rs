@@ -6,7 +6,8 @@ use quote::quote;
 use syn::Ident;
 
 use crate::{
-    arch::{Arch, Neon, cvt_intrinsic, simple_intrinsic},
+    arch::Arch,
+    arch::neon::{Neon, cvt_intrinsic, simple_intrinsic},
     generic::{generic_combine, generic_op, generic_split},
     ops::{OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, VecType, type_imports},
@@ -156,7 +157,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 OpSig::Compare => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);
-                    let opt_q = crate::arch::opt_q(vec_ty);
+                    let opt_q = crate::arch::neon::opt_q(vec_ty);
                     let reinterpret_str =
                         format!("vreinterpret{opt_q}_s{scalar_bits}_u{scalar_bits}");
                     let reinterpret = Ident::new(&reinterpret_str, Span::call_site());
@@ -170,7 +171,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Select => {
-                    let opt_q = crate::arch::opt_q(vec_ty);
+                    let opt_q = crate::arch::neon::opt_q(vec_ty);
                     let mask_ty = vec_ty.mask_ty().rust();
                     let reinterpret_str =
                         format!("vreinterpret{opt_q}_u{scalar_bits}_s{scalar_bits}");

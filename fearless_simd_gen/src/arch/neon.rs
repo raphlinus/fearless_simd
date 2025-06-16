@@ -1,16 +1,7 @@
-// Copyright 2025 the Fearless_SIMD Authors
-// SPDX-License-Identifier: Apache-2.0 OR MIT
-
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
-use syn::Ident;
-
+use crate::arch::Arch;
 use crate::types::{ScalarType, VecType};
-
-pub trait Arch {
-    fn arch_ty(&self, ty: &VecType) -> TokenStream;
-    fn expr(&self, op: &str, ty: &VecType, args: &[TokenStream]) -> TokenStream;
-}
 
 pub struct Neon;
 

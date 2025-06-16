@@ -24,7 +24,7 @@ macro_rules! simd_dispatch {
             //    $inner( fp16 $( , $arg )* )
             //}
             match level {
-                //Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
                 Level::Neon(neon) => unsafe { inner_neon (neon $( , $arg )* ) }
                 //Level::Fp16(fp16) => unsafe { inner_fp16 (fp16 $( , $arg )* ) }
             }
