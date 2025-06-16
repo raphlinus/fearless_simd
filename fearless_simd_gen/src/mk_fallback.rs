@@ -295,6 +295,7 @@ fn mk_simd_impl() -> TokenStream {
     }
 }
 
+/// Whether the second argument of the function needs to be passed by reference.
 fn rhs_reference(method: &str) -> bool {
     !matches!(method, "copysign" | "min" | "max")
 }
