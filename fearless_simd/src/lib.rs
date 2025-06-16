@@ -24,6 +24,12 @@ pub mod aarch64;
 #[cfg(target_arch = "aarch64")]
 pub use aarch64::Level;
 
+#[cfg(target_arch = "x86_64")]
+pub mod x86_64;
+
+#[cfg(target_arch = "x86_64")]
+pub use x86_64::Level;
+
 #[cfg(all(target_arch = "aarch64", feature = "half"))]
 pub type f16 = half::f16;
 #[cfg(all(target_arch = "aarch64", not(feature = "half")))]
