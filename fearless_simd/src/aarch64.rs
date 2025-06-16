@@ -24,8 +24,7 @@ impl Level {
             */
             unsafe { Level::Neon(Neon::new_unchecked()) }
         } else {
-            todo!("fallback not implemented yet")
-            //Level::Fallback(Fallback::new())
+            Self::fallback()
         }
     }
 
@@ -39,8 +38,8 @@ impl Level {
     }
     
     #[inline]
-    pub fn as_fallback(self) -> Fallback {
-        Fallback::new()
+    pub fn fallback() -> Self {
+        Self::Fallback(Fallback::new())
     }
 
     /*
