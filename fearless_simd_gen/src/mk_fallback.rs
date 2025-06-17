@@ -126,12 +126,6 @@ fn mk_simd_impl() -> TokenStream {
                     }
                 }
                 OpSig::Ternary => {
-                    let args = [
-                        quote! { a.into() },
-                        quote! { b.into() },
-                        quote! { c.into() },
-                    ];
-
                     if method == "madd" {
                         // TODO: This is has slightly different semantics than a fused multiply-add,
                         // since we are not actually fusing it, should this be documented?
@@ -142,6 +136,12 @@ fn mk_simd_impl() -> TokenStream {
                             }
                         }
                     } else {
+                        let args = [
+                            quote! { a.into() },
+                            quote! { b.into() },
+                            quote! { c.into() },
+                        ];
+                        
                         let expr = Fallback.expr(method, vec_ty, &args);
                         quote! {
                             #[inline(always)]
