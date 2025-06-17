@@ -38,8 +38,11 @@ pub fn mk_simd_types() -> TokenStream {
             quote! {}
         };
         let impl_block = simd_impl(ty);
-        let simd_from_items =make_list( (0..ty.len).map(|idx| quote! { val[#idx] })
-            .collect::<Vec<_>>());
+        let simd_from_items = make_list(
+            (0..ty.len)
+                .map(|idx| quote! { val[#idx] })
+                .collect::<Vec<_>>(),
+        );
         result.extend(quote! {
             #[derive(Clone, Copy)]
             #[repr(C, align(#align_lit))]
@@ -51,7 +54,7 @@ pub fn mk_simd_types() -> TokenStream {
             impl<S: Simd> SimdFrom<[#rust_scalar; #len], S> for #name<S> {
                 #[inline(always)]
                 fn simd_from(val: [#rust_scalar; #len], simd: S) -> Self {
-                    // Note: Previously, we would just straight up copy `val`. However, at least on 
+                    // Note: Previously, we would just straight up copy `val`. However, at least on
                     // ARM, this would always lead to it being compiled to a `memset_pattern16`, at least
                     // for scalar f32x4, which significantly slowed down the `render_strips` benchmark.
                     // Assigning each index individually seems to circumvent this quirk.

@@ -141,7 +141,7 @@ fn mk_simd_impl() -> TokenStream {
                             quote! { b.into() },
                             quote! { c.into() },
                         ];
-                        
+
                         let expr = Fallback.expr(method, vec_ty, &args);
                         quote! {
                             #[inline(always)]
@@ -213,7 +213,7 @@ fn mk_simd_impl() -> TokenStream {
                         }
                         "unzip" => {
                             let len = vec_ty.len;
-                            
+
                             let unzip_a = {
                                 let mut low = (0..len / 2)
                                     .map(|i| {
@@ -226,7 +226,7 @@ fn mk_simd_impl() -> TokenStream {
                                     })
                                     .collect::<Vec<_>>();
                                 low.extend(high);
-                                
+
                                 make_list(low)
                             };
 
