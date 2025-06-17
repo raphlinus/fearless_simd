@@ -183,8 +183,8 @@ impl Simd for Fallback {
     #[inline(always)]
     fn unzip_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> (f32x4<Self>, f32x4<Self>) {
         (
-            [a[0usize * 2], b[0usize * 2], a[1usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], b[0usize * 2 + 1], a[1usize * 2 + 1], b[1usize * 2 + 1]]
+            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
+            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
                 .simd_into(self),
         )
     }
@@ -585,39 +585,39 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
-                b[3usize * 2],
                 a[4usize * 2],
-                b[4usize * 2],
                 a[5usize * 2],
-                b[5usize * 2],
                 a[6usize * 2],
-                b[6usize * 2],
                 a[7usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
+                b[3usize * 2],
+                b[4usize * 2],
+                b[5usize * 2],
+                b[6usize * 2],
                 b[7usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
-                b[3usize * 2 + 1],
                 a[4usize * 2 + 1],
-                b[4usize * 2 + 1],
                 a[5usize * 2 + 1],
-                b[5usize * 2 + 1],
                 a[6usize * 2 + 1],
-                b[6usize * 2 + 1],
                 a[7usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
+                b[3usize * 2 + 1],
+                b[4usize * 2 + 1],
+                b[5usize * 2 + 1],
+                b[6usize * 2 + 1],
                 b[7usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -973,39 +973,39 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
-                b[3usize * 2],
                 a[4usize * 2],
-                b[4usize * 2],
                 a[5usize * 2],
-                b[5usize * 2],
                 a[6usize * 2],
-                b[6usize * 2],
                 a[7usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
+                b[3usize * 2],
+                b[4usize * 2],
+                b[5usize * 2],
+                b[6usize * 2],
                 b[7usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
-                b[3usize * 2 + 1],
                 a[4usize * 2 + 1],
-                b[4usize * 2 + 1],
                 a[5usize * 2 + 1],
-                b[5usize * 2 + 1],
                 a[6usize * 2 + 1],
-                b[6usize * 2 + 1],
                 a[7usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
+                b[3usize * 2 + 1],
+                b[4usize * 2 + 1],
+                b[5usize * 2 + 1],
+                b[6usize * 2 + 1],
                 b[7usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -1220,39 +1220,39 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
-                b[3usize * 2],
                 a[4usize * 2],
-                b[4usize * 2],
                 a[5usize * 2],
-                b[5usize * 2],
                 a[6usize * 2],
-                b[6usize * 2],
                 a[7usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
+                b[3usize * 2],
+                b[4usize * 2],
+                b[5usize * 2],
+                b[6usize * 2],
                 b[7usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
-                b[3usize * 2 + 1],
                 a[4usize * 2 + 1],
-                b[4usize * 2 + 1],
                 a[5usize * 2 + 1],
-                b[5usize * 2 + 1],
                 a[6usize * 2 + 1],
-                b[6usize * 2 + 1],
                 a[7usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
+                b[3usize * 2 + 1],
+                b[4usize * 2 + 1],
+                b[5usize * 2 + 1],
+                b[6usize * 2 + 1],
                 b[7usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -1491,23 +1491,23 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
                 b[3usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
                 b[3usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -1743,23 +1743,23 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
                 b[3usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
                 b[3usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -1910,23 +1910,23 @@ impl Simd for Fallback {
         (
             [
                 a[0usize * 2],
-                b[0usize * 2],
                 a[1usize * 2],
-                b[1usize * 2],
                 a[2usize * 2],
-                b[2usize * 2],
                 a[3usize * 2],
+                b[0usize * 2],
+                b[1usize * 2],
+                b[2usize * 2],
                 b[3usize * 2],
             ]
                 .simd_into(self),
             [
                 a[0usize * 2 + 1],
-                b[0usize * 2 + 1],
                 a[1usize * 2 + 1],
-                b[1usize * 2 + 1],
                 a[2usize * 2 + 1],
-                b[2usize * 2 + 1],
                 a[3usize * 2 + 1],
+                b[0usize * 2 + 1],
+                b[1usize * 2 + 1],
+                b[2usize * 2 + 1],
                 b[3usize * 2 + 1],
             ]
                 .simd_into(self),
@@ -2087,8 +2087,8 @@ impl Simd for Fallback {
     #[inline(always)]
     fn unzip_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> (i32x4<Self>, i32x4<Self>) {
         (
-            [a[0usize * 2], b[0usize * 2], a[1usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], b[0usize * 2 + 1], a[1usize * 2 + 1], b[1usize * 2 + 1]]
+            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
+            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
                 .simd_into(self),
         )
     }
@@ -2248,8 +2248,8 @@ impl Simd for Fallback {
     #[inline(always)]
     fn unzip_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> (u32x4<Self>, u32x4<Self>) {
         (
-            [a[0usize * 2], b[0usize * 2], a[1usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], b[0usize * 2 + 1], a[1usize * 2 + 1], b[1usize * 2 + 1]]
+            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
+            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
                 .simd_into(self),
         )
     }
@@ -2352,8 +2352,8 @@ impl Simd for Fallback {
         b: mask32x4<Self>,
     ) -> (mask32x4<Self>, mask32x4<Self>) {
         (
-            [a[0usize * 2], b[0usize * 2], a[1usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], b[0usize * 2 + 1], a[1usize * 2 + 1], b[1usize * 2 + 1]]
+            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
+            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
                 .simd_into(self),
         )
     }

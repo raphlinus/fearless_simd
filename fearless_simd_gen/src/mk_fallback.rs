@@ -213,25 +213,38 @@ fn mk_simd_impl() -> TokenStream {
                         }
                         "unzip" => {
                             let len = vec_ty.len;
-                            let unzip_a = make_list(
-                                (0..len / 2)
+                            
+                            let unzip_a = {
+                                let mut low = (0..len / 2)
                                     .map(|i| {
-                                        let lo = quote! { a[#i * 2] };
-                                        let hi = quote! { b[#i * 2] };
-                                        quote! { #lo, #hi }
+                                        quote! { a[#i * 2] }
                                     })
-                                    .collect(),
-                            );
+                                    .collect::<Vec<_>>();
+                                let high = (0..len / 2)
+                                    .map(|i| {
+                                        quote! { b[#i * 2] }
+                                    })
+                                    .collect::<Vec<_>>();
+                                low.extend(high);
+                                
+                                make_list(low)
+                            };
 
-                            let unzip_b = make_list(
-                                (0..len / 2)
+                            let unzip_b = {
+                                let mut low = (0..len / 2)
                                     .map(|i| {
-                                        let lo = quote! { a[#i * 2 + 1] };
-                                        let hi = quote! { b[#i * 2 + 1] };
-                                        quote! { #lo, #hi }
+                                        quote! { a[#i * 2 + 1] }
                                     })
-                                    .collect(),
-                            );
+                                    .collect::<Vec<_>>();
+                                let high = (0..len / 2)
+                                    .map(|i| {
+                                        quote! { b[#i * 2 + 1] }
+                                    })
+                                    .collect::<Vec<_>>();
+                                low.extend(high);
+
+                                make_list(low)
+                            };
 
                             (unzip_a, unzip_b)
                         }
