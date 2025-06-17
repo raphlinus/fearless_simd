@@ -32,7 +32,25 @@ pub fn mk_fallback_impl() -> TokenStream {
         use crate::{seal::Seal, Level, Simd, SimdInto};
 
         #imports
-
+        
+        #[cfg(all(feature = "libm", not(feature = "std")))]
+        trait FloatExt {
+            fn floor(self) -> f32;
+            fn sqrt(self) -> f32;
+        }
+        
+        #[cfg(all(feature = "libm", not(feature = "std")))]
+        impl FloatExt for f32 {
+            #[inline(always)]
+            fn floor(self) -> f32 {
+                libm::floorf(self)
+            }
+            #[inline(always)]
+            fn sqrt(self) -> f32 {
+                libm::sqrtf(self)
+            }
+        }
+        
         /// The SIMD token for the "fallback" level.
         #[derive(Clone, Copy, Debug)]
         pub struct Fallback {
