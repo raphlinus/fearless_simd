@@ -12,6 +12,7 @@ use crate::{
     ops::{OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, VecType, type_imports},
 };
+use crate::ops::{reinterpret_ty, valid_reinterpret};
 
 #[derive(Clone, Copy)]
 pub enum Level {
@@ -224,6 +225,23 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                 #neon(a.into()).simd_into(self)
                             }
                         }
+                    }
+                },
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    if valid_reinterpret(vec_ty, scalar, scalar_bits) {
+                        let to_ty = reinterpret_ty(vec_ty, scalar, scalar_bits);
+                        let neon = cvt_intrinsic("vreinterpret", &to_ty, vec_ty);
+
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    #neon(a.into()).simd_into(self)
+                                }
+                            }
+                        }
+                    }   else {
+                        quote! {}
                     }
                 }
             };

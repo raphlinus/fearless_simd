@@ -4,7 +4,7 @@
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
-use crate::ops::{OpSig, TyFlavor, ops_for_type};
+use crate::ops::{OpSig, TyFlavor, ops_for_type, reinterpret_ty, valid_reinterpret};
 use crate::types::{SIMD_TYPES, ScalarType, VecType, type_imports};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -294,6 +294,23 @@ fn mk_simd_impl() -> TokenStream {
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
                             #items.simd_into(self)
                         }
+                    }
+                }
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    if valid_reinterpret(vec_ty, scalar, scalar_bits) {
+                        let to_ty = reinterpret_ty(vec_ty, scalar, scalar_bits).rust();
+
+                        quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                    #to_ty {
+                                        val: bytemuck::cast(a.val),
+                                        simd: a.simd,
+                                    }
+                                }
+                            }
+                    }   else {
+                        quote! {}
                     }
                 }
             };

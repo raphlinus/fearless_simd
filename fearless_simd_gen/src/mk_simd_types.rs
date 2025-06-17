@@ -137,12 +137,12 @@ fn simd_impl(ty: &VecType) -> TokenStream {
         let trait_method = Ident::new(&format!("{method}_{ty_name}"), Span::call_site());
         if matches!(
             sig,
-            OpSig::Unary | OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Cvt(_, _)
+            OpSig::Unary | OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _)
         ) {
             if let Some(args) = sig.vec_trait_args() {
                 let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
                 let call_args = match sig {
-                    OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
+                    OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self },
                     OpSig::Binary | OpSig::Compare | OpSig::Combine => {
                         quote! { self, rhs.simd_into(self.simd) }
                     }

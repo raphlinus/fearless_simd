@@ -17,5 +17,6 @@ std = []
 libm = ["dep:libm"]
 
 [dependencies]
+bytemuck = "1.23.1"
 libm = { version = "0.2.15", optional = true }
 half = { version = "2.4.1", optional = true }

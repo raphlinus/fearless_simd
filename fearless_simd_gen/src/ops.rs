@@ -18,6 +18,7 @@ pub enum OpSig {
     Split,
     Zip,
     Cvt(ScalarType, usize),
+    Reinterpret(ScalarType, usize),
     // TODO: fma
 }
 
@@ -95,7 +96,12 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     if ty.n_bits() > 128 {
         ops.push(("split", OpSig::Split));
     }
+    
     if cvt {
+        if valid_reinterpret(ty, ScalarType::Unsigned, 8) {
+            ops.push(("reinterpret_u8", OpSig::Reinterpret(ScalarType::Unsigned, 8)));
+        }
+        
         match (ty.scalar, ty.scalar_bits) {
             (ScalarType::Float, 32) => ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32))),
             _ => (),
@@ -120,7 +126,7 @@ impl OpSig {
                 let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
                 quote! { self, val: #scalar }
             }
-            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) => quote! { self, a: #ty<Self> },
+            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self, a: #ty<Self> },
             OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
@@ -137,7 +143,7 @@ impl OpSig {
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
             OpSig::Splat => return None,
-            OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
+            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self },
             OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
@@ -185,6 +191,34 @@ impl OpSig {
                 let result = VecType::new(*scalar, *scalar_bits, ty.len).rust();
                 quote! { #result #quant }
             }
+            OpSig::Reinterpret(scalar, scalar_bits) => {
+                let result = reinterpret_ty(ty, *scalar, *scalar_bits).rust();
+                quote! { #result #quant }
+            }
+            // OpSig::Reinterpret(scalar, scalar_bits) => {
+            //     create_reinterpret(*ty, *scalar, *scalar_bits)
+            //         .map(|ty| {
+            //             let result = ty.rust();
+            //             quote! { #result #quant }
+            //         })
+            //         .unwrap_or(quote! {})
+            // }
         }
     }
+}
+
+pub(crate) fn reinterpret_ty(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> VecType {
+    VecType::new(dst_scalar, dst_bits, src.n_bits() / dst_bits)
+}
+
+pub(crate) fn valid_reinterpret(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> bool {
+    if src.scalar == dst_scalar && src.scalar_bits == dst_bits {
+        return false;
+    }
+
+    if matches!(src.scalar, ScalarType::Mask | ScalarType::Float) {
+        return false;
+    }
+    
+    true
 }

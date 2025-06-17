@@ -380,6 +380,10 @@ impl<S: Simd> i8x16<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.combine_i8x16(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_i8x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i8, S> for i8x16<S> {
     const N: usize = 16;
@@ -907,6 +911,10 @@ impl<S: Simd> i16x8<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.combine_i16x8(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_i16x8(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i16, S> for i16x8<S> {
     const N: usize = 8;
@@ -1093,6 +1101,10 @@ impl<S: Simd> u16x8<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.combine_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_u16x8(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u16, S> for u16x8<S> {
@@ -1409,6 +1421,10 @@ impl<S: Simd> i32x4<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.combine_i32x4(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_i32x4(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i32, S> for i32x4<S> {
     const N: usize = 4;
@@ -1586,6 +1602,10 @@ impl<S: Simd> u32x4<S> {
     #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.combine_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_u32x4(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u32, S> for u32x4<S> {
@@ -2169,6 +2189,10 @@ impl<S: Simd> i8x32<S> {
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask8x32<S> {
         self.simd.simd_gt_i8x32(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_i8x32(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i8, S> for i8x32<S> {
     const N: usize = 32;
@@ -2724,6 +2748,10 @@ impl<S: Simd> i16x16<S> {
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
         self.simd.simd_gt_i16x16(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_i16x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i16, S> for i16x16<S> {
     const N: usize = 16;
@@ -2914,6 +2942,10 @@ impl<S: Simd> u16x16<S> {
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask16x16<S> {
         self.simd.simd_gt_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_u16x16(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u16, S> for u16x16<S> {
@@ -3239,6 +3271,10 @@ impl<S: Simd> i32x8<S> {
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_i32x8(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_i32x8(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i32, S> for i32x8<S> {
     const N: usize = 8;
@@ -3421,6 +3457,10 @@ impl<S: Simd> u32x8<S> {
     #[inline(always)]
     pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_gt_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_u32x8(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u32, S> for u32x8<S> {
