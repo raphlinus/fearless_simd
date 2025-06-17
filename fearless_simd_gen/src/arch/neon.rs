@@ -1,16 +1,10 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use proc_macro2::{Span, TokenStream};
-use quote::quote;
-use syn::Ident;
-
+use crate::arch::Arch;
 use crate::types::{ScalarType, VecType};
-
-pub trait Arch {
-    fn arch_ty(&self, ty: &VecType) -> TokenStream;
-    fn expr(&self, op: &str, ty: &VecType, args: &[TokenStream]) -> TokenStream;
-}
+use proc_macro2::{Ident, Span, TokenStream};
+use quote::quote;
 
 pub struct Neon;
 
@@ -18,6 +12,7 @@ fn translate_op(op: &str) -> Option<&'static str> {
     Some(match op {
         "abs" => "vabs",
         "neg" => "vneg",
+        "floor" => "vrndm",
         "sqrt" => "vsqrt",
         "add" => "vadd",
         "sub" => "vsub",
@@ -32,6 +27,11 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "and" => "vand",
         "or" => "vorr",
         "xor" => "veor",
+        "max" => "vmax",
+        "min" => "vmin",
+        "max_precise" => "vmaxnm",
+        "min_precise" => "vminnm",
+        "madd" => "vfma",
         _ => return None,
     })
 }

@@ -7,11 +7,13 @@
 
 #[cfg(target_arch = "aarch64")]
 mod neon;
+mod fallback;
 mod ops;
 mod simd_trait;
 mod simd_types;
 
 #[cfg(target_arch = "aarch64")]
 pub use neon::*;
+pub use fallback::*;
 pub use simd_trait::*;
 pub use simd_types::*;

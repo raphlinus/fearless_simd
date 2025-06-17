@@ -3,13 +3,13 @@
 
 //! Support for Aarch64 SIMD capabilities.
 
-use crate::WithSimd;
+use crate::{Fallback, WithSimd};
 pub use crate::generated::Neon;
 
 /// The level enum for aarch64 architectures.
 #[derive(Clone, Copy, Debug)]
 pub enum Level {
-    //Fallback(Fallback),
+    Fallback(Fallback),
     Neon(Neon),
     //Fp16(Fp16),
 }
@@ -24,8 +24,7 @@ impl Level {
             */
             unsafe { Level::Neon(Neon::new_unchecked()) }
         } else {
-            todo!("fallback not implemented yet")
-            //Level::Fallback(Fallback::new())
+            Self::fallback()
         }
     }
 
@@ -33,9 +32,14 @@ impl Level {
     pub fn as_neon(self) -> Option<Neon> {
         match self {
             Level::Neon(neon) => Some(neon),
+            _ => None,
             //Level::Fp16(fp16) => Some(fp16.to_neon()),
-            //_ => None,
         }
+    }
+    
+    #[inline]
+    pub fn fallback() -> Self {
+        Self::Fallback(Fallback::new())
     }
 
     /*
@@ -56,6 +60,11 @@ impl Level {
         unsafe fn dispatch_neon<W: WithSimd>(f: W, neon: Neon) -> W::Output {
             f.with_simd(neon)
         }
+        
+        #[inline]
+        fn dispatch_fallback<W: WithSimd>(f: W, fallback: Fallback) -> W::Output {
+            f.with_simd(fallback)
+        }
         /*
         #[target_feature(enable = "neon,fp16")]
         #[inline]
@@ -65,8 +74,8 @@ impl Level {
         }
         */
         match self {
-            //Level::Fallback(fallback) => f.with_simd(fallback),
             Level::Neon(neon) => unsafe { dispatch_neon(f, neon) },
+            Level::Fallback(fallback) => dispatch_fallback(f, fallback)
             //Level::Fp16(fp16) => unsafe { dispatch_fp16(f, fp16) },
         }
     }

@@ -10,7 +10,10 @@ pub struct f32x4<S: Simd> {
 impl<S: Simd> SimdFrom<[f32; 4], S> for f32x4<S> {
     #[inline(always)]
     fn simd_from(val: [f32; 4], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<f32x4<S>> for [f32; 4] {
@@ -119,6 +122,26 @@ impl<S: Simd> f32x4<S> {
         self.simd.simd_gt_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f32x4<S> {
+        self.simd.floor_f32x4(self)
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.combine_f32x4(self, rhs.simd_into(self.simd))
     }
@@ -195,6 +218,30 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
     fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x4<S>, f32x4<S>) {
         self.simd.unzip_f32x4(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.max_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.min_precise_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.madd_f32x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f32x4<S> {
+        self.simd.floor_f32x4(self)
+    }
 }
 #[derive(Clone, Copy)]
 #[repr(C, align(16))]
@@ -205,7 +252,27 @@ pub struct i8x16<S: Simd> {
 impl<S: Simd> SimdFrom<[i8; 16], S> for i8x16<S> {
     #[inline(always)]
     fn simd_from(val: [i8; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i8x16<S>> for [i8; 16] {
@@ -380,7 +447,27 @@ pub struct u8x16<S: Simd> {
 impl<S: Simd> SimdFrom<[u8; 16], S> for u8x16<S> {
     #[inline(always)]
     fn simd_from(val: [u8; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u8x16<S>> for [u8; 16] {
@@ -555,7 +642,27 @@ pub struct mask8x16<S: Simd> {
 impl<S: Simd> SimdFrom<[i8; 16], S> for mask8x16<S> {
     #[inline(always)]
     fn simd_from(val: [i8; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask8x16<S>> for [i8; 16] {
@@ -680,7 +787,19 @@ pub struct i16x8<S: Simd> {
 impl<S: Simd> SimdFrom<[i16; 8], S> for i16x8<S> {
     #[inline(always)]
     fn simd_from(val: [i16; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i16x8<S>> for [i16; 8] {
@@ -855,7 +974,19 @@ pub struct u16x8<S: Simd> {
 impl<S: Simd> SimdFrom<[u16; 8], S> for u16x8<S> {
     #[inline(always)]
     fn simd_from(val: [u16; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u16x8<S>> for [u16; 8] {
@@ -1030,7 +1161,19 @@ pub struct mask16x8<S: Simd> {
 impl<S: Simd> SimdFrom<[i16; 8], S> for mask16x8<S> {
     #[inline(always)]
     fn simd_from(val: [i16; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask16x8<S>> for [i16; 8] {
@@ -1155,7 +1298,10 @@ pub struct i32x4<S: Simd> {
 impl<S: Simd> SimdFrom<[i32; 4], S> for i32x4<S> {
     #[inline(always)]
     fn simd_from(val: [i32; 4], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i32x4<S>> for [i32; 4] {
@@ -1330,7 +1476,10 @@ pub struct u32x4<S: Simd> {
 impl<S: Simd> SimdFrom<[u32; 4], S> for u32x4<S> {
     #[inline(always)]
     fn simd_from(val: [u32; 4], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u32x4<S>> for [u32; 4] {
@@ -1505,7 +1654,10 @@ pub struct mask32x4<S: Simd> {
 impl<S: Simd> SimdFrom<[i32; 4], S> for mask32x4<S> {
     #[inline(always)]
     fn simd_from(val: [i32; 4], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask32x4<S>> for [i32; 4] {
@@ -1630,7 +1782,19 @@ pub struct f32x8<S: Simd> {
 impl<S: Simd> SimdFrom<[f32; 8], S> for f32x8<S> {
     #[inline(always)]
     fn simd_from(val: [f32; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<f32x8<S>> for [f32; 8] {
@@ -1739,6 +1903,26 @@ impl<S: Simd> f32x8<S> {
         self.simd.simd_gt_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f32x8<S> {
+        self.simd.floor_f32x8(self)
+    }
+    #[inline(always)]
     pub fn cvt_u32(self) -> u32x8<S> {
         self.simd.cvt_u32_f32x8(self)
     }
@@ -1811,6 +1995,30 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
     fn unzip(self, rhs: impl SimdInto<Self, S>) -> (f32x8<S>, f32x8<S>) {
         self.simd.unzip_f32x8(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.max_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.min_precise_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.madd_f32x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f32x8<S> {
+        self.simd.floor_f32x8(self)
+    }
 }
 #[derive(Clone, Copy)]
 #[repr(C, align(32))]
@@ -1821,7 +2029,43 @@ pub struct i8x32<S: Simd> {
 impl<S: Simd> SimdFrom<[i8; 32], S> for i8x32<S> {
     #[inline(always)]
     fn simd_from(val: [i8; 32], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+                val[16usize],
+                val[17usize],
+                val[18usize],
+                val[19usize],
+                val[20usize],
+                val[21usize],
+                val[22usize],
+                val[23usize],
+                val[24usize],
+                val[25usize],
+                val[26usize],
+                val[27usize],
+                val[28usize],
+                val[29usize],
+                val[30usize],
+                val[31usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i8x32<S>> for [i8; 32] {
@@ -1992,7 +2236,43 @@ pub struct u8x32<S: Simd> {
 impl<S: Simd> SimdFrom<[u8; 32], S> for u8x32<S> {
     #[inline(always)]
     fn simd_from(val: [u8; 32], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+                val[16usize],
+                val[17usize],
+                val[18usize],
+                val[19usize],
+                val[20usize],
+                val[21usize],
+                val[22usize],
+                val[23usize],
+                val[24usize],
+                val[25usize],
+                val[26usize],
+                val[27usize],
+                val[28usize],
+                val[29usize],
+                val[30usize],
+                val[31usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u8x32<S>> for [u8; 32] {
@@ -2163,7 +2443,43 @@ pub struct mask8x32<S: Simd> {
 impl<S: Simd> SimdFrom<[i8; 32], S> for mask8x32<S> {
     #[inline(always)]
     fn simd_from(val: [i8; 32], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+                val[16usize],
+                val[17usize],
+                val[18usize],
+                val[19usize],
+                val[20usize],
+                val[21usize],
+                val[22usize],
+                val[23usize],
+                val[24usize],
+                val[25usize],
+                val[26usize],
+                val[27usize],
+                val[28usize],
+                val[29usize],
+                val[30usize],
+                val[31usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask8x32<S>> for [i8; 32] {
@@ -2284,7 +2600,27 @@ pub struct i16x16<S: Simd> {
 impl<S: Simd> SimdFrom<[i16; 16], S> for i16x16<S> {
     #[inline(always)]
     fn simd_from(val: [i16; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i16x16<S>> for [i16; 16] {
@@ -2455,7 +2791,27 @@ pub struct u16x16<S: Simd> {
 impl<S: Simd> SimdFrom<[u16; 16], S> for u16x16<S> {
     #[inline(always)]
     fn simd_from(val: [u16; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u16x16<S>> for [u16; 16] {
@@ -2626,7 +2982,27 @@ pub struct mask16x16<S: Simd> {
 impl<S: Simd> SimdFrom<[i16; 16], S> for mask16x16<S> {
     #[inline(always)]
     fn simd_from(val: [i16; 16], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+                val[8usize],
+                val[9usize],
+                val[10usize],
+                val[11usize],
+                val[12usize],
+                val[13usize],
+                val[14usize],
+                val[15usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask16x16<S>> for [i16; 16] {
@@ -2747,7 +3123,19 @@ pub struct i32x8<S: Simd> {
 impl<S: Simd> SimdFrom<[i32; 8], S> for i32x8<S> {
     #[inline(always)]
     fn simd_from(val: [i32; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<i32x8<S>> for [i32; 8] {
@@ -2918,7 +3306,19 @@ pub struct u32x8<S: Simd> {
 impl<S: Simd> SimdFrom<[u32; 8], S> for u32x8<S> {
     #[inline(always)]
     fn simd_from(val: [u32; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<u32x8<S>> for [u32; 8] {
@@ -3089,7 +3489,19 @@ pub struct mask32x8<S: Simd> {
 impl<S: Simd> SimdFrom<[i32; 8], S> for mask32x8<S> {
     #[inline(always)]
     fn simd_from(val: [i32; 8], simd: S) -> Self {
-        Self { val, simd }
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
     }
 }
 impl<S: Simd> From<mask32x8<S>> for [i32; 8] {

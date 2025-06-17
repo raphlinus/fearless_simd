@@ -8,6 +8,7 @@ use proc_macro2::TokenStream;
 
 mod arch;
 mod generic;
+mod mk_fallback;
 mod mk_neon;
 mod mk_ops;
 mod mk_simd_trait;
@@ -21,6 +22,7 @@ enum Module {
     SimdTrait,
     Ops,
     Neon,
+    Fallback,
 }
 
 #[derive(Parser)]
@@ -36,6 +38,7 @@ impl Module {
             Module::SimdTrait => mk_simd_trait::mk_simd_trait(),
             Module::Ops => mk_ops::mk_ops(),
             Module::Neon => mk_neon::mk_neon_impl(mk_neon::Level::Neon),
+            Module::Fallback => mk_fallback::mk_fallback_impl(),
         }
     }
 
@@ -52,6 +55,7 @@ impl Module {
             Module::SimdTrait => "simd_trait",
             Module::Ops => "ops",
             Module::Neon => "neon",
+            Module::Fallback => "fallback",
         }
     }
 }
@@ -61,6 +65,7 @@ const MODULES: &[Module] = &[
     Module::SimdTrait,
     Module::Ops,
     Module::Neon,
+    Module::Fallback,
 ];
 
 const FILE_BASE: &str = "./fearless_simd/src/generated";
