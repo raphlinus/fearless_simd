@@ -6,6 +6,22 @@ use crate::{
     f32x4, i8x16, u8x16, mask8x16, i16x8, u16x8, mask16x8, i32x4, u32x4, mask32x4, f32x8,
     i8x32, u8x32, mask8x32, i16x16, u16x16, mask16x16, i32x8, u32x8, mask32x8,
 };
+#[cfg(all(feature = "libm", not(feature = "std")))]
+trait FloatExt {
+    fn floor(self) -> f32;
+    fn sqrt(self) -> f32;
+}
+#[cfg(all(feature = "libm", not(feature = "std")))]
+impl FloatExt for f32 {
+    #[inline(always)]
+    fn floor(self) -> f32 {
+        libm::floorf(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f32 {
+        libm::sqrtf(self)
+    }
+}
 /// The SIMD token for the "fallback" level.
 #[derive(Clone, Copy, Debug)]
 pub struct Fallback {

@@ -12,6 +12,10 @@ rust-version = "1.85"
 
 [features]
 safe_wrappers = []
+default = ["std"]
+std = []
+libm = ["dep:libm"]
 
 [dependencies]
+libm = { version = "0.2.15", optional = true }
 half = { version = "2.4.1", optional = true }
