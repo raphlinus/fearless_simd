@@ -25,7 +25,7 @@ jobs:
 
       # For now, we only check `fearless_simd_gen`, since `fearless_simd` uses `prettyplease`.
       - name: cargo fmt
-        run: cd fearless_simd && cargo fmt  --check
+        run: cd fearless_simd_gen && cargo fmt  --check
 
   test-stable:
     name: test
