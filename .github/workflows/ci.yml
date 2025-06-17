@@ -1,3 +1,6 @@
+env:
+  RUST_STABLE_VER: "1.87"
+  
 name: CI
 
 on:
