@@ -68,7 +68,7 @@ pub fn mk_simd_types() -> TokenStream {
                 }
             }
 
-            impl<S: Simd> std::ops::Deref for #name<S> {
+            impl<S: Simd> core::ops::Deref for #name<S> {
                 type Target = [#rust_scalar; #len];
                 #[inline(always)]
                 fn deref(&self) -> &Self::Target {
@@ -76,7 +76,7 @@ pub fn mk_simd_types() -> TokenStream {
                 }
             }
 
-            impl<S: Simd> std::ops::DerefMut for #name<S> {
+            impl<S: Simd> core::ops::DerefMut for #name<S> {
                 #[inline(always)]
                 fn deref_mut(&mut self) -> &mut Self::Target {
                     &mut self.val

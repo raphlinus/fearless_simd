@@ -22,14 +22,14 @@ impl<S: Simd> From<f32x4<S>> for [f32; 4] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for f32x4<S> {
+impl<S: Simd> core::ops::Deref for f32x4<S> {
     type Target = [f32; 4];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for f32x4<S> {
+impl<S: Simd> core::ops::DerefMut for f32x4<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -281,14 +281,14 @@ impl<S: Simd> From<i8x16<S>> for [i8; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i8x16<S> {
+impl<S: Simd> core::ops::Deref for i8x16<S> {
     type Target = [i8; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i8x16<S> {
+impl<S: Simd> core::ops::DerefMut for i8x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -476,14 +476,14 @@ impl<S: Simd> From<u8x16<S>> for [u8; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u8x16<S> {
+impl<S: Simd> core::ops::Deref for u8x16<S> {
     type Target = [u8; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u8x16<S> {
+impl<S: Simd> core::ops::DerefMut for u8x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -671,14 +671,14 @@ impl<S: Simd> From<mask8x16<S>> for [i8; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask8x16<S> {
+impl<S: Simd> core::ops::Deref for mask8x16<S> {
     type Target = [i8; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask8x16<S> {
+impl<S: Simd> core::ops::DerefMut for mask8x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -808,14 +808,14 @@ impl<S: Simd> From<i16x8<S>> for [i16; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i16x8<S> {
+impl<S: Simd> core::ops::Deref for i16x8<S> {
     type Target = [i16; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i16x8<S> {
+impl<S: Simd> core::ops::DerefMut for i16x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -995,14 +995,14 @@ impl<S: Simd> From<u16x8<S>> for [u16; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u16x8<S> {
+impl<S: Simd> core::ops::Deref for u16x8<S> {
     type Target = [u16; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u16x8<S> {
+impl<S: Simd> core::ops::DerefMut for u16x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -1182,14 +1182,14 @@ impl<S: Simd> From<mask16x8<S>> for [i16; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask16x8<S> {
+impl<S: Simd> core::ops::Deref for mask16x8<S> {
     type Target = [i16; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask16x8<S> {
+impl<S: Simd> core::ops::DerefMut for mask16x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -1310,14 +1310,14 @@ impl<S: Simd> From<i32x4<S>> for [i32; 4] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i32x4<S> {
+impl<S: Simd> core::ops::Deref for i32x4<S> {
     type Target = [i32; 4];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i32x4<S> {
+impl<S: Simd> core::ops::DerefMut for i32x4<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -1488,14 +1488,14 @@ impl<S: Simd> From<u32x4<S>> for [u32; 4] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u32x4<S> {
+impl<S: Simd> core::ops::Deref for u32x4<S> {
     type Target = [u32; 4];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u32x4<S> {
+impl<S: Simd> core::ops::DerefMut for u32x4<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -1666,14 +1666,14 @@ impl<S: Simd> From<mask32x4<S>> for [i32; 4] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask32x4<S> {
+impl<S: Simd> core::ops::Deref for mask32x4<S> {
     type Target = [i32; 4];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask32x4<S> {
+impl<S: Simd> core::ops::DerefMut for mask32x4<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -1803,14 +1803,14 @@ impl<S: Simd> From<f32x8<S>> for [f32; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for f32x8<S> {
+impl<S: Simd> core::ops::Deref for f32x8<S> {
     type Target = [f32; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for f32x8<S> {
+impl<S: Simd> core::ops::DerefMut for f32x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -2074,14 +2074,14 @@ impl<S: Simd> From<i8x32<S>> for [i8; 32] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i8x32<S> {
+impl<S: Simd> core::ops::Deref for i8x32<S> {
     type Target = [i8; 32];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i8x32<S> {
+impl<S: Simd> core::ops::DerefMut for i8x32<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -2281,14 +2281,14 @@ impl<S: Simd> From<u8x32<S>> for [u8; 32] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u8x32<S> {
+impl<S: Simd> core::ops::Deref for u8x32<S> {
     type Target = [u8; 32];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u8x32<S> {
+impl<S: Simd> core::ops::DerefMut for u8x32<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -2488,14 +2488,14 @@ impl<S: Simd> From<mask8x32<S>> for [i8; 32] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask8x32<S> {
+impl<S: Simd> core::ops::Deref for mask8x32<S> {
     type Target = [i8; 32];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask8x32<S> {
+impl<S: Simd> core::ops::DerefMut for mask8x32<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -2629,14 +2629,14 @@ impl<S: Simd> From<i16x16<S>> for [i16; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i16x16<S> {
+impl<S: Simd> core::ops::Deref for i16x16<S> {
     type Target = [i16; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i16x16<S> {
+impl<S: Simd> core::ops::DerefMut for i16x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -2820,14 +2820,14 @@ impl<S: Simd> From<u16x16<S>> for [u16; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u16x16<S> {
+impl<S: Simd> core::ops::Deref for u16x16<S> {
     type Target = [u16; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u16x16<S> {
+impl<S: Simd> core::ops::DerefMut for u16x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -3011,14 +3011,14 @@ impl<S: Simd> From<mask16x16<S>> for [i16; 16] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask16x16<S> {
+impl<S: Simd> core::ops::Deref for mask16x16<S> {
     type Target = [i16; 16];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask16x16<S> {
+impl<S: Simd> core::ops::DerefMut for mask16x16<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -3144,14 +3144,14 @@ impl<S: Simd> From<i32x8<S>> for [i32; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for i32x8<S> {
+impl<S: Simd> core::ops::Deref for i32x8<S> {
     type Target = [i32; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for i32x8<S> {
+impl<S: Simd> core::ops::DerefMut for i32x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -3327,14 +3327,14 @@ impl<S: Simd> From<u32x8<S>> for [u32; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for u32x8<S> {
+impl<S: Simd> core::ops::Deref for u32x8<S> {
     type Target = [u32; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for u32x8<S> {
+impl<S: Simd> core::ops::DerefMut for u32x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
@@ -3510,14 +3510,14 @@ impl<S: Simd> From<mask32x8<S>> for [i32; 8] {
         value.val
     }
 }
-impl<S: Simd> std::ops::Deref for mask32x8<S> {
+impl<S: Simd> core::ops::Deref for mask32x8<S> {
     type Target = [i32; 8];
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.val
     }
 }
-impl<S: Simd> std::ops::DerefMut for mask32x8<S> {
+impl<S: Simd> core::ops::DerefMut for mask32x8<S> {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.val
