@@ -1,3 +1,6 @@
+// Copyright 2024 the Fearless_SIMD Authors
+// SPDX-License-Identifier: Apache-2.0 OR MIT
+
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
