@@ -173,11 +173,11 @@ fn mk_simd_impl() -> TokenStream {
                     let mask_type = VecType::new(ScalarType::Mask, vec_ty.scalar_bits, vec_ty.len);
                     let items = make_list(
                         (0..vec_ty.len)
-                            .map(|idx| {
+                            .map(|idx: usize| {
                                 let args = [quote! { &a[#idx] }, quote! { &b[#idx] }];
                                 let expr = Fallback.expr(method, vec_ty, &args);
                                 let mask_ty = mask_type.scalar.rust(scalar_bits);
-                                quote! { #expr as #mask_ty }
+                                quote! { -(#expr as #mask_ty) }
                             })
                             .collect::<Vec<_>>(),
                     );

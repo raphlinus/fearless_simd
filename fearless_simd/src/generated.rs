@@ -7,6 +7,8 @@
 
 #[cfg(all(feature = "std", target_arch = "aarch64"))]
 mod neon;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
 mod fallback;
 mod ops;
 mod simd_trait;
@@ -14,6 +16,8 @@ mod simd_types;
 
 #[cfg(all(feature = "std", target_arch = "aarch64"))]
 pub use neon::*;
+#[cfg(target_arch = "wasm32")]
+pub use wasm::*;
 pub use fallback::*;
 pub use simd_trait::*;
 pub use simd_types::*;

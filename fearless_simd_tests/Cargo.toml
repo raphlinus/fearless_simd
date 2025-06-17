@@ -1,0 +1,22 @@
+[package]
+name = "fearless_simd_tests"
+license.workspace = true
+edition.workspace = true
+authors = ["Raph Levien <raph.levien@gmail.com>"]
+keywords = ["simd"]
+categories = ["hardware-support"]
+description = "Safer and easier SIMD"
+readme = "README.md"
+rust-version = "1.85"
+publish = false
+
+[[test]]
+name = "tests"
+path = "tests/mod.rs"
+
+[dependencies]
+fearless_simd = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = "0.3.50"
+wasm-bindgen = "0.2.100"
