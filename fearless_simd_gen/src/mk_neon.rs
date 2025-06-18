@@ -111,16 +111,46 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::WidenNarrow(target_ty) => {
                     let ret_ty = sig.ret_ty(&target_ty, TyFlavor::SimdTrait);
-                    let args = [quote! { a.into() }];
-                    let scalar_ty = target_ty.scalar.rust(target_ty.scalar_bits);
-                    quote! {
-                        #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                            unsafe {
-                               todo!();
+                    let vec_scalar_ty = vec_ty.scalar.rust(vec_ty.scalar_bits);
+                    let target_scalar_ty = target_ty.scalar.rust(target_ty.scalar_bits);
+                    
+                    if method == "narrow" {
+                        let arch = Neon.arch_ty(vec_ty);
+                        
+                        let id1 = Ident::new(&format!("vmovn_{}", vec_scalar_ty), Span::call_site());
+                        let id2 = Ident::new(&format!("vcombine_{}", target_scalar_ty), Span::call_site());
+                        
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    let converted: #arch = a.into();
+                                    let low = #id1(converted.0);
+                                    let high = #id1(converted.1);
+                        
+                                    #id2(low, high).simd_into(self)
+                                }
+                            }
+                        }
+                    }   else {
+                        let arch = Neon.arch_ty(&target_ty);
+                        let id1 = Ident::new(&format!("vmovl_{}", vec_scalar_ty), Span::call_site());
+                        let id2 = Ident::new(&format!("vget_low_{}", vec_scalar_ty), Span::call_site());
+                        let id3 = Ident::new(&format!("vget_high_{}", vec_scalar_ty), Span::call_site());
+                        
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    let low = #id1(#id2(a.into()));
+                                    let high = #id1(#id3(a.into()));
+                                    
+                                    #arch(low, high).simd_into(self)
+                                }
                             }
                         }
                     }
+                    
                 },
                 OpSig::Binary => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
