@@ -49,12 +49,36 @@ jobs:
 
       - name: cargo test
         run: cargo test run --workspace --locked --all-features --no-fail-fast
-    
+
+  test-stable-wasm:
+    name: test (wasm32)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_STABLE_VER }}
+          targets: wasm32-unknown-unknown
+
+      - name: restore cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.event_name != 'merge_group' }}
+
+      - name: install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Run fearless_simd_tests on Chrome
+        run: wasm-pack test --headless --chrome
+        working-directory: fearless_simd_tests
+  
   build-no-std:
     name: build (no_std)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 

@@ -34,31 +34,30 @@ pub mod aarch64 {
     pub use crate::generated::Neon;
 }
 
+#[cfg(target_arch = "wasm32")]
+pub mod wasm32 {
+    pub use crate::generated::WasmSimd128;
+}
+
 /// The level enum with the specific SIMD capabilities available.
 #[derive(Clone, Copy, Debug)]
 pub enum Level {
     Fallback(Fallback),
     #[cfg(all(feature = "std", target_arch = "aarch64"))]
     Neon(Neon),
+    #[cfg(target_arch = "wasm32")]
+    WasmSimd128(WasmSimd128),
 }
 
 impl Level {
-    #[cfg(all(feature = "std", target_arch = "aarch64"))]
     pub fn new() -> Self {
+        #[cfg(all(feature = "std", target_arch = "aarch64"))]
         if std::arch::is_aarch64_feature_detected!("neon") {
-            unsafe { Level::Neon(Neon::new_unchecked()) }
-        } else {
-            Self::fallback()
+            return unsafe { Level::Neon(Neon::new_unchecked()) };
         }
-    }
-
-    #[cfg(all(feature = "std", target_arch = "x86_64"))]
-    pub fn new() -> Self {
-        Self::fallback()
-    }
-    
-    #[cfg(any(not(feature = "std"), not(any(target_arch = "aarch64", target_arch = "x86_64"))))]
-    pub fn new() -> Self {
+        #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+        return Level::WasmSimd128(WasmSimd128::new_unchecked());
+        #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
         Self::fallback()
     }
 
@@ -67,6 +66,15 @@ impl Level {
     pub fn as_neon(self) -> Option<Neon> {
         match self {
             Level::Neon(neon) => Some(neon),
+            _ => None,
+        }
+    }
+    
+    #[cfg(target_arch = "wasm32")]
+    #[inline]
+    pub fn as_wasm_simd128(self) -> Option<WasmSimd128> {
+        match self {
+            Level::WasmSimd128(simd128) => Some(simd128),
             _ => None,
         }
     }
@@ -86,6 +94,13 @@ impl Level {
             f.with_simd(neon)
         }
 
+        #[cfg(target_arch = "wasm32")]
+        #[target_feature(enable = "simd128")]
+        #[inline]
+        fn dispatch_simd128<W: WithSimd>(f: W, simd128: WasmSimd128) -> W::Output {
+            f.with_simd(simd128)
+        }
+
         #[inline]
         fn dispatch_fallback<W: WithSimd>(f: W, fallback: Fallback) -> W::Output {
             f.with_simd(fallback)
@@ -94,7 +109,9 @@ impl Level {
         match self {
             #[cfg(all(feature = "std", target_arch = "aarch64"))]
             Level::Neon(neon) => unsafe { dispatch_neon(f, neon) },
-            Level::Fallback(fallback) => dispatch_fallback(f, fallback)
+            #[cfg(target_arch = "wasm32")]
+            Level::WasmSimd128(simd128) => dispatch_simd128(f, simd128),
+            Level::Fallback(fallback) => dispatch_fallback(f, fallback),
         }
     }
 }

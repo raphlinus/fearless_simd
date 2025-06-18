@@ -32,13 +32,13 @@ pub fn mk_fallback_impl() -> TokenStream {
         use crate::{seal::Seal, Level, Simd, SimdInto};
 
         #imports
-        
+
         #[cfg(all(feature = "libm", not(feature = "std")))]
         trait FloatExt {
             fn floor(self) -> f32;
             fn sqrt(self) -> f32;
         }
-        
+
         #[cfg(all(feature = "libm", not(feature = "std")))]
         impl FloatExt for f32 {
             #[inline(always)]
@@ -50,7 +50,7 @@ pub fn mk_fallback_impl() -> TokenStream {
                 libm::sqrtf(self)
             }
         }
-        
+
         /// The SIMD token for the "fallback" level.
         #[derive(Clone, Copy, Debug)]
         pub struct Fallback {
@@ -173,11 +173,11 @@ fn mk_simd_impl() -> TokenStream {
                     let mask_type = VecType::new(ScalarType::Mask, vec_ty.scalar_bits, vec_ty.len);
                     let items = make_list(
                         (0..vec_ty.len)
-                            .map(|idx| {
+                            .map(|idx: usize| {
                                 let args = [quote! { &a[#idx] }, quote! { &b[#idx] }];
                                 let expr = Fallback.expr(method, vec_ty, &args);
                                 let mask_ty = mask_type.scalar.rust(scalar_bits);
-                                quote! { #expr as #mask_ty }
+                                quote! { -(#expr as #mask_ty) }
                             })
                             .collect::<Vec<_>>(),
                     );
