@@ -14,8 +14,8 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "neg" => "neg",
         "floor" => "floor",
         "sqrt" => "sqrt",
-        "add" => "add", // There is also a add_sat
-        "sub" => "sub", // There is also a sub_sat
+        "add" => "add",
+        "sub" => "sub",
         "mul" => "mul",
         "div" => "div",
         "simd_eq" => "eq",
