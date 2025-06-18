@@ -84,7 +84,9 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
 ];
 
 /// Ops covered by core::ops
-pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor", "shr"];
+pub const CORE_OPS: &[&str] = &[
+    "not", "neg", "add", "sub", "mul", "div", "and", "or", "xor", "shr",
+];
 
 pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     let base = match ty.scalar {
@@ -99,22 +101,25 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     if ty.n_bits() > 128 {
         ops.push(("split", OpSig::Split));
     }
-    
+
     if cvt {
         if matches!(ty.scalar, ScalarType::Unsigned) {
             if let Some(widened) = ty.widened() {
                 ops.push(("widen", OpSig::WidenNarrow(widened)));
-            }   
-            
+            }
+
             if let Some(narrowed) = ty.narrowed() {
                 ops.push(("narrow", OpSig::WidenNarrow(narrowed)));
             }
         }
-        
+
         if valid_reinterpret(ty, ScalarType::Unsigned, 8) {
-            ops.push(("reinterpret_u8", OpSig::Reinterpret(ScalarType::Unsigned, 8)));
+            ops.push((
+                "reinterpret_u8",
+                OpSig::Reinterpret(ScalarType::Unsigned, 8),
+            ));
         }
-        
+
         match (ty.scalar, ty.scalar_bits) {
             (ScalarType::Float, 32) => ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32))),
             _ => (),
@@ -139,7 +144,10 @@ impl OpSig {
                 let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
                 quote! { self, val: #scalar }
             }
-            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) 
+            OpSig::Unary
+            | OpSig::Split
+            | OpSig::Cvt(_, _)
+            | OpSig::Reinterpret(_, _)
             | OpSig::WidenNarrow(_) => quote! { self, a: #ty<Self> },
             OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
@@ -160,9 +168,10 @@ impl OpSig {
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
             OpSig::Splat => return None,
-            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _)
-            | OpSig::WidenNarrow(_) => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine  => {
+            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
+                quote! { self }
+            }
+            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
             OpSig::Shift => {
@@ -186,7 +195,12 @@ impl OpSig {
             TyFlavor::VecImpl => quote! { <S> },
         };
         match self {
-            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select | OpSig::Ternary | OpSig::Shift => {
+            OpSig::Splat
+            | OpSig::Unary
+            | OpSig::Binary
+            | OpSig::Select
+            | OpSig::Ternary
+            | OpSig::Shift => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -236,6 +250,6 @@ pub(crate) fn valid_reinterpret(src: &VecType, dst_scalar: ScalarType, dst_bits:
     if matches!(src.scalar, ScalarType::Mask | ScalarType::Float) {
         return false;
     }
-    
+
     true
 }

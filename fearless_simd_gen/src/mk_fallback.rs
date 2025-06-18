@@ -32,13 +32,13 @@ pub fn mk_fallback_impl() -> TokenStream {
         use crate::{seal::Seal, Level, Simd, SimdInto};
 
         #imports
-        
+
         #[cfg(all(feature = "libm", not(feature = "std")))]
         trait FloatExt {
             fn floor(self) -> f32;
             fn sqrt(self) -> f32;
         }
-        
+
         #[cfg(all(feature = "libm", not(feature = "std")))]
         impl FloatExt for f32 {
             #[inline(always)]
@@ -50,7 +50,7 @@ pub fn mk_fallback_impl() -> TokenStream {
                 libm::sqrtf(self)
             }
         }
-        
+
         /// The SIMD token for the "fallback" level.
         #[derive(Clone, Copy, Debug)]
         pub struct Fallback {
@@ -81,7 +81,8 @@ fn mk_simd_impl() -> TokenStream {
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
             if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
-            || vec_ty.n_bits() > 256 {
+                || vec_ty.n_bits() > 256
+            {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -338,15 +339,15 @@ fn mk_simd_impl() -> TokenStream {
                         let to_ty = reinterpret_ty(vec_ty, scalar, scalar_bits).rust();
 
                         quote! {
-                                #[inline(always)]
-                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                                    #to_ty {
-                                        val: bytemuck::cast(a.val),
-                                        simd: a.simd,
-                                    }
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                #to_ty {
+                                    val: bytemuck::cast(a.val),
+                                    simd: a.simd,
                                 }
                             }
-                    }   else {
+                        }
+                    } else {
                         quote! {}
                     }
                 }

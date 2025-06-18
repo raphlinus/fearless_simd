@@ -62,21 +62,21 @@ impl VecType {
         let ident = Ident::new(&self.rust_name(), Span::call_site());
         quote! { #ident }
     }
-    
+
     pub fn widened(&self) -> Option<VecType> {
-        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float) 
+        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float)
             || self.n_bits() > 256
             || self.scalar_bits != 8
         {
             return None;
         }
-        
+
         let scalar_bits = self.scalar_bits * 2;
         Some(Self::new(self.scalar, scalar_bits, self.len))
     }
 
     pub fn narrowed(&self) -> Option<VecType> {
-        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float) 
+        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float)
             || self.n_bits() < 256
             || self.scalar_bits != 16
         {

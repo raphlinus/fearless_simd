@@ -5,11 +5,11 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
+use crate::ops::reinterpret_ty;
 use crate::{
     ops::{OpSig, TyFlavor},
     types::{ScalarType, VecType},
 };
-use crate::ops::{reinterpret_ty};
 
 /// Implementation of combine based on `copy_from_slice`
 pub fn generic_combine(ty: &VecType) -> TokenStream {

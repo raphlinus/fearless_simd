@@ -63,9 +63,8 @@ impl Arch for Fallback {
             quote! { #intrinsic ( #( #args ),* ) }
         } else {
             match op {
-                _ => unimplemented!("missing {op}")
+                _ => unimplemented!("missing {op}"),
             }
-            
         }
     }
 }

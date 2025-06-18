@@ -147,7 +147,8 @@ fn mk_simd_mask() -> TokenStream {
 fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
     let mut methods = vec![];
     for (method, sig) in ops {
-        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Shift | OpSig::Combine) {
+        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Shift | OpSig::Combine)
+        {
             continue;
         }
         let method_name = Ident::new(method, Span::call_site());

@@ -48,7 +48,7 @@ impl Arch for Neon {
             format!("{}{}x{}x2_t", scalar, ty.scalar_bits, ty.len / 2)
         } else if ty.n_bits() == 512 {
             format!("{}{}x{}x4_t", scalar, ty.scalar_bits, ty.len / 4)
-        }  else {
+        } else {
             format!("{}{}x{}_t", scalar, ty.scalar_bits, ty.len)
         };
         let ident = Ident::new(&name, Span::call_site());
