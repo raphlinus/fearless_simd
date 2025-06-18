@@ -10,10 +10,10 @@ mod arch;
 mod generic;
 mod mk_fallback;
 mod mk_neon;
-mod mk_wasm;
 mod mk_ops;
 mod mk_simd_trait;
 mod mk_simd_types;
+mod mk_wasm;
 mod ops;
 mod types;
 

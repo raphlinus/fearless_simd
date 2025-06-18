@@ -1,7 +1,6 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-
 #[cfg(target_arch = "wasm32")]
 use fearless_simd::*;
 #[cfg(target_arch = "wasm32")]
@@ -30,7 +29,6 @@ macro_rules! test_wasm_simd_parity {
         }
     };
 }
-
 
 test_wasm_simd_parity! {
     fn test_add_f32x4() {
