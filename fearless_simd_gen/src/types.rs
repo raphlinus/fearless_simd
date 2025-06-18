@@ -91,6 +91,17 @@ pub const SIMD_TYPES: &[VecType] = &[
     VecType::new(ScalarType::Int, 32, 8),
     VecType::new(ScalarType::Unsigned, 32, 8),
     VecType::new(ScalarType::Mask, 32, 8),
+    // 512 bit types
+    VecType::new(ScalarType::Float, 32, 16),
+    VecType::new(ScalarType::Int, 8, 64),
+    VecType::new(ScalarType::Unsigned, 8, 64),
+    VecType::new(ScalarType::Mask, 8, 64),
+    VecType::new(ScalarType::Int, 16, 32),
+    VecType::new(ScalarType::Unsigned, 16, 32),
+    VecType::new(ScalarType::Mask, 16, 32),
+    VecType::new(ScalarType::Int, 32, 16),
+    VecType::new(ScalarType::Unsigned, 32, 16),
+    VecType::new(ScalarType::Mask, 32, 16),
 ];
 
 pub fn type_imports() -> TokenStream {

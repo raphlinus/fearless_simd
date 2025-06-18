@@ -90,7 +90,7 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
         ScalarType::Mask => MASK_OPS,
     };
     let mut ops = base.to_vec();
-    if ty.n_bits() < 256 {
+    if ty.n_bits() < 512 {
         ops.push(("combine", OpSig::Combine));
     }
     if ty.n_bits() > 128 {

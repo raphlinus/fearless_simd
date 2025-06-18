@@ -209,6 +209,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             // }
 
         }
-        _ => unimplemented!(),
+        OpSig::Split => generic_split(ty),
+        OpSig::Combine => generic_combine(ty),
     }
 }
