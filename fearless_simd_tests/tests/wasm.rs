@@ -31,7 +31,7 @@ macro_rules! test_wasm_simd_parity {
 }
 
 test_wasm_simd_parity! {
-    fn test_add_f32x4() {
+    fn add_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
             let b = f32x4::from_slice(s, &[5.0, 4.0, 3.0, 2.0]);
@@ -41,7 +41,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_sub_f32x4() {
+    fn sub_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
             let b = f32x4::from_slice(s, &[5.0, 4.0, 3.0, 2.0]);
@@ -51,7 +51,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_mul_f32x4() {
+    fn mul_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
             let b = f32x4::from_slice(s, &[5.0, 4.0, 3.0, 2.0]);
@@ -61,7 +61,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_splat_f32x4() {
+    fn splat_f32x4() {
         |s| -> [f32; 4] {
             f32x4::splat(s, 1.0).into()
         }
@@ -69,7 +69,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_abs_f32x4() {
+    fn abs_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[-1.0, 0., 1.0, 2.3]);
             f32x4::abs(a).into()
@@ -78,7 +78,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_neg_f32x4() {
+    fn neg_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[-1.0, 0.0, 1.0, 2.3]);
             f32x4::neg(a).into()
@@ -87,7 +87,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_sqrt_f32x4() {
+    fn sqrt_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 0.0, 1.0, 2.0]);
             f32x4::sqrt(a).into()
@@ -96,7 +96,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_div_f32x4() {
+    fn div_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 2.0, 1.0, 0.0]);
             let b = f32x4::from_slice(s, &[4., 1.0, 3.0, 0.1]);
@@ -106,7 +106,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_simd_eq_f32x4() {
+    fn simd_eq_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 2.0, 1.0, 0.0]);
             let b = f32x4::from_slice(s, &[4.0, 3.1, 1.0, 0.0]);
@@ -116,7 +116,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_simd_lt_f32x4() {
+    fn simd_lt_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 3.0, 2.0, 1.0]);
             let b = f32x4::from_slice(s, &[1.0, 2.0, 2.0, 4.0]);
@@ -126,7 +126,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_simd_le_f32x4() {
+    fn simd_le_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 3.0, 2.0, 1.0]);
             let b = f32x4::from_slice(s, &[1.0, 2.0, 2.0, 4.0]);
@@ -136,7 +136,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_simd_ge_f32x4() {
+    fn simd_ge_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 3.0, 2.0, 1.0]);
             let b = f32x4::from_slice(s, &[1.0, 2.0, 2.0, 4.0]);
@@ -146,7 +146,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_simd_gt_f32x4() {
+    fn simd_gt_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 3.0, 2.0, 1.0]);
             let b = f32x4::from_slice(s, &[1.0, 2.0, 2.0, 4.0]);
@@ -156,7 +156,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_madd_f32x4() {
+    fn madd_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.0, 0.0, 0.5]);
             let b = f32x4::from_slice(s, &[5.0, 4.0, 100.0, 8.0]);
@@ -167,7 +167,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_max_f32x4() {
+    fn max_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.0, 0.0, 0.5]);
             let b = f32x4::from_slice(s, &[1.0, -2.0, 7.0, 3.0]);
@@ -177,7 +177,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_min_f32x4() {
+    fn min_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.0, 0.0, 0.5]);
             let b = f32x4::from_slice(s, &[1.0, -2.0, 7.0, 3.0]);
@@ -187,7 +187,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_max_precise_f32x4() {
+    fn max_precise_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.0, 0.0, 0.5]);
             let b = f32x4::from_slice(s, &[1.0, -2.0, 7.0, 3.0]);
@@ -197,7 +197,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_min_precise_f32x4() {
+    fn min_precise_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.0, 0.0, 0.5]);
             let b = f32x4::from_slice(s, &[1.0, -2.0, 7.0, 3.0]);
@@ -207,7 +207,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_floor_f32x4() {
+    fn floor_f32x4() {
         |s| -> [f32; 4] {
             let a = f32x4::from_slice(s, &[2.0, -3.2, 0.0, 0.5]);
             a.floor().into()
@@ -216,7 +216,7 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
-    fn test_combine_f32x4() {
+    fn combine_f32x4() {
         |s| -> [f32; 8] {
             let a = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
             let b = f32x4::from_slice(s, &[5.0, 6.0, 7.0, 8.0]);
