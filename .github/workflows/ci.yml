@@ -53,8 +53,6 @@ jobs:
   build-no-std:
     name: build (no_std)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 
