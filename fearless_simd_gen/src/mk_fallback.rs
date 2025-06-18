@@ -99,13 +99,30 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     }
                 }
-                OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
+                OpSig::Unary => {
                     let items = make_list(
                         (0..vec_ty.len)
                             .map(|idx| {
                                 let args = [quote! { a[#idx] }];
                                 let expr = Fallback.expr(method, vec_ty, &args);
                                 quote! { #expr }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            #items.simd_into(self)
+                        }
+                    }
+                }
+                OpSig::WidenNarrow(t) => {
+                    let items = make_list(
+                        (0..vec_ty.len)
+                            .map(|idx| {
+                                let scalar_ty = t.scalar.rust(t.scalar_bits);
+                                quote! { a[#idx] as #scalar_ty }
                             })
                             .collect::<Vec<_>>(),
                     );

@@ -97,7 +97,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
+                OpSig::Unary => {
                     let args = [quote! { a.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);
                     quote! {
@@ -109,6 +109,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
+                OpSig::WidenNarrow(_) => quote! {},
                 OpSig::Binary => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
                     if method == "copysign" {

@@ -332,10 +332,6 @@ impl Simd for Neon {
         result.simd_into(self)
     }
     #[inline(always)]
-    fn widen_u8x16(self, a: u8x16<Self>) -> u16x16<Self> {
-        unsafe { todo!().simd_into(self) }
-    }
-    #[inline(always)]
     fn splat_mask8x16(self, val: i8) -> mask8x16<Self> {
         unsafe { vdupq_n_s8(val).simd_into(self) }
     }
@@ -1638,10 +1634,6 @@ impl Simd for Neon {
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
         (b0.simd_into(self), b1.simd_into(self))
-    }
-    #[inline(always)]
-    fn narrow_u16x16(self, a: u16x16<Self>) -> u8x16<Self> {
-        unsafe { todo!().simd_into(self) }
     }
     #[inline(always)]
     fn reinterpret_u8_u16x16(self, a: u16x16<Self>) -> u8x32<Self> {
