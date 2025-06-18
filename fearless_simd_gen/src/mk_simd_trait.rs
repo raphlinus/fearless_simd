@@ -21,9 +21,10 @@ pub fn mk_simd_trait() -> TokenStream {
             let method = Ident::new(&method_name, Span::call_site());
             let args = sig.simd_trait_args(vec_ty);
             let ret_ty = sig.ret_ty(vec_ty, TyFlavor::SimdTrait);
-            methods.extend(quote! {
+            let method_sig = quote! {
                 fn #method(#args) -> #ret_ty;
-            });
+            };
+            methods.extend(method_sig);
         }
     }
     let mut code = quote! {
@@ -146,7 +147,7 @@ fn mk_simd_mask() -> TokenStream {
 fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
     let mut methods = vec![];
     for (method, sig) in ops {
-        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Combine) {
+        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Shift | OpSig::Combine) {
             continue;
         }
         let method_name = Ident::new(method, Span::call_site());

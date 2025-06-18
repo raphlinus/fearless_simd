@@ -12,7 +12,9 @@ use crate::{
     ops::{OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, VecType, type_imports},
 };
+use crate::arch::neon::split_intrinsic;
 use crate::ops::{reinterpret_ty, valid_reinterpret};
+use crate::types::ScalarType;
 
 #[derive(Clone, Copy)]
 pub enum Level {
@@ -91,6 +93,25 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, val: #scalar) -> #ret_ty {
+                            unsafe {
+                                #expr.simd_into(self)
+                            }
+                        }
+                    }
+                }
+                OpSig::Shift => {
+                    let dup_type = VecType::new(ScalarType::Int, vec_ty.scalar_bits, vec_ty.len);
+                    let scalar = dup_type.scalar.rust(scalar_bits);
+                    let dup_intrinsic = split_intrinsic("vdup", "n", &dup_type);
+                    let shift = if method == "shr" {
+                        quote! { -(shift as #scalar) }
+                    }   else {
+                        quote! { shift as #scalar }   
+                    };
+                    let expr = Neon.expr(method, vec_ty, &[quote! { val.into() }, quote! { #dup_intrinsic ( #shift ) }]);
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, val: #ty<Self>, shift: u32) -> #ret_ty {
                             unsafe {
                                 #expr.simd_into(self)
                             }

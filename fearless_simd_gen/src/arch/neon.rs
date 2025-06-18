@@ -29,6 +29,7 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "xor" => "veor",
         "max" => "vmax",
         "min" => "vmin",
+        "shr" => "vshl",
         "max_precise" => "vmaxnm",
         "min_precise" => "vminnm",
         "madd" => "vfma",

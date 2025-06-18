@@ -161,6 +161,25 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     }
                 }
+                OpSig::Shift => {
+                    let arch_ty = Fallback.arch_ty(vec_ty);
+                    let items = make_list(
+                        (0..vec_ty.len)
+                            .map(|idx| {
+                                let args = [quote! { a[#idx] }, quote! { b as #arch_ty }];
+                                let expr = Fallback.expr(method, vec_ty, &args);
+                                quote! { #expr }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: u32) -> #ret_ty {
+                            #items.simd_into(self)
+                        }
+                    }
+                }
                 OpSig::Ternary => {
                     if method == "madd" {
                         // TODO: This is has slightly different semantics than a fused multiply-add,

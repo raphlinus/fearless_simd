@@ -20,6 +20,7 @@ pub enum OpSig {
     Cvt(ScalarType, usize),
     Reinterpret(ScalarType, usize),
     WidenNarrow(VecType),
+    Shift,
     // TODO: fma
 }
 
@@ -59,6 +60,7 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("and", OpSig::Binary),
     ("or", OpSig::Binary),
     ("xor", OpSig::Binary),
+    ("shr", OpSig::Shift),
     ("simd_eq", OpSig::Compare),
     ("simd_lt", OpSig::Compare),
     ("simd_le", OpSig::Compare),
@@ -82,7 +84,7 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
 ];
 
 /// Ops covered by core::ops
-pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor"];
+pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor", "shr"];
 
 pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     let base = match ty.scalar {
@@ -142,6 +144,9 @@ impl OpSig {
             OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
+            OpSig::Shift => {
+                quote! { self, a: #ty<Self>, shift: u32 }
+            }
             OpSig::Ternary => {
                 quote! { self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self> }
             }
@@ -155,10 +160,13 @@ impl OpSig {
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
             OpSig::Splat => return None,
-            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) 
+            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _)
             | OpSig::WidenNarrow(_) => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
+            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine  => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
+            }
+            OpSig::Shift => {
+                quote! { self, shift: u32 }
             }
             OpSig::Ternary => {
                 quote! { self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S> }
@@ -178,7 +186,7 @@ impl OpSig {
             TyFlavor::VecImpl => quote! { <S> },
         };
         match self {
-            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select | OpSig::Ternary => {
+            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select | OpSig::Ternary | OpSig::Shift => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }

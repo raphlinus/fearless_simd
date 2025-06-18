@@ -26,6 +26,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "and" => "bitand",
         "or" => "bitor",
         "xor" => "bitxor",
+        "shr" => "shr",
         // TODO: Do we need to polyfill so behavior is consistent with NEON?
         "max" => "max",
         "min" => "min",

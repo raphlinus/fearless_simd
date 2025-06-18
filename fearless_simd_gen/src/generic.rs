@@ -9,7 +9,7 @@ use crate::{
     ops::{OpSig, TyFlavor},
     types::{ScalarType, VecType},
 };
-use crate::ops::{reinterpret_ty, valid_reinterpret};
+use crate::ops::{reinterpret_ty};
 
 /// Implementation of combine based on `copy_from_slice`
 pub fn generic_combine(ty: &VecType) -> TokenStream {
@@ -94,6 +94,15 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                     let (a0, a1) = self.#split(a);
                     let (b0, b1) = self.#split(b);
                     self.#combine(self.#do_half(a0, b0), self.#do_half(a1, b1))
+                }
+            }
+        }
+        OpSig::Shift => {
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>, b: u32) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0, b), self.#do_half(a1, b))
                 }
             }
         }
