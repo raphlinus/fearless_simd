@@ -109,7 +109,19 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::WidenNarrow(_) => quote! {},
+                OpSig::WidenNarrow(target_ty) => {
+                    let ret_ty = sig.ret_ty(&target_ty, TyFlavor::SimdTrait);
+                    let args = [quote! { a.into() }];
+                    let scalar_ty = target_ty.scalar.rust(target_ty.scalar_bits);
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            unsafe {
+                               todo!();
+                            }
+                        }
+                    }
+                },
                 OpSig::Binary => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
                     if method == "copysign" {

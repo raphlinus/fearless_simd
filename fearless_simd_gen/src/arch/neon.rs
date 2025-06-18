@@ -59,12 +59,6 @@ impl Arch for Neon {
                 let intrinsic = split_intrinsic("vdup", "n", ty);
                 quote! { #intrinsic ( #( #args ),* ) }
             }
-            "widen" => {
-                quote! { todo!() }
-            }
-            "narrow" => {
-                quote! { todo!()}
-            }
             _ => unimplemented!("missing {op}"),
         }
     }
