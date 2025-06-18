@@ -98,7 +98,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: u8x16<Self>,
     ) -> u8x16<Self>;
     fn combine_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x32<Self>;
-    fn widen_u8x16(self, a: u8x16<Self>) -> u16x32<Self>;
+    fn widen_u8x16(self, a: u8x16<Self>) -> u16x16<Self>;
     fn splat_mask8x16(self, val: i8) -> mask8x16<Self>;
     fn not_mask8x16(self, a: mask8x16<Self>) -> mask8x16<Self>;
     fn and_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self>;
@@ -167,7 +167,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: u16x8<Self>,
     ) -> u16x8<Self>;
     fn combine_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x16<Self>;
-    fn widen_u16x8(self, a: u16x8<Self>) -> u32x16<Self>;
     fn reinterpret_u8_u16x8(self, a: u16x8<Self>) -> u8x16<Self>;
     fn splat_mask16x8(self, val: i16) -> mask16x8<Self>;
     fn not_mask16x8(self, a: mask16x8<Self>) -> mask16x8<Self>;
@@ -339,7 +338,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     ) -> u8x32<Self>;
     fn combine_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x64<Self>;
     fn split_u8x32(self, a: u8x32<Self>) -> (u8x16<Self>, u8x16<Self>);
-    fn widen_u8x32(self, a: u8x32<Self>) -> u16x64<Self>;
+    fn widen_u8x32(self, a: u8x32<Self>) -> u16x32<Self>;
     fn splat_mask8x32(self, val: i8) -> mask8x32<Self>;
     fn not_mask8x32(self, a: mask8x32<Self>) -> mask8x32<Self>;
     fn and_mask8x32(self, a: mask8x32<Self>, b: mask8x32<Self>) -> mask8x32<Self>;
@@ -427,8 +426,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     ) -> u16x16<Self>;
     fn combine_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x32<Self>;
     fn split_u16x16(self, a: u16x16<Self>) -> (u16x8<Self>, u16x8<Self>);
-    fn widen_u16x16(self, a: u16x16<Self>) -> u32x32<Self>;
-    fn narrow_u16x16(self, a: u16x16<Self>) -> u8x8<Self>;
+    fn narrow_u16x16(self, a: u16x16<Self>) -> u8x16<Self>;
     fn reinterpret_u8_u16x16(self, a: u16x16<Self>) -> u8x32<Self>;
     fn splat_mask16x16(self, val: i16) -> mask16x16<Self>;
     fn not_mask16x16(self, a: mask16x16<Self>) -> mask16x16<Self>;
@@ -509,7 +507,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     ) -> u32x8<Self>;
     fn combine_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x16<Self>;
     fn split_u32x8(self, a: u32x8<Self>) -> (u32x4<Self>, u32x4<Self>);
-    fn narrow_u32x8(self, a: u32x8<Self>) -> u16x4<Self>;
     fn reinterpret_u8_u32x8(self, a: u32x8<Self>) -> u8x32<Self>;
     fn splat_mask32x8(self, val: i32) -> mask32x8<Self>;
     fn not_mask32x8(self, a: mask32x8<Self>) -> mask32x8<Self>;
@@ -707,7 +704,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: u16x32<Self>,
     ) -> u16x32<Self>;
     fn split_u16x32(self, a: u16x32<Self>) -> (u16x16<Self>, u16x16<Self>);
-    fn narrow_u16x32(self, a: u16x32<Self>) -> u8x16<Self>;
+    fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self>;
     fn reinterpret_u8_u16x32(self, a: u16x32<Self>) -> u8x64<Self>;
     fn splat_mask16x32(self, val: i16) -> mask16x32<Self>;
     fn not_mask16x32(self, a: mask16x32<Self>) -> mask16x32<Self>;
@@ -797,7 +794,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: u32x16<Self>,
     ) -> u32x16<Self>;
     fn split_u32x16(self, a: u32x16<Self>) -> (u32x8<Self>, u32x8<Self>);
-    fn narrow_u32x16(self, a: u32x16<Self>) -> u16x8<Self>;
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self>;
     fn splat_mask32x16(self, val: i32) -> mask32x16<Self>;
     fn not_mask32x16(self, a: mask32x16<Self>) -> mask32x16<Self>;

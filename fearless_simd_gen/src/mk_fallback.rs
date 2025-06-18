@@ -80,7 +80,8 @@ fn mk_simd_impl() -> TokenStream {
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if vec_ty.n_bits() > 128 && method != "split" {
+            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+            || vec_ty.n_bits() > 256 {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }

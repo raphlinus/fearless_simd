@@ -332,7 +332,7 @@ impl Simd for Neon {
         result.simd_into(self)
     }
     #[inline(always)]
-    fn widen_u8x16(self, a: u8x16<Self>) -> u16x32<Self> {
+    fn widen_u8x16(self, a: u8x16<Self>) -> u16x16<Self> {
         unsafe { todo!().simd_into(self) }
     }
     #[inline(always)]
@@ -566,10 +566,6 @@ impl Simd for Neon {
         result[0..8usize].copy_from_slice(&a.val);
         result[8usize..16usize].copy_from_slice(&b.val);
         result.simd_into(self)
-    }
-    #[inline(always)]
-    fn widen_u16x8(self, a: u16x8<Self>) -> u32x16<Self> {
-        unsafe { todo!().simd_into(self) }
     }
     #[inline(always)]
     fn reinterpret_u8_u16x8(self, a: u16x8<Self>) -> u8x16<Self> {
@@ -1289,9 +1285,9 @@ impl Simd for Neon {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
-    fn widen_u8x32(self, a: u8x32<Self>) -> u16x64<Self> {
+    fn widen_u8x32(self, a: u8x32<Self>) -> u16x32<Self> {
         let (a0, a1) = self.split_u8x32(a);
-        self.combine_u8x16(self.widen_u8x16(a0), self.widen_u8x16(a1))
+        self.combine_u16x16(self.widen_u8x16(a0), self.widen_u8x16(a1))
     }
     #[inline(always)]
     fn splat_mask8x32(self, a: i8) -> mask8x32<Self> {
@@ -1644,14 +1640,8 @@ impl Simd for Neon {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
-    fn widen_u16x16(self, a: u16x16<Self>) -> u32x32<Self> {
-        let (a0, a1) = self.split_u16x16(a);
-        self.combine_u16x8(self.widen_u16x8(a0), self.widen_u16x8(a1))
-    }
-    #[inline(always)]
-    fn narrow_u16x16(self, a: u16x16<Self>) -> u8x8<Self> {
-        let (a0, a1) = self.split_u16x16(a);
-        self.combine_u16x8(self.narrow_u16x8(a0), self.narrow_u16x8(a1))
+    fn narrow_u16x16(self, a: u16x16<Self>) -> u8x16<Self> {
+        unsafe { todo!().simd_into(self) }
     }
     #[inline(always)]
     fn reinterpret_u8_u16x16(self, a: u16x16<Self>) -> u8x32<Self> {
@@ -1999,11 +1989,6 @@ impl Simd for Neon {
         b0.copy_from_slice(&a.val[0..4usize]);
         b1.copy_from_slice(&a.val[4usize..8usize]);
         (b0.simd_into(self), b1.simd_into(self))
-    }
-    #[inline(always)]
-    fn narrow_u32x8(self, a: u32x8<Self>) -> u16x4<Self> {
-        let (a0, a1) = self.split_u32x8(a);
-        self.combine_u32x4(self.narrow_u32x4(a0), self.narrow_u32x4(a1))
     }
     #[inline(always)]
     fn reinterpret_u8_u32x8(self, a: u32x8<Self>) -> u8x32<Self> {
@@ -2845,9 +2830,9 @@ impl Simd for Neon {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
-    fn narrow_u16x32(self, a: u16x32<Self>) -> u8x16<Self> {
+    fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_u16x32(a);
-        self.combine_u16x16(self.narrow_u16x16(a0), self.narrow_u16x16(a1))
+        self.combine_u8x16(self.narrow_u16x16(a0), self.narrow_u16x16(a1))
     }
     #[inline(always)]
     fn reinterpret_u8_u16x32(self, a: u16x32<Self>) -> u8x64<Self> {
@@ -3189,11 +3174,6 @@ impl Simd for Neon {
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
         (b0.simd_into(self), b1.simd_into(self))
-    }
-    #[inline(always)]
-    fn narrow_u32x16(self, a: u32x16<Self>) -> u16x8<Self> {
-        let (a0, a1) = self.split_u32x16(a);
-        self.combine_u32x8(self.narrow_u32x8(a0), self.narrow_u32x8(a1))
     }
     #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {

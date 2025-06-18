@@ -78,7 +78,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
-        OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
+        OpSig::Unary => {
             quote! {
                 #[inline(always)]
                 fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
@@ -188,6 +188,27 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                     let (a0, a1) = self.#split(a);
                     self.#combine(self.#do_half(a0), self.#do_half(a1))
                 }
+            }
+        }
+        OpSig::Widen | OpSig::Narrow => {
+            let half = if matches!(sig, OpSig::Widen) {
+                ty.widened()
+            }   else {
+                ty.narrowed()
+            };
+            
+            if let Some(mut half) = half {
+                half.len = half.len / 2;
+                let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
+                quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0), self.#do_half(a1))
+                }
+            }
+            }   else {
+                quote! {}
             }
         }
         OpSig::Split => generic_split(ty),
