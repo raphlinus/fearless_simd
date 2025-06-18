@@ -179,35 +179,16 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
             }
         }
         OpSig::Reinterpret(scalar, scalar_bits) => {
-            if valid_reinterpret(ty, scalar, scalar_bits) {
-                let mut half = reinterpret_ty(ty, scalar, scalar_bits);
-                half.len = half.len / 2;
-                let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
-                quote! {
-                    #[inline(always)]
-                    fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
-                        let (a0, a1) = self.#split(a);
-                        self.#combine(self.#do_half(a0), self.#do_half(a1))
-                    }
+            let mut half = reinterpret_ty(ty, scalar, scalar_bits);
+            half.len = half.len / 2;
+            let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0), self.#do_half(a1))
                 }
-            }   else {
-                quote! {}
             }
-
-            // if create_reinterpret(*ty, scalar, scalar_bits).is_some() {
-            //     let half = VecType::new(scalar, scalar_bits, ty.len / 2);
-            //     let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
-            //     quote! {
-            //         #[inline(always)]
-            //         fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
-            //             let (a0, a1) = self.#split(a);
-            //             self.#combine(self.#do_half(a0), self.#do_half(a1))
-            //         }
-            //     }
-            // }   else {
-            //     quote! {}
-            // }
-
         }
         OpSig::Split => generic_split(ty),
         OpSig::Combine => generic_combine(ty),
