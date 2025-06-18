@@ -301,7 +301,7 @@ fn mk_type_impl() -> TokenStream {
     let mut result = vec![];
     for ty in SIMD_TYPES {
         let n_bits = ty.n_bits();
-        if !(n_bits == 64 || n_bits == 128) {
+        if !(n_bits == 64 || n_bits == 128|| n_bits == 256 || n_bits == 512) {
             continue;
         }
         let simd = ty.rust();

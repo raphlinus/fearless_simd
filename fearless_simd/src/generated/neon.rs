@@ -3423,3 +3423,303 @@ impl<S: Simd> From<mask32x4<S>> for int32x4_t {
         unsafe { core::mem::transmute(value.val) }
     }
 }
+impl<S: Simd> SimdFrom<float32x4x2_t, S> for f32x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: float32x4x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f32x8<S>> for float32x4x2_t {
+    #[inline(always)]
+    fn from(value: f32x8<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int8x16x2_t, S> for i8x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: int8x16x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i8x32<S>> for int8x16x2_t {
+    #[inline(always)]
+    fn from(value: i8x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint8x16x2_t, S> for u8x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint8x16x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u8x32<S>> for uint8x16x2_t {
+    #[inline(always)]
+    fn from(value: u8x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int8x16x2_t, S> for mask8x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: int8x16x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask8x32<S>> for int8x16x2_t {
+    #[inline(always)]
+    fn from(value: mask8x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int16x8x2_t, S> for i16x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: int16x8x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i16x16<S>> for int16x8x2_t {
+    #[inline(always)]
+    fn from(value: i16x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint16x8x2_t, S> for u16x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint16x8x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u16x16<S>> for uint16x8x2_t {
+    #[inline(always)]
+    fn from(value: u16x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int16x8x2_t, S> for mask16x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: int16x8x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask16x16<S>> for int16x8x2_t {
+    #[inline(always)]
+    fn from(value: mask16x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int32x4x2_t, S> for i32x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: int32x4x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i32x8<S>> for int32x4x2_t {
+    #[inline(always)]
+    fn from(value: i32x8<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint32x4x2_t, S> for u32x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint32x4x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u32x8<S>> for uint32x4x2_t {
+    #[inline(always)]
+    fn from(value: u32x8<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int32x4x2_t, S> for mask32x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: int32x4x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask32x8<S>> for int32x4x2_t {
+    #[inline(always)]
+    fn from(value: mask32x8<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<float32x4x4_t, S> for f32x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: float32x4x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f32x16<S>> for float32x4x4_t {
+    #[inline(always)]
+    fn from(value: f32x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int8x16x4_t, S> for i8x64<S> {
+    #[inline(always)]
+    fn simd_from(arch: int8x16x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i8x64<S>> for int8x16x4_t {
+    #[inline(always)]
+    fn from(value: i8x64<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint8x16x4_t, S> for u8x64<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint8x16x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u8x64<S>> for uint8x16x4_t {
+    #[inline(always)]
+    fn from(value: u8x64<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int8x16x4_t, S> for mask8x64<S> {
+    #[inline(always)]
+    fn simd_from(arch: int8x16x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask8x64<S>> for int8x16x4_t {
+    #[inline(always)]
+    fn from(value: mask8x64<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int16x8x4_t, S> for i16x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: int16x8x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i16x32<S>> for int16x8x4_t {
+    #[inline(always)]
+    fn from(value: i16x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint16x8x4_t, S> for u16x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint16x8x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u16x32<S>> for uint16x8x4_t {
+    #[inline(always)]
+    fn from(value: u16x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int16x8x4_t, S> for mask16x32<S> {
+    #[inline(always)]
+    fn simd_from(arch: int16x8x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask16x32<S>> for int16x8x4_t {
+    #[inline(always)]
+    fn from(value: mask16x32<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int32x4x4_t, S> for i32x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: int32x4x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<i32x16<S>> for int32x4x4_t {
+    #[inline(always)]
+    fn from(value: i32x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<uint32x4x4_t, S> for u32x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: uint32x4x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<u32x16<S>> for uint32x4x4_t {
+    #[inline(always)]
+    fn from(value: u32x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int32x4x4_t, S> for mask32x16<S> {
+    #[inline(always)]
+    fn simd_from(arch: int32x4x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask32x16<S>> for int32x4x4_t {
+    #[inline(always)]
+    fn from(value: mask32x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
