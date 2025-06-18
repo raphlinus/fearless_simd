@@ -195,14 +195,6 @@ impl OpSig {
                 let result = reinterpret_ty(ty, *scalar, *scalar_bits).rust();
                 quote! { #result #quant }
             }
-            // OpSig::Reinterpret(scalar, scalar_bits) => {
-            //     create_reinterpret(*ty, *scalar, *scalar_bits)
-            //         .map(|ty| {
-            //             let result = ty.rust();
-            //             quote! { #result #quant }
-            //         })
-            //         .unwrap_or(quote! {})
-            // }
         }
     }
 }
