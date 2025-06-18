@@ -12,7 +12,7 @@ macro_rules! simd_dispatch {
     ) => {
         $( #[$meta] )* $vis
         fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
-            #[cfg(target_arch = "aarch64")]
+            #[cfg(all(feature = "std", target_arch = "aarch64"))]
             #[target_feature(enable = "neon")]
             #[inline]
             unsafe fn inner_neon(neon: $crate::aarch64::Neon $( , $arg: $ty )* ) $( -> $ret )? {
@@ -26,7 +26,7 @@ macro_rules! simd_dispatch {
             }
             match level {
                 Level::Fallback(fb) => $inner(fb $( , $arg )* ),
-                #[cfg(target_arch = "aarch64")]
+                #[cfg(all(feature = "std", target_arch = "aarch64"))]
                 Level::Neon(neon) => unsafe { inner_neon (neon $( , $arg )* ) }
                 #[cfg(target_arch = "wasm32")]
                 Level::WasmSimd128(wasm) => unsafe { inner_wasm_simd128 (wasm $( , $arg )* ) }
@@ -34,4 +34,3 @@ macro_rules! simd_dispatch {
         }
     };
 }
-
