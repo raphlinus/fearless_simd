@@ -334,7 +334,10 @@ impl Simd for Neon {
     #[inline(always)]
     fn widen_u8x16(self, a: u8x16<Self>) -> u16x16<Self> {
         unsafe {
-            todo!();
+            let low = vmovl_u8(vget_low_u8(a.into()));
+            let high = vmovl_u8(vget_high_u8(a.into()));
+            
+            uint16x8x2_t(low, high).simd_into(self)
         }
     }
     #[inline(always)]
@@ -1644,7 +1647,11 @@ impl Simd for Neon {
     #[inline(always)]
     fn narrow_u16x16(self, a: u16x16<Self>) -> u8x16<Self> {
         unsafe {
-            todo!();
+            let converted: uint16x8x2_t = a.into();
+            let low = vmovn_u16(converted.0);
+            let high = vmovn_u16(converted.1);
+
+            vcombine_u8(low, high).simd_into(self)
         }
     }
     #[inline(always)]
