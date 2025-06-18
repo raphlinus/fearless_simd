@@ -96,7 +96,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::Unary => {
+                OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
                     let args = [quote! { a.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);
                     quote! {

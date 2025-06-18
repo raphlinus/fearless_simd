@@ -98,7 +98,7 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     }
                 }
-                OpSig::Unary => {
+                OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
                     let items = make_list(
                         (0..vec_ty.len)
                             .map(|idx| {

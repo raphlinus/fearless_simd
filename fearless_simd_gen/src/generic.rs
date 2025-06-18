@@ -78,7 +78,7 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
-        OpSig::Unary => {
+        OpSig::Unary | OpSig::Widen | OpSig::Narrow => {
             quote! {
                 #[inline(always)]
                 fn #name(self, a: #ty_rust<Self>) -> #ret_ty {

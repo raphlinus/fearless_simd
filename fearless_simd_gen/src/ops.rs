@@ -19,6 +19,8 @@ pub enum OpSig {
     Zip,
     Cvt(ScalarType, usize),
     Reinterpret(ScalarType, usize),
+    Widen,
+    Narrow,
     // TODO: fma
 }
 
@@ -98,6 +100,16 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     }
     
     if cvt {
+        if matches!(ty.scalar, ScalarType::Unsigned) {
+            if ty.widened().is_some() {
+                ops.push(("widen", OpSig::Widen));
+            }
+
+            if ty.narrowed().is_some() {
+                ops.push(("narrow", OpSig::Narrow));
+            }
+        }
+        
         if valid_reinterpret(ty, ScalarType::Unsigned, 8) {
             ops.push(("reinterpret_u8", OpSig::Reinterpret(ScalarType::Unsigned, 8)));
         }
@@ -126,7 +138,8 @@ impl OpSig {
                 let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
                 quote! { self, val: #scalar }
             }
-            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self, a: #ty<Self> },
+            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) 
+            | OpSig::Widen | OpSig::Narrow => quote! { self, a: #ty<Self> },
             OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
@@ -143,7 +156,8 @@ impl OpSig {
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
             OpSig::Splat => return None,
-            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self },
+            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) 
+            | OpSig::Widen | OpSig::Narrow => quote! { self },
             OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
@@ -194,6 +208,24 @@ impl OpSig {
             OpSig::Reinterpret(scalar, scalar_bits) => {
                 let result = reinterpret_ty(ty, *scalar, *scalar_bits).rust();
                 quote! { #result #quant }
+            }
+            OpSig::Widen => {
+                if let Some(widened) = ty.widened() {
+                    let rust = widened.rust();
+                    quote! { #rust #quant }
+                } else {
+                    // Client needs to ensure to not push the method if no widened is available.
+                    quote! {}
+                }
+            }
+            OpSig::Narrow => {
+                if let Some(narrowed) = ty.narrowed() {
+                    let rust = narrowed.rust();
+                    quote! { #rust #quant }
+                } else {
+                    // Client needs to ensure to not push the method if no widened is available.
+                    quote! {}
+                }
             }
         }
     }

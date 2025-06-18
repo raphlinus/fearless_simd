@@ -61,7 +61,16 @@ impl Arch for Fallback {
             let intrinsic = simple_intrinsic(translated, ty);
             quote! { #intrinsic ( #( #args ),* ) }
         } else {
-            unimplemented!("missing {op}")
+            match op {
+                "widen" => {
+                    quote! { todo!() }
+                }
+                "narrow" => {
+                    quote! { todo!()}
+                }
+                _ => unimplemented!("missing {op}")
+            }
+            
         }
     }
 }
