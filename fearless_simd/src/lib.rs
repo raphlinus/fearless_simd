@@ -69,7 +69,7 @@ impl Level {
             _ => None,
         }
     }
-    
+
     #[cfg(target_arch = "wasm32")]
     #[inline]
     pub fn as_wasm_simd128(self) -> Option<WasmSimd128> {
