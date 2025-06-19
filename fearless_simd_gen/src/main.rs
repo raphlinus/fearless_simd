@@ -126,5 +126,5 @@ fn write_formatted(text: &[u8], out: File) {
     let mut stdin = child.stdin.take().expect("stdin handle to be present");
     stdin.write_all(text).unwrap();
     drop(stdin);
-    child.wait().expect("error writing {name}");
+    child.wait().expect("rustfmt should write to file");
 }
