@@ -16,7 +16,7 @@ pub enum OpSig {
     Select,
     Combine,
     Split,
-    Zip,
+    Zip(bool),
     Cvt(ScalarType, usize),
     Reinterpret(ScalarType, usize),
     WidenNarrow(VecType),
@@ -39,8 +39,8 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
+    ("zip1", OpSig::Zip(true)),
+    ("zip2", OpSig::Zip(false)),
     ("max", OpSig::Binary),
     ("max_precise", OpSig::Binary),
     ("min", OpSig::Binary),
@@ -66,8 +66,8 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
+    ("zip1", OpSig::Zip(true)),
+    ("zip2", OpSig::Zip(false)),
     ("select", OpSig::Select),
 ];
 
@@ -78,8 +78,6 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
     ("or", OpSig::Binary),
     ("xor", OpSig::Binary),
     ("select", OpSig::Select),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
     ("simd_eq", OpSig::Compare),
 ];
 
@@ -149,7 +147,7 @@ impl OpSig {
             | OpSig::Cvt(_, _)
             | OpSig::Reinterpret(_, _)
             | OpSig::WidenNarrow(_) => quote! { self, a: #ty<Self> },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
+            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
             OpSig::Shift => {
@@ -171,7 +169,7 @@ impl OpSig {
             OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                 quote! { self }
             }
-            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
+            OpSig::Binary | OpSig::Compare | OpSig::Zip(_) | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
             OpSig::Shift => {
@@ -218,9 +216,9 @@ impl OpSig {
                 let result = VecType::new(ty.scalar, ty.scalar_bits, len).rust();
                 quote! { ( #result #quant, #result #quant ) }
             }
-            OpSig::Zip => {
+            OpSig::Zip(_) => {
                 let rust = ty.rust();
-                quote! { ( #rust #quant, #rust #quant ) }
+                quote! { #rust #quant }
             }
             OpSig::Cvt(scalar, scalar_bits) => {
                 let result = VecType::new(*scalar, *scalar_bits, ty.len).rust();

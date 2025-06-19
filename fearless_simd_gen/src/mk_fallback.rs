@@ -246,74 +246,25 @@ fn mk_simd_impl() -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip => {
-                    let (zip1, zip2) = match method {
-                        "zip" => {
-                            let zip1 = make_list(
-                                (0..vec_ty.len / 2)
-                                    .map(|idx| {
-                                        quote! {a[#idx], b[#idx] }
-                                    })
-                                    .collect::<Vec<_>>(),
-                            );
-
-                            let zip2 = make_list(
-                                (vec_ty.len / 2..vec_ty.len)
-                                    .map(|idx| {
-                                        quote! {a[#idx], b[#idx] }
-                                    })
-                                    .collect::<Vec<_>>(),
-                            );
-
-                            (zip1, zip2)
-                        }
-                        "unzip" => {
-                            let len = vec_ty.len;
-
-                            let unzip_a = {
-                                let mut low = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { a[#i * 2] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                let high = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { b[#i * 2] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                low.extend(high);
-
-                                make_list(low)
-                            };
-
-                            let unzip_b = {
-                                let mut low = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { a[#i * 2 + 1] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                let high = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { b[#i * 2 + 1] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                low.extend(high);
-
-                                make_list(low)
-                            };
-
-                            (unzip_a, unzip_b)
-                        }
-                        _ => todo!(),
+                OpSig::Zip(zip1) => {
+                    let indices = if zip1 {
+                        0..vec_ty.len / 2
+                    }   else {
+                        (vec_ty.len / 2)..vec_ty.len
                     };
+                    
+                    let zip = make_list(
+                        indices
+                            .map(|idx| {
+                                quote! {a[#idx], b[#idx] }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
 
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            (
-                                #zip1.simd_into(self),
-                                #zip2.simd_into(self),
-                            )
+                            #zip.simd_into(self)
                         }
                     }
                 }

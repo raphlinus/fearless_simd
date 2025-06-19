@@ -191,19 +191,12 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> (f32x4<Self>, f32x4<Self>) {
-        (
-            [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self),
-            [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self),
-        )
+    fn zip1_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self)
     }
     #[inline(always)]
-    fn unzip_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> (f32x4<Self>, f32x4<Self>) {
-        (
-            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
-                .simd_into(self),
-        )
+    fn zip2_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self)
     }
     #[inline(always)]
     fn max_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
@@ -577,90 +570,48 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> (i8x16<Self>, i8x16<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-            [
-                a[8usize],
-                b[8usize],
-                a[9usize],
-                b[9usize],
-                a[10usize],
-                b[10usize],
-                a[11usize],
-                b[11usize],
-                a[12usize],
-                b[12usize],
-                a[13usize],
-                b[13usize],
-                a[14usize],
-                b[14usize],
-                a[15usize],
-                b[15usize],
-            ]
-                .simd_into(self),
-        )
+    fn zip1_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        [
+            a[0usize],
+            b[0usize],
+            a[1usize],
+            b[1usize],
+            a[2usize],
+            b[2usize],
+            a[3usize],
+            b[3usize],
+            a[4usize],
+            b[4usize],
+            a[5usize],
+            b[5usize],
+            a[6usize],
+            b[6usize],
+            a[7usize],
+            b[7usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
-    fn unzip_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> (i8x16<Self>, i8x16<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                a[4usize * 2],
-                a[5usize * 2],
-                a[6usize * 2],
-                a[7usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-                b[4usize * 2],
-                b[5usize * 2],
-                b[6usize * 2],
-                b[7usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                a[4usize * 2 + 1],
-                a[5usize * 2 + 1],
-                a[6usize * 2 + 1],
-                a[7usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-                b[4usize * 2 + 1],
-                b[5usize * 2 + 1],
-                b[6usize * 2 + 1],
-                b[7usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
+    fn zip2_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        [
+            a[8usize],
+            b[8usize],
+            a[9usize],
+            b[9usize],
+            a[10usize],
+            b[10usize],
+            a[11usize],
+            b[11usize],
+            a[12usize],
+            b[12usize],
+            a[13usize],
+            b[13usize],
+            a[14usize],
+            b[14usize],
+            a[15usize],
+            b[15usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
     fn select_i8x16(
@@ -994,90 +945,48 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> (u8x16<Self>, u8x16<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-            [
-                a[8usize],
-                b[8usize],
-                a[9usize],
-                b[9usize],
-                a[10usize],
-                b[10usize],
-                a[11usize],
-                b[11usize],
-                a[12usize],
-                b[12usize],
-                a[13usize],
-                b[13usize],
-                a[14usize],
-                b[14usize],
-                a[15usize],
-                b[15usize],
-            ]
-                .simd_into(self),
-        )
+    fn zip1_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        [
+            a[0usize],
+            b[0usize],
+            a[1usize],
+            b[1usize],
+            a[2usize],
+            b[2usize],
+            a[3usize],
+            b[3usize],
+            a[4usize],
+            b[4usize],
+            a[5usize],
+            b[5usize],
+            a[6usize],
+            b[6usize],
+            a[7usize],
+            b[7usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
-    fn unzip_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> (u8x16<Self>, u8x16<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                a[4usize * 2],
-                a[5usize * 2],
-                a[6usize * 2],
-                a[7usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-                b[4usize * 2],
-                b[5usize * 2],
-                b[6usize * 2],
-                b[7usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                a[4usize * 2 + 1],
-                a[5usize * 2 + 1],
-                a[6usize * 2 + 1],
-                a[7usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-                b[4usize * 2 + 1],
-                b[5usize * 2 + 1],
-                b[6usize * 2 + 1],
-                b[7usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
+    fn zip2_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        [
+            a[8usize],
+            b[8usize],
+            a[9usize],
+            b[9usize],
+            a[10usize],
+            b[10usize],
+            a[11usize],
+            b[11usize],
+            a[12usize],
+            b[12usize],
+            a[13usize],
+            b[13usize],
+            a[14usize],
+            b[14usize],
+            a[15usize],
+            b[15usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
     fn select_u8x16(
@@ -1253,100 +1162,6 @@ impl Simd for Fallback {
             if a[15usize] != 0 { b[15usize] } else { c[15usize] },
         ]
             .simd_into(self)
-    }
-    #[inline(always)]
-    fn zip_mask8x16(
-        self,
-        a: mask8x16<Self>,
-        b: mask8x16<Self>,
-    ) -> (mask8x16<Self>, mask8x16<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-            [
-                a[8usize],
-                b[8usize],
-                a[9usize],
-                b[9usize],
-                a[10usize],
-                b[10usize],
-                a[11usize],
-                b[11usize],
-                a[12usize],
-                b[12usize],
-                a[13usize],
-                b[13usize],
-                a[14usize],
-                b[14usize],
-                a[15usize],
-                b[15usize],
-            ]
-                .simd_into(self),
-        )
-    }
-    #[inline(always)]
-    fn unzip_mask8x16(
-        self,
-        a: mask8x16<Self>,
-        b: mask8x16<Self>,
-    ) -> (mask8x16<Self>, mask8x16<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                a[4usize * 2],
-                a[5usize * 2],
-                a[6usize * 2],
-                a[7usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-                b[4usize * 2],
-                b[5usize * 2],
-                b[6usize * 2],
-                b[7usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                a[4usize * 2 + 1],
-                a[5usize * 2 + 1],
-                a[6usize * 2 + 1],
-                a[7usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-                b[4usize * 2 + 1],
-                b[5usize * 2 + 1],
-                b[6usize * 2 + 1],
-                b[7usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
     }
     #[inline(always)]
     fn simd_eq_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
@@ -1564,58 +1379,32 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> (i16x8<Self>, i16x8<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-            ]
-                .simd_into(self),
-            [
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-        )
+    fn zip1_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        [
+            a[0usize],
+            b[0usize],
+            a[1usize],
+            b[1usize],
+            a[2usize],
+            b[2usize],
+            a[3usize],
+            b[3usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
-    fn unzip_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> (i16x8<Self>, i16x8<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
+    fn zip2_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        [
+            a[4usize],
+            b[4usize],
+            a[5usize],
+            b[5usize],
+            a[6usize],
+            b[6usize],
+            a[7usize],
+            b[7usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
     fn select_i16x8(
@@ -1837,58 +1626,32 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> (u16x8<Self>, u16x8<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-            ]
-                .simd_into(self),
-            [
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-        )
+    fn zip1_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        [
+            a[0usize],
+            b[0usize],
+            a[1usize],
+            b[1usize],
+            a[2usize],
+            b[2usize],
+            a[3usize],
+            b[3usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
-    fn unzip_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> (u16x8<Self>, u16x8<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
+    fn zip2_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        [
+            a[4usize],
+            b[4usize],
+            a[5usize],
+            b[5usize],
+            a[6usize],
+            b[6usize],
+            a[7usize],
+            b[7usize],
+        ]
+            .simd_into(self)
     }
     #[inline(always)]
     fn select_u16x8(
@@ -2001,68 +1764,6 @@ impl Simd for Fallback {
             if a[7usize] != 0 { b[7usize] } else { c[7usize] },
         ]
             .simd_into(self)
-    }
-    #[inline(always)]
-    fn zip_mask16x8(
-        self,
-        a: mask16x8<Self>,
-        b: mask16x8<Self>,
-    ) -> (mask16x8<Self>, mask16x8<Self>) {
-        (
-            [
-                a[0usize],
-                b[0usize],
-                a[1usize],
-                b[1usize],
-                a[2usize],
-                b[2usize],
-                a[3usize],
-                b[3usize],
-            ]
-                .simd_into(self),
-            [
-                a[4usize],
-                b[4usize],
-                a[5usize],
-                b[5usize],
-                a[6usize],
-                b[6usize],
-                a[7usize],
-                b[7usize],
-            ]
-                .simd_into(self),
-        )
-    }
-    #[inline(always)]
-    fn unzip_mask16x8(
-        self,
-        a: mask16x8<Self>,
-        b: mask16x8<Self>,
-    ) -> (mask16x8<Self>, mask16x8<Self>) {
-        (
-            [
-                a[0usize * 2],
-                a[1usize * 2],
-                a[2usize * 2],
-                a[3usize * 2],
-                b[0usize * 2],
-                b[1usize * 2],
-                b[2usize * 2],
-                b[3usize * 2],
-            ]
-                .simd_into(self),
-            [
-                a[0usize * 2 + 1],
-                a[1usize * 2 + 1],
-                a[2usize * 2 + 1],
-                a[3usize * 2 + 1],
-                b[0usize * 2 + 1],
-                b[1usize * 2 + 1],
-                b[2usize * 2 + 1],
-                b[3usize * 2 + 1],
-            ]
-                .simd_into(self),
-        )
     }
     #[inline(always)]
     fn simd_eq_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
@@ -2220,19 +1921,12 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> (i32x4<Self>, i32x4<Self>) {
-        (
-            [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self),
-            [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self),
-        )
+    fn zip1_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self)
     }
     #[inline(always)]
-    fn unzip_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> (i32x4<Self>, i32x4<Self>) {
-        (
-            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
-                .simd_into(self),
-        )
+    fn zip2_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self)
     }
     #[inline(always)]
     fn select_i32x4(
@@ -2398,19 +2092,12 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
-    fn zip_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> (u32x4<Self>, u32x4<Self>) {
-        (
-            [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self),
-            [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self),
-        )
+    fn zip1_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self)
     }
     #[inline(always)]
-    fn unzip_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> (u32x4<Self>, u32x4<Self>) {
-        (
-            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
-                .simd_into(self),
-        )
+    fn zip2_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self)
     }
     #[inline(always)]
     fn select_u32x4(
@@ -2499,29 +2186,6 @@ impl Simd for Fallback {
             if a[3usize] != 0 { b[3usize] } else { c[3usize] },
         ]
             .simd_into(self)
-    }
-    #[inline(always)]
-    fn zip_mask32x4(
-        self,
-        a: mask32x4<Self>,
-        b: mask32x4<Self>,
-    ) -> (mask32x4<Self>, mask32x4<Self>) {
-        (
-            [a[0usize], b[0usize], a[1usize], b[1usize]].simd_into(self),
-            [a[2usize], b[2usize], a[3usize], b[3usize]].simd_into(self),
-        )
-    }
-    #[inline(always)]
-    fn unzip_mask32x4(
-        self,
-        a: mask32x4<Self>,
-        b: mask32x4<Self>,
-    ) -> (mask32x4<Self>, mask32x4<Self>) {
-        (
-            [a[0usize * 2], a[1usize * 2], b[0usize * 2], b[1usize * 2]].simd_into(self),
-            [a[0usize * 2 + 1], a[1usize * 2 + 1], b[0usize * 2 + 1], b[1usize * 2 + 1]]
-                .simd_into(self),
-        )
     }
     #[inline(always)]
     fn simd_eq_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
@@ -2621,20 +2285,16 @@ impl Simd for Fallback {
         self.combine_mask32x4(self.simd_gt_f32x4(a0, b0), self.simd_gt_f32x4(a1, b1))
     }
     #[inline(always)]
-    fn zip_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> (f32x8<Self>, f32x8<Self>) {
-        let (a0, a1) = self.split_f32x8(a);
-        let (b0, b1) = self.split_f32x8(b);
-        let (c00, c01) = self.zip_f32x4(a0, b0);
-        let (c10, c11) = self.zip_f32x4(a1, b1);
-        (self.combine_f32x4(c00, c01), self.combine_f32x4(c10, c11))
+    fn zip1_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, _) = self.split_f32x8(a);
+        let (b0, _) = self.split_f32x8(b);
+        self.combine_f32x4(self.zip1_f32x4(a0, b0), self.zip2_f32x4(a0, b0))
     }
     #[inline(always)]
-    fn unzip_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> (f32x8<Self>, f32x8<Self>) {
-        let (a0, a1) = self.split_f32x8(a);
-        let (b0, b1) = self.split_f32x8(b);
-        let (c00, c01) = self.unzip_f32x4(a0, a1);
-        let (c10, c11) = self.unzip_f32x4(b0, b1);
-        (self.combine_f32x4(c00, c10), self.combine_f32x4(c01, c11))
+    fn zip2_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (_, a1) = self.split_f32x8(a);
+        let (_, b1) = self.split_f32x8(b);
+        self.combine_f32x4(self.zip1_f32x4(a1, b1), self.zip2_f32x4(a1, b1))
     }
     #[inline(always)]
     fn max_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
@@ -2792,20 +2452,16 @@ impl Simd for Fallback {
         self.combine_mask8x16(self.simd_gt_i8x16(a0, b0), self.simd_gt_i8x16(a1, b1))
     }
     #[inline(always)]
-    fn zip_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> (i8x32<Self>, i8x32<Self>) {
-        let (a0, a1) = self.split_i8x32(a);
-        let (b0, b1) = self.split_i8x32(b);
-        let (c00, c01) = self.zip_i8x16(a0, b0);
-        let (c10, c11) = self.zip_i8x16(a1, b1);
-        (self.combine_i8x16(c00, c01), self.combine_i8x16(c10, c11))
+    fn zip1_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (a0, _) = self.split_i8x32(a);
+        let (b0, _) = self.split_i8x32(b);
+        self.combine_i8x16(self.zip1_i8x16(a0, b0), self.zip2_i8x16(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> (i8x32<Self>, i8x32<Self>) {
-        let (a0, a1) = self.split_i8x32(a);
-        let (b0, b1) = self.split_i8x32(b);
-        let (c00, c01) = self.unzip_i8x16(a0, a1);
-        let (c10, c11) = self.unzip_i8x16(b0, b1);
-        (self.combine_i8x16(c00, c10), self.combine_i8x16(c01, c11))
+    fn zip2_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (_, a1) = self.split_i8x32(a);
+        let (_, b1) = self.split_i8x32(b);
+        self.combine_i8x16(self.zip1_i8x16(a1, b1), self.zip2_i8x16(a1, b1))
     }
     #[inline(always)]
     fn select_i8x32(
@@ -2921,20 +2577,16 @@ impl Simd for Fallback {
         self.combine_mask8x16(self.simd_gt_u8x16(a0, b0), self.simd_gt_u8x16(a1, b1))
     }
     #[inline(always)]
-    fn zip_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> (u8x32<Self>, u8x32<Self>) {
-        let (a0, a1) = self.split_u8x32(a);
-        let (b0, b1) = self.split_u8x32(b);
-        let (c00, c01) = self.zip_u8x16(a0, b0);
-        let (c10, c11) = self.zip_u8x16(a1, b1);
-        (self.combine_u8x16(c00, c01), self.combine_u8x16(c10, c11))
+    fn zip1_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (a0, _) = self.split_u8x32(a);
+        let (b0, _) = self.split_u8x32(b);
+        self.combine_u8x16(self.zip1_u8x16(a0, b0), self.zip2_u8x16(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> (u8x32<Self>, u8x32<Self>) {
-        let (a0, a1) = self.split_u8x32(a);
-        let (b0, b1) = self.split_u8x32(b);
-        let (c00, c01) = self.unzip_u8x16(a0, a1);
-        let (c10, c11) = self.unzip_u8x16(b0, b1);
-        (self.combine_u8x16(c00, c10), self.combine_u8x16(c01, c11))
+    fn zip2_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (_, a1) = self.split_u8x32(a);
+        let (_, b1) = self.split_u8x32(b);
+        self.combine_u8x16(self.zip1_u8x16(a1, b1), self.zip2_u8x16(a1, b1))
     }
     #[inline(always)]
     fn select_u8x32(
@@ -3010,30 +2662,6 @@ impl Simd for Fallback {
             self.select_mask8x16(a0, b0, c0),
             self.select_mask8x16(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask8x32(
-        self,
-        a: mask8x32<Self>,
-        b: mask8x32<Self>,
-    ) -> (mask8x32<Self>, mask8x32<Self>) {
-        let (a0, a1) = self.split_mask8x32(a);
-        let (b0, b1) = self.split_mask8x32(b);
-        let (c00, c01) = self.zip_mask8x16(a0, b0);
-        let (c10, c11) = self.zip_mask8x16(a1, b1);
-        (self.combine_mask8x16(c00, c01), self.combine_mask8x16(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask8x32(
-        self,
-        a: mask8x32<Self>,
-        b: mask8x32<Self>,
-    ) -> (mask8x32<Self>, mask8x32<Self>) {
-        let (a0, a1) = self.split_mask8x32(a);
-        let (b0, b1) = self.split_mask8x32(b);
-        let (c00, c01) = self.unzip_mask8x16(a0, a1);
-        let (c10, c11) = self.unzip_mask8x16(b0, b1);
-        (self.combine_mask8x16(c00, c10), self.combine_mask8x16(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask8x32(self, a: mask8x32<Self>, b: mask8x32<Self>) -> mask8x32<Self> {
@@ -3141,28 +2769,16 @@ impl Simd for Fallback {
         self.combine_mask16x8(self.simd_gt_i16x8(a0, b0), self.simd_gt_i16x8(a1, b1))
     }
     #[inline(always)]
-    fn zip_i16x16(
-        self,
-        a: i16x16<Self>,
-        b: i16x16<Self>,
-    ) -> (i16x16<Self>, i16x16<Self>) {
-        let (a0, a1) = self.split_i16x16(a);
-        let (b0, b1) = self.split_i16x16(b);
-        let (c00, c01) = self.zip_i16x8(a0, b0);
-        let (c10, c11) = self.zip_i16x8(a1, b1);
-        (self.combine_i16x8(c00, c01), self.combine_i16x8(c10, c11))
+    fn zip1_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (a0, _) = self.split_i16x16(a);
+        let (b0, _) = self.split_i16x16(b);
+        self.combine_i16x8(self.zip1_i16x8(a0, b0), self.zip2_i16x8(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i16x16(
-        self,
-        a: i16x16<Self>,
-        b: i16x16<Self>,
-    ) -> (i16x16<Self>, i16x16<Self>) {
-        let (a0, a1) = self.split_i16x16(a);
-        let (b0, b1) = self.split_i16x16(b);
-        let (c00, c01) = self.unzip_i16x8(a0, a1);
-        let (c10, c11) = self.unzip_i16x8(b0, b1);
-        (self.combine_i16x8(c00, c10), self.combine_i16x8(c01, c11))
+    fn zip2_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (_, a1) = self.split_i16x16(a);
+        let (_, b1) = self.split_i16x16(b);
+        self.combine_i16x8(self.zip1_i16x8(a1, b1), self.zip2_i16x8(a1, b1))
     }
     #[inline(always)]
     fn select_i16x16(
@@ -3278,28 +2894,16 @@ impl Simd for Fallback {
         self.combine_mask16x8(self.simd_gt_u16x8(a0, b0), self.simd_gt_u16x8(a1, b1))
     }
     #[inline(always)]
-    fn zip_u16x16(
-        self,
-        a: u16x16<Self>,
-        b: u16x16<Self>,
-    ) -> (u16x16<Self>, u16x16<Self>) {
-        let (a0, a1) = self.split_u16x16(a);
-        let (b0, b1) = self.split_u16x16(b);
-        let (c00, c01) = self.zip_u16x8(a0, b0);
-        let (c10, c11) = self.zip_u16x8(a1, b1);
-        (self.combine_u16x8(c00, c01), self.combine_u16x8(c10, c11))
+    fn zip1_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (a0, _) = self.split_u16x16(a);
+        let (b0, _) = self.split_u16x16(b);
+        self.combine_u16x8(self.zip1_u16x8(a0, b0), self.zip2_u16x8(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u16x16(
-        self,
-        a: u16x16<Self>,
-        b: u16x16<Self>,
-    ) -> (u16x16<Self>, u16x16<Self>) {
-        let (a0, a1) = self.split_u16x16(a);
-        let (b0, b1) = self.split_u16x16(b);
-        let (c00, c01) = self.unzip_u16x8(a0, a1);
-        let (c10, c11) = self.unzip_u16x8(b0, b1);
-        (self.combine_u16x8(c00, c10), self.combine_u16x8(c01, c11))
+    fn zip2_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (_, a1) = self.split_u16x16(a);
+        let (_, b1) = self.split_u16x16(b);
+        self.combine_u16x8(self.zip1_u16x8(a1, b1), self.zip2_u16x8(a1, b1))
     }
     #[inline(always)]
     fn select_u16x16(
@@ -3397,30 +3001,6 @@ impl Simd for Fallback {
             self.select_mask16x8(a0, b0, c0),
             self.select_mask16x8(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask16x16(
-        self,
-        a: mask16x16<Self>,
-        b: mask16x16<Self>,
-    ) -> (mask16x16<Self>, mask16x16<Self>) {
-        let (a0, a1) = self.split_mask16x16(a);
-        let (b0, b1) = self.split_mask16x16(b);
-        let (c00, c01) = self.zip_mask16x8(a0, b0);
-        let (c10, c11) = self.zip_mask16x8(a1, b1);
-        (self.combine_mask16x8(c00, c01), self.combine_mask16x8(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask16x16(
-        self,
-        a: mask16x16<Self>,
-        b: mask16x16<Self>,
-    ) -> (mask16x16<Self>, mask16x16<Self>) {
-        let (a0, a1) = self.split_mask16x16(a);
-        let (b0, b1) = self.split_mask16x16(b);
-        let (c00, c01) = self.unzip_mask16x8(a0, a1);
-        let (c10, c11) = self.unzip_mask16x8(b0, b1);
-        (self.combine_mask16x8(c00, c10), self.combine_mask16x8(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask16x16(
@@ -3536,20 +3116,16 @@ impl Simd for Fallback {
         self.combine_mask32x4(self.simd_gt_i32x4(a0, b0), self.simd_gt_i32x4(a1, b1))
     }
     #[inline(always)]
-    fn zip_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> (i32x8<Self>, i32x8<Self>) {
-        let (a0, a1) = self.split_i32x8(a);
-        let (b0, b1) = self.split_i32x8(b);
-        let (c00, c01) = self.zip_i32x4(a0, b0);
-        let (c10, c11) = self.zip_i32x4(a1, b1);
-        (self.combine_i32x4(c00, c01), self.combine_i32x4(c10, c11))
+    fn zip1_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (a0, _) = self.split_i32x8(a);
+        let (b0, _) = self.split_i32x8(b);
+        self.combine_i32x4(self.zip1_i32x4(a0, b0), self.zip2_i32x4(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> (i32x8<Self>, i32x8<Self>) {
-        let (a0, a1) = self.split_i32x8(a);
-        let (b0, b1) = self.split_i32x8(b);
-        let (c00, c01) = self.unzip_i32x4(a0, a1);
-        let (c10, c11) = self.unzip_i32x4(b0, b1);
-        (self.combine_i32x4(c00, c10), self.combine_i32x4(c01, c11))
+    fn zip2_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (_, a1) = self.split_i32x8(a);
+        let (_, b1) = self.split_i32x8(b);
+        self.combine_i32x4(self.zip1_i32x4(a1, b1), self.zip2_i32x4(a1, b1))
     }
     #[inline(always)]
     fn select_i32x8(
@@ -3665,20 +3241,16 @@ impl Simd for Fallback {
         self.combine_mask32x4(self.simd_gt_u32x4(a0, b0), self.simd_gt_u32x4(a1, b1))
     }
     #[inline(always)]
-    fn zip_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> (u32x8<Self>, u32x8<Self>) {
-        let (a0, a1) = self.split_u32x8(a);
-        let (b0, b1) = self.split_u32x8(b);
-        let (c00, c01) = self.zip_u32x4(a0, b0);
-        let (c10, c11) = self.zip_u32x4(a1, b1);
-        (self.combine_u32x4(c00, c01), self.combine_u32x4(c10, c11))
+    fn zip1_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (a0, _) = self.split_u32x8(a);
+        let (b0, _) = self.split_u32x8(b);
+        self.combine_u32x4(self.zip1_u32x4(a0, b0), self.zip2_u32x4(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> (u32x8<Self>, u32x8<Self>) {
-        let (a0, a1) = self.split_u32x8(a);
-        let (b0, b1) = self.split_u32x8(b);
-        let (c00, c01) = self.unzip_u32x4(a0, a1);
-        let (c10, c11) = self.unzip_u32x4(b0, b1);
-        (self.combine_u32x4(c00, c10), self.combine_u32x4(c01, c11))
+    fn zip2_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (_, a1) = self.split_u32x8(a);
+        let (_, b1) = self.split_u32x8(b);
+        self.combine_u32x4(self.zip1_u32x4(a1, b1), self.zip2_u32x4(a1, b1))
     }
     #[inline(always)]
     fn select_u32x8(
@@ -3754,30 +3326,6 @@ impl Simd for Fallback {
             self.select_mask32x4(a0, b0, c0),
             self.select_mask32x4(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask32x8(
-        self,
-        a: mask32x8<Self>,
-        b: mask32x8<Self>,
-    ) -> (mask32x8<Self>, mask32x8<Self>) {
-        let (a0, a1) = self.split_mask32x8(a);
-        let (b0, b1) = self.split_mask32x8(b);
-        let (c00, c01) = self.zip_mask32x4(a0, b0);
-        let (c10, c11) = self.zip_mask32x4(a1, b1);
-        (self.combine_mask32x4(c00, c01), self.combine_mask32x4(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask32x8(
-        self,
-        a: mask32x8<Self>,
-        b: mask32x8<Self>,
-    ) -> (mask32x8<Self>, mask32x8<Self>) {
-        let (a0, a1) = self.split_mask32x8(a);
-        let (b0, b1) = self.split_mask32x8(b);
-        let (c00, c01) = self.unzip_mask32x4(a0, a1);
-        let (c10, c11) = self.unzip_mask32x4(b0, b1);
-        (self.combine_mask32x4(c00, c10), self.combine_mask32x4(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask32x8(self, a: mask32x8<Self>, b: mask32x8<Self>) -> mask32x8<Self> {
@@ -3884,28 +3432,16 @@ impl Simd for Fallback {
         self.combine_mask32x8(self.simd_gt_f32x8(a0, b0), self.simd_gt_f32x8(a1, b1))
     }
     #[inline(always)]
-    fn zip_f32x16(
-        self,
-        a: f32x16<Self>,
-        b: f32x16<Self>,
-    ) -> (f32x16<Self>, f32x16<Self>) {
-        let (a0, a1) = self.split_f32x16(a);
-        let (b0, b1) = self.split_f32x16(b);
-        let (c00, c01) = self.zip_f32x8(a0, b0);
-        let (c10, c11) = self.zip_f32x8(a1, b1);
-        (self.combine_f32x8(c00, c01), self.combine_f32x8(c10, c11))
+    fn zip1_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
+        let (a0, _) = self.split_f32x16(a);
+        let (b0, _) = self.split_f32x16(b);
+        self.combine_f32x8(self.zip1_f32x8(a0, b0), self.zip2_f32x8(a0, b0))
     }
     #[inline(always)]
-    fn unzip_f32x16(
-        self,
-        a: f32x16<Self>,
-        b: f32x16<Self>,
-    ) -> (f32x16<Self>, f32x16<Self>) {
-        let (a0, a1) = self.split_f32x16(a);
-        let (b0, b1) = self.split_f32x16(b);
-        let (c00, c01) = self.unzip_f32x8(a0, a1);
-        let (c10, c11) = self.unzip_f32x8(b0, b1);
-        (self.combine_f32x8(c00, c10), self.combine_f32x8(c01, c11))
+    fn zip2_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
+        let (_, a1) = self.split_f32x16(a);
+        let (_, b1) = self.split_f32x16(b);
+        self.combine_f32x8(self.zip1_f32x8(a1, b1), self.zip2_f32x8(a1, b1))
     }
     #[inline(always)]
     fn max_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
@@ -4061,20 +3597,16 @@ impl Simd for Fallback {
         self.combine_mask8x32(self.simd_gt_i8x32(a0, b0), self.simd_gt_i8x32(a1, b1))
     }
     #[inline(always)]
-    fn zip_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> (i8x64<Self>, i8x64<Self>) {
-        let (a0, a1) = self.split_i8x64(a);
-        let (b0, b1) = self.split_i8x64(b);
-        let (c00, c01) = self.zip_i8x32(a0, b0);
-        let (c10, c11) = self.zip_i8x32(a1, b1);
-        (self.combine_i8x32(c00, c01), self.combine_i8x32(c10, c11))
+    fn zip1_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (a0, _) = self.split_i8x64(a);
+        let (b0, _) = self.split_i8x64(b);
+        self.combine_i8x32(self.zip1_i8x32(a0, b0), self.zip2_i8x32(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> (i8x64<Self>, i8x64<Self>) {
-        let (a0, a1) = self.split_i8x64(a);
-        let (b0, b1) = self.split_i8x64(b);
-        let (c00, c01) = self.unzip_i8x32(a0, a1);
-        let (c10, c11) = self.unzip_i8x32(b0, b1);
-        (self.combine_i8x32(c00, c10), self.combine_i8x32(c01, c11))
+    fn zip2_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (_, a1) = self.split_i8x64(a);
+        let (_, b1) = self.split_i8x64(b);
+        self.combine_i8x32(self.zip1_i8x32(a1, b1), self.zip2_i8x32(a1, b1))
     }
     #[inline(always)]
     fn select_i8x64(
@@ -4183,20 +3715,16 @@ impl Simd for Fallback {
         self.combine_mask8x32(self.simd_gt_u8x32(a0, b0), self.simd_gt_u8x32(a1, b1))
     }
     #[inline(always)]
-    fn zip_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> (u8x64<Self>, u8x64<Self>) {
-        let (a0, a1) = self.split_u8x64(a);
-        let (b0, b1) = self.split_u8x64(b);
-        let (c00, c01) = self.zip_u8x32(a0, b0);
-        let (c10, c11) = self.zip_u8x32(a1, b1);
-        (self.combine_u8x32(c00, c01), self.combine_u8x32(c10, c11))
+    fn zip1_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (a0, _) = self.split_u8x64(a);
+        let (b0, _) = self.split_u8x64(b);
+        self.combine_u8x32(self.zip1_u8x32(a0, b0), self.zip2_u8x32(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> (u8x64<Self>, u8x64<Self>) {
-        let (a0, a1) = self.split_u8x64(a);
-        let (b0, b1) = self.split_u8x64(b);
-        let (c00, c01) = self.unzip_u8x32(a0, a1);
-        let (c10, c11) = self.unzip_u8x32(b0, b1);
-        (self.combine_u8x32(c00, c10), self.combine_u8x32(c01, c11))
+    fn zip2_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (_, a1) = self.split_u8x64(a);
+        let (_, b1) = self.split_u8x64(b);
+        self.combine_u8x32(self.zip1_u8x32(a1, b1), self.zip2_u8x32(a1, b1))
     }
     #[inline(always)]
     fn select_u8x64(
@@ -4260,30 +3788,6 @@ impl Simd for Fallback {
             self.select_mask8x32(a0, b0, c0),
             self.select_mask8x32(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask8x64(
-        self,
-        a: mask8x64<Self>,
-        b: mask8x64<Self>,
-    ) -> (mask8x64<Self>, mask8x64<Self>) {
-        let (a0, a1) = self.split_mask8x64(a);
-        let (b0, b1) = self.split_mask8x64(b);
-        let (c00, c01) = self.zip_mask8x32(a0, b0);
-        let (c10, c11) = self.zip_mask8x32(a1, b1);
-        (self.combine_mask8x32(c00, c01), self.combine_mask8x32(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask8x64(
-        self,
-        a: mask8x64<Self>,
-        b: mask8x64<Self>,
-    ) -> (mask8x64<Self>, mask8x64<Self>) {
-        let (a0, a1) = self.split_mask8x64(a);
-        let (b0, b1) = self.split_mask8x64(b);
-        let (c00, c01) = self.unzip_mask8x32(a0, a1);
-        let (c10, c11) = self.unzip_mask8x32(b0, b1);
-        (self.combine_mask8x32(c00, c10), self.combine_mask8x32(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask8x64(self, a: mask8x64<Self>, b: mask8x64<Self>) -> mask8x64<Self> {
@@ -4384,28 +3888,16 @@ impl Simd for Fallback {
         self.combine_mask16x16(self.simd_gt_i16x16(a0, b0), self.simd_gt_i16x16(a1, b1))
     }
     #[inline(always)]
-    fn zip_i16x32(
-        self,
-        a: i16x32<Self>,
-        b: i16x32<Self>,
-    ) -> (i16x32<Self>, i16x32<Self>) {
-        let (a0, a1) = self.split_i16x32(a);
-        let (b0, b1) = self.split_i16x32(b);
-        let (c00, c01) = self.zip_i16x16(a0, b0);
-        let (c10, c11) = self.zip_i16x16(a1, b1);
-        (self.combine_i16x16(c00, c01), self.combine_i16x16(c10, c11))
+    fn zip1_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (a0, _) = self.split_i16x32(a);
+        let (b0, _) = self.split_i16x32(b);
+        self.combine_i16x16(self.zip1_i16x16(a0, b0), self.zip2_i16x16(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i16x32(
-        self,
-        a: i16x32<Self>,
-        b: i16x32<Self>,
-    ) -> (i16x32<Self>, i16x32<Self>) {
-        let (a0, a1) = self.split_i16x32(a);
-        let (b0, b1) = self.split_i16x32(b);
-        let (c00, c01) = self.unzip_i16x16(a0, a1);
-        let (c10, c11) = self.unzip_i16x16(b0, b1);
-        (self.combine_i16x16(c00, c10), self.combine_i16x16(c01, c11))
+    fn zip2_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (_, a1) = self.split_i16x32(a);
+        let (_, b1) = self.split_i16x32(b);
+        self.combine_i16x16(self.zip1_i16x16(a1, b1), self.zip2_i16x16(a1, b1))
     }
     #[inline(always)]
     fn select_i16x32(
@@ -4520,28 +4012,16 @@ impl Simd for Fallback {
         self.combine_mask16x16(self.simd_gt_u16x16(a0, b0), self.simd_gt_u16x16(a1, b1))
     }
     #[inline(always)]
-    fn zip_u16x32(
-        self,
-        a: u16x32<Self>,
-        b: u16x32<Self>,
-    ) -> (u16x32<Self>, u16x32<Self>) {
-        let (a0, a1) = self.split_u16x32(a);
-        let (b0, b1) = self.split_u16x32(b);
-        let (c00, c01) = self.zip_u16x16(a0, b0);
-        let (c10, c11) = self.zip_u16x16(a1, b1);
-        (self.combine_u16x16(c00, c01), self.combine_u16x16(c10, c11))
+    fn zip1_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (a0, _) = self.split_u16x32(a);
+        let (b0, _) = self.split_u16x32(b);
+        self.combine_u16x16(self.zip1_u16x16(a0, b0), self.zip2_u16x16(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u16x32(
-        self,
-        a: u16x32<Self>,
-        b: u16x32<Self>,
-    ) -> (u16x32<Self>, u16x32<Self>) {
-        let (a0, a1) = self.split_u16x32(a);
-        let (b0, b1) = self.split_u16x32(b);
-        let (c00, c01) = self.unzip_u16x16(a0, a1);
-        let (c10, c11) = self.unzip_u16x16(b0, b1);
-        (self.combine_u16x16(c00, c10), self.combine_u16x16(c01, c11))
+    fn zip2_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (_, a1) = self.split_u16x32(a);
+        let (_, b1) = self.split_u16x32(b);
+        self.combine_u16x16(self.zip1_u16x16(a1, b1), self.zip2_u16x16(a1, b1))
     }
     #[inline(always)]
     fn select_u16x32(
@@ -4621,30 +4101,6 @@ impl Simd for Fallback {
             self.select_mask16x16(a0, b0, c0),
             self.select_mask16x16(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask16x32(
-        self,
-        a: mask16x32<Self>,
-        b: mask16x32<Self>,
-    ) -> (mask16x32<Self>, mask16x32<Self>) {
-        let (a0, a1) = self.split_mask16x32(a);
-        let (b0, b1) = self.split_mask16x32(b);
-        let (c00, c01) = self.zip_mask16x16(a0, b0);
-        let (c10, c11) = self.zip_mask16x16(a1, b1);
-        (self.combine_mask16x16(c00, c01), self.combine_mask16x16(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask16x32(
-        self,
-        a: mask16x32<Self>,
-        b: mask16x32<Self>,
-    ) -> (mask16x32<Self>, mask16x32<Self>) {
-        let (a0, a1) = self.split_mask16x32(a);
-        let (b0, b1) = self.split_mask16x32(b);
-        let (c00, c01) = self.unzip_mask16x16(a0, a1);
-        let (c10, c11) = self.unzip_mask16x16(b0, b1);
-        (self.combine_mask16x16(c00, c10), self.combine_mask16x16(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask16x32(
@@ -4749,28 +4205,16 @@ impl Simd for Fallback {
         self.combine_mask32x8(self.simd_gt_i32x8(a0, b0), self.simd_gt_i32x8(a1, b1))
     }
     #[inline(always)]
-    fn zip_i32x16(
-        self,
-        a: i32x16<Self>,
-        b: i32x16<Self>,
-    ) -> (i32x16<Self>, i32x16<Self>) {
-        let (a0, a1) = self.split_i32x16(a);
-        let (b0, b1) = self.split_i32x16(b);
-        let (c00, c01) = self.zip_i32x8(a0, b0);
-        let (c10, c11) = self.zip_i32x8(a1, b1);
-        (self.combine_i32x8(c00, c01), self.combine_i32x8(c10, c11))
+    fn zip1_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (a0, _) = self.split_i32x16(a);
+        let (b0, _) = self.split_i32x16(b);
+        self.combine_i32x8(self.zip1_i32x8(a0, b0), self.zip2_i32x8(a0, b0))
     }
     #[inline(always)]
-    fn unzip_i32x16(
-        self,
-        a: i32x16<Self>,
-        b: i32x16<Self>,
-    ) -> (i32x16<Self>, i32x16<Self>) {
-        let (a0, a1) = self.split_i32x16(a);
-        let (b0, b1) = self.split_i32x16(b);
-        let (c00, c01) = self.unzip_i32x8(a0, a1);
-        let (c10, c11) = self.unzip_i32x8(b0, b1);
-        (self.combine_i32x8(c00, c10), self.combine_i32x8(c01, c11))
+    fn zip2_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (_, a1) = self.split_i32x16(a);
+        let (_, b1) = self.split_i32x16(b);
+        self.combine_i32x8(self.zip1_i32x8(a1, b1), self.zip2_i32x8(a1, b1))
     }
     #[inline(always)]
     fn select_i32x16(
@@ -4879,28 +4323,16 @@ impl Simd for Fallback {
         self.combine_mask32x8(self.simd_gt_u32x8(a0, b0), self.simd_gt_u32x8(a1, b1))
     }
     #[inline(always)]
-    fn zip_u32x16(
-        self,
-        a: u32x16<Self>,
-        b: u32x16<Self>,
-    ) -> (u32x16<Self>, u32x16<Self>) {
-        let (a0, a1) = self.split_u32x16(a);
-        let (b0, b1) = self.split_u32x16(b);
-        let (c00, c01) = self.zip_u32x8(a0, b0);
-        let (c10, c11) = self.zip_u32x8(a1, b1);
-        (self.combine_u32x8(c00, c01), self.combine_u32x8(c10, c11))
+    fn zip1_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (a0, _) = self.split_u32x16(a);
+        let (b0, _) = self.split_u32x16(b);
+        self.combine_u32x8(self.zip1_u32x8(a0, b0), self.zip2_u32x8(a0, b0))
     }
     #[inline(always)]
-    fn unzip_u32x16(
-        self,
-        a: u32x16<Self>,
-        b: u32x16<Self>,
-    ) -> (u32x16<Self>, u32x16<Self>) {
-        let (a0, a1) = self.split_u32x16(a);
-        let (b0, b1) = self.split_u32x16(b);
-        let (c00, c01) = self.unzip_u32x8(a0, a1);
-        let (c10, c11) = self.unzip_u32x8(b0, b1);
-        (self.combine_u32x8(c00, c10), self.combine_u32x8(c01, c11))
+    fn zip2_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (_, a1) = self.split_u32x16(a);
+        let (_, b1) = self.split_u32x16(b);
+        self.combine_u32x8(self.zip1_u32x8(a1, b1), self.zip2_u32x8(a1, b1))
     }
     #[inline(always)]
     fn select_u32x16(
@@ -4969,30 +4401,6 @@ impl Simd for Fallback {
             self.select_mask32x8(a0, b0, c0),
             self.select_mask32x8(a1, b1, c1),
         )
-    }
-    #[inline(always)]
-    fn zip_mask32x16(
-        self,
-        a: mask32x16<Self>,
-        b: mask32x16<Self>,
-    ) -> (mask32x16<Self>, mask32x16<Self>) {
-        let (a0, a1) = self.split_mask32x16(a);
-        let (b0, b1) = self.split_mask32x16(b);
-        let (c00, c01) = self.zip_mask32x8(a0, b0);
-        let (c10, c11) = self.zip_mask32x8(a1, b1);
-        (self.combine_mask32x8(c00, c01), self.combine_mask32x8(c10, c11))
-    }
-    #[inline(always)]
-    fn unzip_mask32x16(
-        self,
-        a: mask32x16<Self>,
-        b: mask32x16<Self>,
-    ) -> (mask32x16<Self>, mask32x16<Self>) {
-        let (a0, a1) = self.split_mask32x16(a);
-        let (b0, b1) = self.split_mask32x16(b);
-        let (c00, c01) = self.unzip_mask32x8(a0, a1);
-        let (c10, c11) = self.unzip_mask32x8(b0, b1);
-        (self.combine_mask32x8(c00, c10), self.combine_mask32x8(c01, c11))
     }
     #[inline(always)]
     fn simd_eq_mask32x16(

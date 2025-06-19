@@ -37,8 +37,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
     fn simd_ge_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
     fn simd_gt_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> mask32x4<Self>;
-    fn zip_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> (f32x4<Self>, f32x4<Self>);
-    fn unzip_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> (f32x4<Self>, f32x4<Self>);
+    fn zip1_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
+    fn zip2_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn max_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn max_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn min_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
@@ -67,8 +67,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self>;
     fn simd_ge_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self>;
     fn simd_gt_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> mask8x16<Self>;
-    fn zip_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> (i8x16<Self>, i8x16<Self>);
-    fn unzip_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> (i8x16<Self>, i8x16<Self>);
+    fn zip1_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self>;
+    fn zip2_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self>;
     fn select_i8x16(
         self,
         a: mask8x16<Self>,
@@ -91,8 +91,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self>;
     fn simd_ge_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self>;
     fn simd_gt_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> mask8x16<Self>;
-    fn zip_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> (u8x16<Self>, u8x16<Self>);
-    fn unzip_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> (u8x16<Self>, u8x16<Self>);
+    fn zip1_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self>;
+    fn zip2_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self>;
     fn select_u8x16(
         self,
         a: mask8x16<Self>,
@@ -112,16 +112,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask8x16<Self>,
         c: mask8x16<Self>,
     ) -> mask8x16<Self>;
-    fn zip_mask8x16(
-        self,
-        a: mask8x16<Self>,
-        b: mask8x16<Self>,
-    ) -> (mask8x16<Self>, mask8x16<Self>);
-    fn unzip_mask8x16(
-        self,
-        a: mask8x16<Self>,
-        b: mask8x16<Self>,
-    ) -> (mask8x16<Self>, mask8x16<Self>);
     fn simd_eq_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self>;
     fn combine_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x32<Self>;
     fn splat_i16x8(self, val: i16) -> i16x8<Self>;
@@ -138,8 +128,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self>;
     fn simd_ge_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self>;
     fn simd_gt_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> mask16x8<Self>;
-    fn zip_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> (i16x8<Self>, i16x8<Self>);
-    fn unzip_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> (i16x8<Self>, i16x8<Self>);
+    fn zip1_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self>;
+    fn zip2_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self>;
     fn select_i16x8(
         self,
         a: mask16x8<Self>,
@@ -162,8 +152,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self>;
     fn simd_ge_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self>;
     fn simd_gt_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> mask16x8<Self>;
-    fn zip_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> (u16x8<Self>, u16x8<Self>);
-    fn unzip_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> (u16x8<Self>, u16x8<Self>);
+    fn zip1_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self>;
+    fn zip2_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self>;
     fn select_u16x8(
         self,
         a: mask16x8<Self>,
@@ -183,16 +173,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask16x8<Self>,
         c: mask16x8<Self>,
     ) -> mask16x8<Self>;
-    fn zip_mask16x8(
-        self,
-        a: mask16x8<Self>,
-        b: mask16x8<Self>,
-    ) -> (mask16x8<Self>, mask16x8<Self>);
-    fn unzip_mask16x8(
-        self,
-        a: mask16x8<Self>,
-        b: mask16x8<Self>,
-    ) -> (mask16x8<Self>, mask16x8<Self>);
     fn simd_eq_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self>;
     fn combine_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x16<Self>;
     fn splat_i32x4(self, val: i32) -> i32x4<Self>;
@@ -209,8 +189,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self>;
     fn simd_ge_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self>;
     fn simd_gt_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> mask32x4<Self>;
-    fn zip_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> (i32x4<Self>, i32x4<Self>);
-    fn unzip_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> (i32x4<Self>, i32x4<Self>);
+    fn zip1_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self>;
+    fn zip2_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self>;
     fn select_i32x4(
         self,
         a: mask32x4<Self>,
@@ -233,8 +213,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self>;
     fn simd_ge_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self>;
     fn simd_gt_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> mask32x4<Self>;
-    fn zip_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> (u32x4<Self>, u32x4<Self>);
-    fn unzip_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> (u32x4<Self>, u32x4<Self>);
+    fn zip1_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self>;
+    fn zip2_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self>;
     fn select_u32x4(
         self,
         a: mask32x4<Self>,
@@ -254,16 +234,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask32x4<Self>,
         c: mask32x4<Self>,
     ) -> mask32x4<Self>;
-    fn zip_mask32x4(
-        self,
-        a: mask32x4<Self>,
-        b: mask32x4<Self>,
-    ) -> (mask32x4<Self>, mask32x4<Self>);
-    fn unzip_mask32x4(
-        self,
-        a: mask32x4<Self>,
-        b: mask32x4<Self>,
-    ) -> (mask32x4<Self>, mask32x4<Self>);
     fn simd_eq_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self>;
     fn combine_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x8<Self>;
     fn splat_f32x8(self, val: f32) -> f32x8<Self>;
@@ -280,8 +250,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
     fn simd_ge_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
     fn simd_gt_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> mask32x8<Self>;
-    fn zip_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> (f32x8<Self>, f32x8<Self>);
-    fn unzip_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> (f32x8<Self>, f32x8<Self>);
+    fn zip1_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
+    fn zip2_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
     fn max_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
     fn max_precise_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
     fn min_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
@@ -311,8 +281,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> mask8x32<Self>;
     fn simd_ge_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> mask8x32<Self>;
     fn simd_gt_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> mask8x32<Self>;
-    fn zip_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> (i8x32<Self>, i8x32<Self>);
-    fn unzip_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> (i8x32<Self>, i8x32<Self>);
+    fn zip1_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self>;
+    fn zip2_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self>;
     fn select_i8x32(
         self,
         a: mask8x32<Self>,
@@ -336,8 +306,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> mask8x32<Self>;
     fn simd_ge_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> mask8x32<Self>;
     fn simd_gt_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> mask8x32<Self>;
-    fn zip_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> (u8x32<Self>, u8x32<Self>);
-    fn unzip_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> (u8x32<Self>, u8x32<Self>);
+    fn zip1_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self>;
+    fn zip2_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self>;
     fn select_u8x32(
         self,
         a: mask8x32<Self>,
@@ -358,16 +328,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask8x32<Self>,
         c: mask8x32<Self>,
     ) -> mask8x32<Self>;
-    fn zip_mask8x32(
-        self,
-        a: mask8x32<Self>,
-        b: mask8x32<Self>,
-    ) -> (mask8x32<Self>, mask8x32<Self>);
-    fn unzip_mask8x32(
-        self,
-        a: mask8x32<Self>,
-        b: mask8x32<Self>,
-    ) -> (mask8x32<Self>, mask8x32<Self>);
     fn simd_eq_mask8x32(self, a: mask8x32<Self>, b: mask8x32<Self>) -> mask8x32<Self>;
     fn combine_mask8x32(self, a: mask8x32<Self>, b: mask8x32<Self>) -> mask8x64<Self>;
     fn split_mask8x32(self, a: mask8x32<Self>) -> (mask8x16<Self>, mask8x16<Self>);
@@ -385,16 +345,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> mask16x16<Self>;
     fn simd_ge_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> mask16x16<Self>;
     fn simd_gt_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> mask16x16<Self>;
-    fn zip_i16x16(
-        self,
-        a: i16x16<Self>,
-        b: i16x16<Self>,
-    ) -> (i16x16<Self>, i16x16<Self>);
-    fn unzip_i16x16(
-        self,
-        a: i16x16<Self>,
-        b: i16x16<Self>,
-    ) -> (i16x16<Self>, i16x16<Self>);
+    fn zip1_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self>;
+    fn zip2_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self>;
     fn select_i16x16(
         self,
         a: mask16x16<Self>,
@@ -418,16 +370,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> mask16x16<Self>;
     fn simd_ge_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> mask16x16<Self>;
     fn simd_gt_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> mask16x16<Self>;
-    fn zip_u16x16(
-        self,
-        a: u16x16<Self>,
-        b: u16x16<Self>,
-    ) -> (u16x16<Self>, u16x16<Self>);
-    fn unzip_u16x16(
-        self,
-        a: u16x16<Self>,
-        b: u16x16<Self>,
-    ) -> (u16x16<Self>, u16x16<Self>);
+    fn zip1_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self>;
+    fn zip2_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self>;
     fn select_u16x16(
         self,
         a: mask16x16<Self>,
@@ -449,16 +393,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask16x16<Self>,
         c: mask16x16<Self>,
     ) -> mask16x16<Self>;
-    fn zip_mask16x16(
-        self,
-        a: mask16x16<Self>,
-        b: mask16x16<Self>,
-    ) -> (mask16x16<Self>, mask16x16<Self>);
-    fn unzip_mask16x16(
-        self,
-        a: mask16x16<Self>,
-        b: mask16x16<Self>,
-    ) -> (mask16x16<Self>, mask16x16<Self>);
     fn simd_eq_mask16x16(
         self,
         a: mask16x16<Self>,
@@ -484,8 +418,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> mask32x8<Self>;
     fn simd_ge_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> mask32x8<Self>;
     fn simd_gt_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> mask32x8<Self>;
-    fn zip_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> (i32x8<Self>, i32x8<Self>);
-    fn unzip_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> (i32x8<Self>, i32x8<Self>);
+    fn zip1_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self>;
+    fn zip2_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self>;
     fn select_i32x8(
         self,
         a: mask32x8<Self>,
@@ -509,8 +443,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> mask32x8<Self>;
     fn simd_ge_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> mask32x8<Self>;
     fn simd_gt_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> mask32x8<Self>;
-    fn zip_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> (u32x8<Self>, u32x8<Self>);
-    fn unzip_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> (u32x8<Self>, u32x8<Self>);
+    fn zip1_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self>;
+    fn zip2_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self>;
     fn select_u32x8(
         self,
         a: mask32x8<Self>,
@@ -531,16 +465,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask32x8<Self>,
         c: mask32x8<Self>,
     ) -> mask32x8<Self>;
-    fn zip_mask32x8(
-        self,
-        a: mask32x8<Self>,
-        b: mask32x8<Self>,
-    ) -> (mask32x8<Self>, mask32x8<Self>);
-    fn unzip_mask32x8(
-        self,
-        a: mask32x8<Self>,
-        b: mask32x8<Self>,
-    ) -> (mask32x8<Self>, mask32x8<Self>);
     fn simd_eq_mask32x8(self, a: mask32x8<Self>, b: mask32x8<Self>) -> mask32x8<Self>;
     fn combine_mask32x8(self, a: mask32x8<Self>, b: mask32x8<Self>) -> mask32x16<Self>;
     fn split_mask32x8(self, a: mask32x8<Self>) -> (mask32x4<Self>, mask32x4<Self>);
@@ -558,16 +482,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> mask32x16<Self>;
     fn simd_ge_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> mask32x16<Self>;
     fn simd_gt_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> mask32x16<Self>;
-    fn zip_f32x16(
-        self,
-        a: f32x16<Self>,
-        b: f32x16<Self>,
-    ) -> (f32x16<Self>, f32x16<Self>);
-    fn unzip_f32x16(
-        self,
-        a: f32x16<Self>,
-        b: f32x16<Self>,
-    ) -> (f32x16<Self>, f32x16<Self>);
+    fn zip1_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
+    fn zip2_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
     fn max_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
     fn max_precise_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
     fn min_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
@@ -601,8 +517,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> mask8x64<Self>;
     fn simd_ge_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> mask8x64<Self>;
     fn simd_gt_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> mask8x64<Self>;
-    fn zip_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> (i8x64<Self>, i8x64<Self>);
-    fn unzip_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> (i8x64<Self>, i8x64<Self>);
+    fn zip1_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self>;
+    fn zip2_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self>;
     fn select_i8x64(
         self,
         a: mask8x64<Self>,
@@ -625,8 +541,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> mask8x64<Self>;
     fn simd_ge_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> mask8x64<Self>;
     fn simd_gt_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> mask8x64<Self>;
-    fn zip_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> (u8x64<Self>, u8x64<Self>);
-    fn unzip_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> (u8x64<Self>, u8x64<Self>);
+    fn zip1_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self>;
+    fn zip2_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self>;
     fn select_u8x64(
         self,
         a: mask8x64<Self>,
@@ -645,16 +561,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask8x64<Self>,
         c: mask8x64<Self>,
     ) -> mask8x64<Self>;
-    fn zip_mask8x64(
-        self,
-        a: mask8x64<Self>,
-        b: mask8x64<Self>,
-    ) -> (mask8x64<Self>, mask8x64<Self>);
-    fn unzip_mask8x64(
-        self,
-        a: mask8x64<Self>,
-        b: mask8x64<Self>,
-    ) -> (mask8x64<Self>, mask8x64<Self>);
     fn simd_eq_mask8x64(self, a: mask8x64<Self>, b: mask8x64<Self>) -> mask8x64<Self>;
     fn split_mask8x64(self, a: mask8x64<Self>) -> (mask8x32<Self>, mask8x32<Self>);
     fn splat_i16x32(self, val: i16) -> i16x32<Self>;
@@ -671,16 +577,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> mask16x32<Self>;
     fn simd_ge_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> mask16x32<Self>;
     fn simd_gt_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> mask16x32<Self>;
-    fn zip_i16x32(
-        self,
-        a: i16x32<Self>,
-        b: i16x32<Self>,
-    ) -> (i16x32<Self>, i16x32<Self>);
-    fn unzip_i16x32(
-        self,
-        a: i16x32<Self>,
-        b: i16x32<Self>,
-    ) -> (i16x32<Self>, i16x32<Self>);
+    fn zip1_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self>;
+    fn zip2_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self>;
     fn select_i16x32(
         self,
         a: mask16x32<Self>,
@@ -703,16 +601,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> mask16x32<Self>;
     fn simd_ge_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> mask16x32<Self>;
     fn simd_gt_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> mask16x32<Self>;
-    fn zip_u16x32(
-        self,
-        a: u16x32<Self>,
-        b: u16x32<Self>,
-    ) -> (u16x32<Self>, u16x32<Self>);
-    fn unzip_u16x32(
-        self,
-        a: u16x32<Self>,
-        b: u16x32<Self>,
-    ) -> (u16x32<Self>, u16x32<Self>);
+    fn zip1_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self>;
+    fn zip2_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self>;
     fn select_u16x32(
         self,
         a: mask16x32<Self>,
@@ -733,16 +623,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask16x32<Self>,
         c: mask16x32<Self>,
     ) -> mask16x32<Self>;
-    fn zip_mask16x32(
-        self,
-        a: mask16x32<Self>,
-        b: mask16x32<Self>,
-    ) -> (mask16x32<Self>, mask16x32<Self>);
-    fn unzip_mask16x32(
-        self,
-        a: mask16x32<Self>,
-        b: mask16x32<Self>,
-    ) -> (mask16x32<Self>, mask16x32<Self>);
     fn simd_eq_mask16x32(
         self,
         a: mask16x32<Self>,
@@ -763,16 +643,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> mask32x16<Self>;
     fn simd_ge_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> mask32x16<Self>;
     fn simd_gt_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> mask32x16<Self>;
-    fn zip_i32x16(
-        self,
-        a: i32x16<Self>,
-        b: i32x16<Self>,
-    ) -> (i32x16<Self>, i32x16<Self>);
-    fn unzip_i32x16(
-        self,
-        a: i32x16<Self>,
-        b: i32x16<Self>,
-    ) -> (i32x16<Self>, i32x16<Self>);
+    fn zip1_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self>;
+    fn zip2_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self>;
     fn select_i32x16(
         self,
         a: mask32x16<Self>,
@@ -795,16 +667,8 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn simd_le_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> mask32x16<Self>;
     fn simd_ge_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> mask32x16<Self>;
     fn simd_gt_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> mask32x16<Self>;
-    fn zip_u32x16(
-        self,
-        a: u32x16<Self>,
-        b: u32x16<Self>,
-    ) -> (u32x16<Self>, u32x16<Self>);
-    fn unzip_u32x16(
-        self,
-        a: u32x16<Self>,
-        b: u32x16<Self>,
-    ) -> (u32x16<Self>, u32x16<Self>);
+    fn zip1_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self>;
+    fn zip2_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self>;
     fn select_u32x16(
         self,
         a: mask32x16<Self>,
@@ -824,16 +688,6 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         b: mask32x16<Self>,
         c: mask32x16<Self>,
     ) -> mask32x16<Self>;
-    fn zip_mask32x16(
-        self,
-        a: mask32x16<Self>,
-        b: mask32x16<Self>,
-    ) -> (mask32x16<Self>, mask32x16<Self>);
-    fn unzip_mask32x16(
-        self,
-        a: mask32x16<Self>,
-        b: mask32x16<Self>,
-    ) -> (mask32x16<Self>, mask32x16<Self>);
     fn simd_eq_mask32x16(
         self,
         a: mask32x16<Self>,
@@ -898,8 +752,8 @@ pub trait SimdFloat<
     fn simd_le(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
+    fn zip1(self, rhs: impl SimdInto<Self, S>) -> Self;
+    fn zip2(self, rhs: impl SimdInto<Self, S>) -> Self;
     fn max(self, rhs: impl SimdInto<Self, S>) -> Self;
     fn max_precise(self, rhs: impl SimdInto<Self, S>) -> Self;
     fn min(self, rhs: impl SimdInto<Self, S>) -> Self;
@@ -944,8 +798,8 @@ pub trait SimdInt<
     fn simd_le(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
     fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
+    fn zip1(self, rhs: impl SimdInto<Self, S>) -> Self;
+    fn zip2(self, rhs: impl SimdInto<Self, S>) -> Self;
 }
 pub trait SimdMask<
     Element: SimdElement,
@@ -958,7 +812,5 @@ pub trait SimdMask<
     > + core::ops::BitAnd<
         Output = Self,
     > + core::ops::BitOr<Output = Self> + core::ops::BitXor<Output = Self> {
-    fn zip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
-    fn unzip(self, rhs: impl SimdInto<Self, S>) -> (Self, Self);
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> Self::Mask;
 }

@@ -269,24 +269,16 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip => {
-                    let neon = match method {
-                        "zip" => "vzip",
-                        "unzip" => "vuzp",
-                        _ => todo!(),
-                    };
-                    let zip1 = simple_intrinsic(&format!("{neon}1"), vec_ty);
-                    let zip2 = simple_intrinsic(&format!("{neon}2"), vec_ty);
+                OpSig::Zip(zip1) => {
+                    let neon = if zip1 { "vzip1" } else { "vzip2" };
+                    let zip = simple_intrinsic(neon, vec_ty);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             let x = a.into();
                             let y = b.into();
                             unsafe {
-                                (
-                                    #zip1(x, y).simd_into(self),
-                                    #zip2(x, y).simd_into(self),
-                                )
+                                #zip(x, y).simd_into(self)
                             }
                         }
                     }
