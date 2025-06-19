@@ -28,8 +28,19 @@ enum Module {
 }
 
 #[derive(Parser)]
+#[command(
+    name = "fearless_simd_gen",
+    about = "Generate SIMD trait implementations for `fearless_simd`",
+    long_about = "Generate SIMD trait implementations for fearless_simd.\n\
+                  \n\
+                  Generates code for SIMD types, traits, operations, and architecture-specific \
+                  implementations (NEON, WASM, fallback).\n\
+                  \n\
+                  Run from the root of the repository without arguments to automatically \
+                  generate all module files in ./fearless_simd/src/generated/."
+)]
 struct Cli {
-    #[arg(short, long)]
+    #[arg(short, long, help = "Generate a specific module and print to stdout")]
     module: Option<Module>,
 }
 
@@ -70,6 +81,7 @@ const MODULES: &[Module] = &[
     Module::Ops,
     Module::Neon,
     Module::Fallback,
+    Module::Wasm,
 ];
 
 const FILE_BASE: &str = "./fearless_simd/src/generated";
@@ -88,10 +100,9 @@ fn main() {
         for module in MODULES {
             let name = module.file_base();
             let path = base_dir.join(format!("{name}.rs"));
-            let mut file = File::create(&path).expect("error creating {path:?}");
+            let file = File::create(&path).expect("error creating {path:?}");
             let code_str = module.generate_string();
-            file.write_all(code_str.as_bytes())
-                .expect("error writing {name}");
+            write_formatted(code_str.as_bytes(), file);
         }
     }
 }
@@ -104,4 +115,16 @@ fn print_code(code: &TokenStream) {
             println!("{code}");
         }
     }
+}
+
+fn write_formatted(text: &[u8], out: File) {
+    let mut child = std::process::Command::new("rustfmt")
+        .stdin(std::process::Stdio::piped())
+        .stdout(out)
+        .spawn()
+        .expect("`rustfmt` command to have spawned");
+    let mut stdin = child.stdin.take().expect("stdin handle to be present");
+    stdin.write_all(text).unwrap();
+    drop(stdin);
+    child.wait().expect("rustfmt should write to file");
 }
