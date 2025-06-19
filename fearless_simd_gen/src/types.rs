@@ -65,7 +65,7 @@ impl VecType {
 
     pub fn widened(&self) -> Option<VecType> {
         if matches!(self.scalar, ScalarType::Mask | ScalarType::Float)
-            || self.n_bits() > 512
+            || self.n_bits() > 256
             || self.scalar_bits != 8
         {
             return None;
@@ -126,8 +126,6 @@ pub const SIMD_TYPES: &[VecType] = &[
     VecType::new(ScalarType::Int, 32, 16),
     VecType::new(ScalarType::Unsigned, 32, 16),
     VecType::new(ScalarType::Mask, 32, 16),
-    // 1024 bit types
-    VecType::new(ScalarType::Unsigned, 16, 64),
 ];
 
 pub fn type_imports() -> TokenStream {
