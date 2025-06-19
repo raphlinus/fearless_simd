@@ -102,9 +102,7 @@ fn main() {
             let path = base_dir.join(format!("{name}.rs"));
             let file = File::create(&path).expect("error creating {path:?}");
             let code_str = module.generate_string();
-            write_formatted(code_str.as_bytes(), file)
-                .wait()
-                .expect("error writing {name}");
+            write_formatted(code_str.as_bytes(), file);
         }
     }
 }
@@ -119,7 +117,7 @@ fn print_code(code: &TokenStream) {
     }
 }
 
-fn write_formatted(text: &[u8], out: File) -> std::process::Child {
+fn write_formatted(text: &[u8], out: File) {
     let mut child = std::process::Command::new("rustfmt")
         .stdin(std::process::Stdio::piped())
         .stdout(out)
@@ -128,5 +126,5 @@ fn write_formatted(text: &[u8], out: File) -> std::process::Child {
     let mut stdin = child.stdin.take().expect("stdin handle to be present");
     stdin.write_all(text).unwrap();
     drop(stdin);
-    child
+    child.wait().expect("error writing {name}");
 }
