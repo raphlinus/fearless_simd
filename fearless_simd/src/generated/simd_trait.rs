@@ -44,6 +44,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn min_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn min_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self>;
     fn madd_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
+    fn msub_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn floor_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
     fn select_f32x4(
         self,
@@ -257,6 +258,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn min_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
     fn min_precise_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self>;
     fn madd_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
+    fn msub_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
     fn floor_f32x8(self, a: f32x8<Self>) -> f32x8<Self>;
     fn select_f32x8(
         self,
@@ -489,6 +491,12 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn min_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
     fn min_precise_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self>;
     fn madd_f32x16(
+        self,
+        a: f32x16<Self>,
+        b: f32x16<Self>,
+        c: f32x16<Self>,
+    ) -> f32x16<Self>;
+    fn msub_f32x16(
         self,
         a: f32x16<Self>,
         b: f32x16<Self>,
@@ -759,6 +767,7 @@ pub trait SimdFloat<
     fn min(self, rhs: impl SimdInto<Self, S>) -> Self;
     fn min_precise(self, rhs: impl SimdInto<Self, S>) -> Self;
     fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> Self;
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> Self;
     fn floor(self) -> Self;
 }
 pub trait SimdInt<

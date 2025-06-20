@@ -46,6 +46,7 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("min", OpSig::Binary),
     ("min_precise", OpSig::Binary),
     ("madd", OpSig::Ternary),
+    ("msub", OpSig::Ternary),
     ("floor", OpSig::Unary),
     // TODO: simd_ne, but this requires additional implementation work on Neon
     ("select", OpSig::Select),

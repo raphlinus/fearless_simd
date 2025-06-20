@@ -239,6 +239,10 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
         self.simd.madd_f32x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
     }
     #[inline(always)]
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.msub_f32x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
     fn floor(self) -> f32x4<S> {
         self.simd.floor_f32x4(self)
     }
@@ -2038,6 +2042,10 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
     #[inline(always)]
     fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.madd_f32x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.msub_f32x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
     }
     #[inline(always)]
     fn floor(self) -> f32x8<S> {
@@ -3947,6 +3955,14 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x16<S> {
         op2: impl SimdInto<Self, S>,
     ) -> f32x16<S> {
         self.simd.madd_f32x16(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn msub(
+        self,
+        op1: impl SimdInto<Self, S>,
+        op2: impl SimdInto<Self, S>,
+    ) -> f32x16<S> {
+        self.simd.msub_f32x16(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
     }
     #[inline(always)]
     fn floor(self) -> f32x16<S> {

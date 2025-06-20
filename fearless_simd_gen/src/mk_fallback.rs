@@ -191,6 +191,14 @@ fn mk_simd_impl() -> TokenStream {
                                a.add(b.mul(c))
                             }
                         }
+                    } else if method == "msub" {
+                        // TODO: Same as above
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
+                               a.sub(b.mul(c))
+                            }
+                        }
                     } else {
                         let args = [
                             quote! { a.into() },
