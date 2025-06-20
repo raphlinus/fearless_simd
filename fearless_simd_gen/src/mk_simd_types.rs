@@ -44,7 +44,7 @@ pub fn mk_simd_types() -> TokenStream {
                 .collect::<Vec<_>>(),
         );
         result.extend(quote! {
-            #[derive(Clone, Copy)]
+            #[derive(Clone, Copy, Debug)]
             #[repr(C, align(#align_lit))]
             pub struct #name<S: Simd> {
                 pub val: [#rust_scalar; #len],
