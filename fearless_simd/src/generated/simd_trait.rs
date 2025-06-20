@@ -46,6 +46,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn madd_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn msub_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn floor_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
+    fn fract_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
     fn select_f32x4(
         self,
         a: mask32x4<Self>,
@@ -260,6 +261,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn madd_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
     fn msub_f32x8(self, a: f32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self>;
     fn floor_f32x8(self, a: f32x8<Self>) -> f32x8<Self>;
+    fn fract_f32x8(self, a: f32x8<Self>) -> f32x8<Self>;
     fn select_f32x8(
         self,
         a: mask32x8<Self>,
@@ -503,6 +505,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
         c: f32x16<Self>,
     ) -> f32x16<Self>;
     fn floor_f32x16(self, a: f32x16<Self>) -> f32x16<Self>;
+    fn fract_f32x16(self, a: f32x16<Self>) -> f32x16<Self>;
     fn select_f32x16(
         self,
         a: mask32x16<Self>,
@@ -769,6 +772,7 @@ pub trait SimdFloat<
     fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> Self;
     fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> Self;
     fn floor(self) -> Self;
+    fn fract(self) -> Self;
 }
 pub trait SimdInt<
     Element: SimdElement,

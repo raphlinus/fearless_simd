@@ -12,6 +12,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "copysign" => "copysign",
         "neg" => "neg",
         "floor" => "floor",
+        "fract" => "fract",
         "sqrt" => "sqrt",
         "add" => "add",
         "sub" => "sub",

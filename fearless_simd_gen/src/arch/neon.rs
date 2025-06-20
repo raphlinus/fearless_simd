@@ -67,6 +67,18 @@ impl Arch for Neon {
                 let intrinsic = split_intrinsic("vdup", "n", ty);
                 quote! { #intrinsic ( #( #args ),* ) }
             }
+            "fract" => {
+                let to = VecType::new(ScalarType::Int, ty.scalar_bits, ty.len);
+                let c1 = cvt_intrinsic("vcvt", &to, ty);
+                let c2 = cvt_intrinsic("vcvt", ty, &to);
+                let sub = simple_intrinsic("vsub", ty);
+                quote! {
+                    let c1 = #c1(a.into());
+                    let c2 = #c2(c1);
+                 
+                    #sub(a.into(), c2)
+                }
+            }
             _ => unimplemented!("missing {op}"),
         }
     }

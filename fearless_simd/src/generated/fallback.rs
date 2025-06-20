@@ -257,6 +257,16 @@ impl Simd for Fallback {
             .simd_into(self)
     }
     #[inline(always)]
+    fn fract_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
+        [
+            f32::fract(a[0usize]),
+            f32::fract(a[1usize]),
+            f32::fract(a[2usize]),
+            f32::fract(a[3usize]),
+        ]
+            .simd_into(self)
+    }
+    #[inline(always)]
     fn select_f32x4(
         self,
         a: mask32x4<Self>,
@@ -2350,6 +2360,11 @@ impl Simd for Fallback {
         self.combine_f32x4(self.floor_f32x4(a0), self.floor_f32x4(a1))
     }
     #[inline(always)]
+    fn fract_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f32x4(self.fract_f32x4(a0), self.fract_f32x4(a1))
+    }
+    #[inline(always)]
     fn select_f32x8(
         self,
         a: mask32x8<Self>,
@@ -3512,6 +3527,11 @@ impl Simd for Fallback {
     fn floor_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
         let (a0, a1) = self.split_f32x16(a);
         self.combine_f32x8(self.floor_f32x8(a0), self.floor_f32x8(a1))
+    }
+    #[inline(always)]
+    fn fract_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_f32x8(self.fract_f32x8(a0), self.fract_f32x8(a1))
     }
     #[inline(always)]
     fn select_f32x16(
