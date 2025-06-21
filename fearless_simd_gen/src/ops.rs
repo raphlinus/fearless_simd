@@ -71,6 +71,8 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("zip1", OpSig::Zip(true)),
     ("zip2", OpSig::Zip(false)),
     ("select", OpSig::Select),
+    ("min", OpSig::Binary),
+    ("max", OpSig::Binary),
 ];
 
 pub const MASK_OPS: &[(&str, OpSig)] = &[

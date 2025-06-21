@@ -255,6 +255,14 @@ impl Simd for Neon {
         }
     }
     #[inline(always)]
+    fn min_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        unsafe { vminq_s8(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        unsafe { vmaxq_s8(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn combine_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x32<Self> {
         let mut result = [0; 32usize];
         result[0..16usize].copy_from_slice(&a.val);
@@ -343,6 +351,14 @@ impl Simd for Neon {
         unsafe {
             vbslq_u8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self)
         }
+    }
+    #[inline(always)]
+    fn min_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        unsafe { vminq_u8(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        unsafe { vmaxq_u8(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x32<Self> {
@@ -482,6 +498,14 @@ impl Simd for Neon {
         }
     }
     #[inline(always)]
+    fn min_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        unsafe { vminq_s16(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        unsafe { vmaxq_s16(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn combine_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x16<Self> {
         let mut result = [0; 16usize];
         result[0..8usize].copy_from_slice(&a.val);
@@ -571,6 +595,14 @@ impl Simd for Neon {
             vbslq_u16(vreinterpretq_u16_s16(a.into()), b.into(), c.into())
                 .simd_into(self)
         }
+    }
+    #[inline(always)]
+    fn min_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        unsafe { vminq_u16(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        unsafe { vmaxq_u16(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x16<Self> {
@@ -707,6 +739,14 @@ impl Simd for Neon {
         }
     }
     #[inline(always)]
+    fn min_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        unsafe { vminq_s32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        unsafe { vmaxq_s32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn combine_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x8<Self> {
         let mut result = [0; 8usize];
         result[0..4usize].copy_from_slice(&a.val);
@@ -796,6 +836,14 @@ impl Simd for Neon {
             vbslq_u32(vreinterpretq_u32_s32(a.into()), b.into(), c.into())
                 .simd_into(self)
         }
+    }
+    #[inline(always)]
+    fn min_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        unsafe { vminq_u32(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        unsafe { vmaxq_u32(a.into(), b.into()).simd_into(self) }
     }
     #[inline(always)]
     fn combine_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x8<Self> {
@@ -1135,6 +1183,18 @@ impl Simd for Neon {
         self.combine_i8x16(self.select_i8x16(a0, b0, c0), self.select_i8x16(a1, b1, c1))
     }
     #[inline(always)]
+    fn min_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (a0, a1) = self.split_i8x32(a);
+        let (b0, b1) = self.split_i8x32(b);
+        self.combine_i8x16(self.min_i8x16(a0, b0), self.min_i8x16(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (a0, a1) = self.split_i8x32(a);
+        let (b0, b1) = self.split_i8x32(b);
+        self.combine_i8x16(self.max_i8x16(a0, b0), self.max_i8x16(a1, b1))
+    }
+    #[inline(always)]
     fn combine_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x64<Self> {
         let mut result = [0; 64usize];
         result[0..32usize].copy_from_slice(&a.val);
@@ -1258,6 +1318,18 @@ impl Simd for Neon {
         let (b0, b1) = self.split_u8x32(b);
         let (c0, c1) = self.split_u8x32(c);
         self.combine_u8x16(self.select_u8x16(a0, b0, c0), self.select_u8x16(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn min_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (a0, a1) = self.split_u8x32(a);
+        let (b0, b1) = self.split_u8x32(b);
+        self.combine_u8x16(self.min_u8x16(a0, b0), self.min_u8x16(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (a0, a1) = self.split_u8x32(a);
+        let (b0, b1) = self.split_u8x32(b);
+        self.combine_u8x16(self.max_u8x16(a0, b0), self.max_u8x16(a1, b1))
     }
     #[inline(always)]
     fn combine_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x64<Self> {
@@ -1452,6 +1524,18 @@ impl Simd for Neon {
         self.combine_i16x8(self.select_i16x8(a0, b0, c0), self.select_i16x8(a1, b1, c1))
     }
     #[inline(always)]
+    fn min_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (a0, a1) = self.split_i16x16(a);
+        let (b0, b1) = self.split_i16x16(b);
+        self.combine_i16x8(self.min_i16x8(a0, b0), self.min_i16x8(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (a0, a1) = self.split_i16x16(a);
+        let (b0, b1) = self.split_i16x16(b);
+        self.combine_i16x8(self.max_i16x8(a0, b0), self.max_i16x8(a1, b1))
+    }
+    #[inline(always)]
     fn combine_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x32<Self> {
         let mut result = [0; 32usize];
         result[0..16usize].copy_from_slice(&a.val);
@@ -1575,6 +1659,18 @@ impl Simd for Neon {
         let (b0, b1) = self.split_u16x16(b);
         let (c0, c1) = self.split_u16x16(c);
         self.combine_u16x8(self.select_u16x8(a0, b0, c0), self.select_u16x8(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn min_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (a0, a1) = self.split_u16x16(a);
+        let (b0, b1) = self.split_u16x16(b);
+        self.combine_u16x8(self.min_u16x8(a0, b0), self.min_u16x8(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (a0, a1) = self.split_u16x16(a);
+        let (b0, b1) = self.split_u16x16(b);
+        self.combine_u16x8(self.max_u16x8(a0, b0), self.max_u16x8(a1, b1))
     }
     #[inline(always)]
     fn combine_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x32<Self> {
@@ -1786,6 +1882,18 @@ impl Simd for Neon {
         self.combine_i32x4(self.select_i32x4(a0, b0, c0), self.select_i32x4(a1, b1, c1))
     }
     #[inline(always)]
+    fn min_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        let (b0, b1) = self.split_i32x8(b);
+        self.combine_i32x4(self.min_i32x4(a0, b0), self.min_i32x4(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        let (b0, b1) = self.split_i32x8(b);
+        self.combine_i32x4(self.max_i32x4(a0, b0), self.max_i32x4(a1, b1))
+    }
+    #[inline(always)]
     fn combine_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x16<Self> {
         let mut result = [0; 16usize];
         result[0..8usize].copy_from_slice(&a.val);
@@ -1909,6 +2017,18 @@ impl Simd for Neon {
         let (b0, b1) = self.split_u32x8(b);
         let (c0, c1) = self.split_u32x8(c);
         self.combine_u32x4(self.select_u32x4(a0, b0, c0), self.select_u32x4(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn min_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        let (b0, b1) = self.split_u32x8(b);
+        self.combine_u32x4(self.min_u32x4(a0, b0), self.min_u32x4(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        let (b0, b1) = self.split_u32x8(b);
+        self.combine_u32x4(self.max_u32x4(a0, b0), self.max_u32x4(a1, b1))
     }
     #[inline(always)]
     fn combine_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x16<Self> {
@@ -2284,6 +2404,18 @@ impl Simd for Neon {
         self.combine_i8x32(self.select_i8x32(a0, b0, c0), self.select_i8x32(a1, b1, c1))
     }
     #[inline(always)]
+    fn min_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (a0, a1) = self.split_i8x64(a);
+        let (b0, b1) = self.split_i8x64(b);
+        self.combine_i8x32(self.min_i8x32(a0, b0), self.min_i8x32(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (a0, a1) = self.split_i8x64(a);
+        let (b0, b1) = self.split_i8x64(b);
+        self.combine_i8x32(self.max_i8x32(a0, b0), self.max_i8x32(a1, b1))
+    }
+    #[inline(always)]
     fn split_i8x64(self, a: i8x64<Self>) -> (i8x32<Self>, i8x32<Self>) {
         let mut b0 = [0; 32usize];
         let mut b1 = [0; 32usize];
@@ -2400,6 +2532,18 @@ impl Simd for Neon {
         let (b0, b1) = self.split_u8x64(b);
         let (c0, c1) = self.split_u8x64(c);
         self.combine_u8x32(self.select_u8x32(a0, b0, c0), self.select_u8x32(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn min_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (a0, a1) = self.split_u8x64(a);
+        let (b0, b1) = self.split_u8x64(b);
+        self.combine_u8x32(self.min_u8x32(a0, b0), self.min_u8x32(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (a0, a1) = self.split_u8x64(a);
+        let (b0, b1) = self.split_u8x64(b);
+        self.combine_u8x32(self.max_u8x32(a0, b0), self.max_u8x32(a1, b1))
     }
     #[inline(always)]
     fn split_u8x64(self, a: u8x64<Self>) -> (u8x32<Self>, u8x32<Self>) {
@@ -2578,6 +2722,18 @@ impl Simd for Neon {
         )
     }
     #[inline(always)]
+    fn min_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (a0, a1) = self.split_i16x32(a);
+        let (b0, b1) = self.split_i16x32(b);
+        self.combine_i16x16(self.min_i16x16(a0, b0), self.min_i16x16(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (a0, a1) = self.split_i16x32(a);
+        let (b0, b1) = self.split_i16x32(b);
+        self.combine_i16x16(self.max_i16x16(a0, b0), self.max_i16x16(a1, b1))
+    }
+    #[inline(always)]
     fn split_i16x32(self, a: i16x32<Self>) -> (i16x16<Self>, i16x16<Self>) {
         let mut b0 = [0; 16usize];
         let mut b1 = [0; 16usize];
@@ -2700,6 +2856,18 @@ impl Simd for Neon {
             self.select_u16x16(a0, b0, c0),
             self.select_u16x16(a1, b1, c1),
         )
+    }
+    #[inline(always)]
+    fn min_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (a0, a1) = self.split_u16x32(a);
+        let (b0, b1) = self.split_u16x32(b);
+        self.combine_u16x16(self.min_u16x16(a0, b0), self.min_u16x16(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (a0, a1) = self.split_u16x32(a);
+        let (b0, b1) = self.split_u16x32(b);
+        self.combine_u16x16(self.max_u16x16(a0, b0), self.max_u16x16(a1, b1))
     }
     #[inline(always)]
     fn split_u16x32(self, a: u16x32<Self>) -> (u16x16<Self>, u16x16<Self>) {
@@ -2892,6 +3060,18 @@ impl Simd for Neon {
         self.combine_i32x8(self.select_i32x8(a0, b0, c0), self.select_i32x8(a1, b1, c1))
     }
     #[inline(always)]
+    fn min_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        let (b0, b1) = self.split_i32x16(b);
+        self.combine_i32x8(self.min_i32x8(a0, b0), self.min_i32x8(a1, b1))
+    }
+    #[inline(always)]
+    fn max_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        let (b0, b1) = self.split_i32x16(b);
+        self.combine_i32x8(self.max_i32x8(a0, b0), self.max_i32x8(a1, b1))
+    }
+    #[inline(always)]
     fn split_i32x16(self, a: i32x16<Self>) -> (i32x8<Self>, i32x8<Self>) {
         let mut b0 = [0; 8usize];
         let mut b1 = [0; 8usize];
@@ -3008,6 +3188,18 @@ impl Simd for Neon {
         let (b0, b1) = self.split_u32x16(b);
         let (c0, c1) = self.split_u32x16(c);
         self.combine_u32x8(self.select_u32x8(a0, b0, c0), self.select_u32x8(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn min_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        let (b0, b1) = self.split_u32x16(b);
+        self.combine_u32x8(self.min_u32x8(a0, b0), self.min_u32x8(a1, b1))
+    }
+    #[inline(always)]
+    fn max_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        let (b0, b1) = self.split_u32x16(b);
+        self.combine_u32x8(self.max_u32x8(a0, b0), self.max_u32x8(a1, b1))
     }
     #[inline(always)]
     fn split_u32x16(self, a: u32x16<Self>) -> (u32x8<Self>, u32x8<Self>) {
