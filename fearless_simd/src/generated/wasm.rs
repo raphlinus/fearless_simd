@@ -165,7 +165,10 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn mul_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        todo!()
+        let low = i16x8_extmul_low_i8x16(a.into(), b.into());
+        let high = i16x8_extmul_high_i8x16(a.into(), b.into());
+        u8x16_shuffle::<0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30>(low, high)
+            .simd_into(self)
     }
     #[inline(always)]
     fn and_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
@@ -240,7 +243,10 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn mul_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        todo!()
+        let low = u16x8_extmul_low_u8x16(a.into(), b.into());
+        let high = u16x8_extmul_high_u8x16(a.into(), b.into());
+        u8x16_shuffle::<0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30>(low, high)
+            .simd_into(self)
     }
     #[inline(always)]
     fn and_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {

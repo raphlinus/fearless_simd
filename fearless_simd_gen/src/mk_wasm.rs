@@ -102,33 +102,36 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Binary => {
                     let args = [quote! { a.into() }, quote! { b.into() }];
-                    if method == "mul"
-                        && (vec_ty
-                            == (&VecType {
-                                scalar: ScalarType::Unsigned,
-                                scalar_bits: 8,
-                                len: 16,
-                            })
-                            || vec_ty
-                                == (&VecType {
-                                    scalar: ScalarType::Int,
-                                    scalar_bits: 8,
-                                    len: 16,
-                                }))
-                    {
-                        quote! {
-                            #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                                // TODO: WASM doesn't have `i8x16_mul` or `u8x16_mul`.
-                                todo!()
+                    match method {
+                        "mul" if vec_ty.scalar_bits == 8 && vec_ty.len == 16 => {
+                            let (extmul_low, extmul_high) = match vec_ty.scalar {
+                                ScalarType::Unsigned => (
+                                    quote! { u16x8_extmul_low_u8x16 },
+                                    quote! { u16x8_extmul_high_u8x16 },
+                                ),
+                                ScalarType::Int => (
+                                    quote! { i16x8_extmul_low_i8x16 },
+                                    quote! { i16x8_extmul_high_i8x16 },
+                                ),
+                                _ => unreachable!(),
+                            };
+
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                                    let low = #extmul_low(a.into(), b.into());
+                                    let high = #extmul_high(a.into(), b.into());
+                                    u8x16_shuffle::<0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30>(low, high).simd_into(self)
+                                }
                             }
                         }
-                    } else {
-                        let expr = Wasm.expr(method, vec_ty, &args);
-                        quote! {
-                            #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                                #expr.simd_into(self)
+                        _ => {
+                            let expr = Wasm.expr(method, vec_ty, &args);
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                                    #expr.simd_into(self)
+                                }
                             }
                         }
                     }
