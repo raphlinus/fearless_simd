@@ -138,7 +138,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn fract_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        todo!().simd_into(self)
+        todo!()
     }
     #[inline(always)]
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {

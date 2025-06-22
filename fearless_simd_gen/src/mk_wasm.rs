@@ -74,12 +74,13 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     let expr = if method == "fract" {
                         quote! {todo!() }
                     }   else {
-                        Wasm.expr(method, vec_ty, &args)
+                        let expr = Wasm.expr(method, vec_ty, &args);
+                        quote! { #expr.simd_into(self) }
                     };
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                            #expr.simd_into(self)
+                            #expr
                         }
                     }
                 }
