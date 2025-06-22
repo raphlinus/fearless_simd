@@ -75,7 +75,7 @@ impl Arch for Neon {
                 quote! {
                     let c1 = #c1(a.into());
                     let c2 = #c2(c1);
-                 
+
                     #sub(a.into(), c2)
                 }
             }

@@ -73,7 +73,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     let args = [quote! { a.into() }];
                     let expr = if method == "fract" {
                         quote! {todo!() }
-                    }   else {
+                    } else {
                         let expr = Wasm.expr(method, vec_ty, &args);
                         quote! { #expr.simd_into(self) }
                     };
@@ -149,13 +149,13 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         let first_ident = {
                             let str = if method == "madd" {
                                 "add_f32x4"
-                            }   else {
+                            } else {
                                 "sub_f32x4"
                             };
-                            
+
                             Ident::new(str, Span::call_site())
                         };
-                        
+
                         assert_eq!(
                             vec_ty,
                             &VecType {
@@ -227,7 +227,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             todo!()
                         }
                     }
-                },
+                }
             };
 
             methods.push(m);

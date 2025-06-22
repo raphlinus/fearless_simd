@@ -150,27 +150,27 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
         OpSig::Zip(zip1) => {
             let (e1, e2, e3) = if zip1 {
                 (
-                    quote! { 
-                    (a0, _)
-                },
-                    quote! { 
-                    (b0, _)
-                },
-                    quote! { 
-                    a0, b0
-                }
-                    )
-            }   else {
+                    quote! {
+                        (a0, _)
+                    },
+                    quote! {
+                        (b0, _)
+                    },
+                    quote! {
+                        a0, b0
+                    },
+                )
+            } else {
                 (
-                    quote! { 
-                    (_, a1)
-                },
-                    quote! { 
-                    (_, b1)
-                },
-                    quote! { 
-                    a1, b1
-                }
+                    quote! {
+                        (_, a1)
+                    },
+                    quote! {
+                        (_, b1)
+                    },
+                    quote! {
+                        a1, b1
+                    },
                 )
             };
 

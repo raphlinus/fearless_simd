@@ -262,10 +262,10 @@ fn mk_simd_impl() -> TokenStream {
                 OpSig::Zip(zip1) => {
                     let indices = if zip1 {
                         0..vec_ty.len / 2
-                    }   else {
+                    } else {
                         (vec_ty.len / 2)..vec_ty.len
                     };
-                    
+
                     let zip = make_list(
                         indices
                             .map(|idx| {
