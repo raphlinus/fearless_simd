@@ -146,14 +146,15 @@ fn mk_simd_mask() -> TokenStream {
 fn methods_for_vec_trait(ops: &[(&str, OpSig)]) -> Vec<TokenStream> {
     let mut methods = vec![];
     for (method, sig) in ops {
-        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Combine) {
+        if CORE_OPS.contains(method) || matches!(sig, OpSig::Splat | OpSig::Shift | OpSig::Combine)
+        {
             continue;
         }
         let method_name = Ident::new(method, Span::call_site());
         if let Some(args) = sig.vec_trait_args() {
             let ret_ty = match sig {
                 OpSig::Compare => quote! { Self::Mask },
-                OpSig::Zip => quote! { (Self, Self) },
+                OpSig::Zip(_) => quote! { Self },
                 _ => quote! { Self },
             };
             methods.push(quote! {

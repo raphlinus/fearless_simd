@@ -5,6 +5,9 @@ use proc_macro2::{Literal, Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
+use crate::arch::neon::split_intrinsic;
+use crate::ops::{reinterpret_ty, valid_reinterpret};
+use crate::types::ScalarType;
 use crate::{
     arch::Arch,
     arch::neon::{Neon, cvt_intrinsic, simple_intrinsic},
@@ -75,7 +78,9 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if vec_ty.n_bits() > 128 && method != "split" {
+            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+                || vec_ty.n_bits() > 256
+            {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -95,6 +100,29 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
+                OpSig::Shift => {
+                    let dup_type = VecType::new(ScalarType::Int, vec_ty.scalar_bits, vec_ty.len);
+                    let scalar = dup_type.scalar.rust(scalar_bits);
+                    let dup_intrinsic = split_intrinsic("vdup", "n", &dup_type);
+                    let shift = if method == "shr" {
+                        quote! { -(shift as #scalar) }
+                    } else {
+                        quote! { shift as #scalar }
+                    };
+                    let expr = Neon.expr(
+                        method,
+                        vec_ty,
+                        &[quote! { val.into() }, quote! { #dup_intrinsic ( #shift ) }],
+                    );
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, val: #ty<Self>, shift: u32) -> #ret_ty {
+                            unsafe {
+                                #expr.simd_into(self)
+                            }
+                        }
+                    }
+                }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
                     let expr = Neon.expr(method, vec_ty, &args);
@@ -103,6 +131,55 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
                             unsafe {
                                 #expr.simd_into(self)
+                            }
+                        }
+                    }
+                }
+                OpSig::WidenNarrow(target_ty) => {
+                    let ret_ty = sig.ret_ty(&target_ty, TyFlavor::SimdTrait);
+                    let vec_scalar_ty = vec_ty.scalar.rust(vec_ty.scalar_bits);
+                    let target_scalar_ty = target_ty.scalar.rust(target_ty.scalar_bits);
+
+                    if method == "narrow" {
+                        let arch = Neon.arch_ty(vec_ty);
+
+                        let id1 =
+                            Ident::new(&format!("vmovn_{}", vec_scalar_ty), Span::call_site());
+                        let id2 = Ident::new(
+                            &format!("vcombine_{}", target_scalar_ty),
+                            Span::call_site(),
+                        );
+
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    let converted: #arch = a.into();
+                                    let low = #id1(converted.0);
+                                    let high = #id1(converted.1);
+
+                                    #id2(low, high).simd_into(self)
+                                }
+                            }
+                        }
+                    } else {
+                        let arch = Neon.arch_ty(&target_ty);
+                        let id1 =
+                            Ident::new(&format!("vmovl_{}", vec_scalar_ty), Span::call_site());
+                        let id2 =
+                            Ident::new(&format!("vget_low_{}", vec_scalar_ty), Span::call_site());
+                        let id3 =
+                            Ident::new(&format!("vget_high_{}", vec_scalar_ty), Span::call_site());
+
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    let low = #id1(#id2(a.into()));
+                                    let high = #id1(#id3(a.into()));
+
+                                    #arch(low, high).simd_into(self)
+                                }
                             }
                         }
                     }
@@ -192,24 +269,16 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip => {
-                    let neon = match method {
-                        "zip" => "vzip",
-                        "unzip" => "vuzp",
-                        _ => todo!(),
-                    };
-                    let zip1 = simple_intrinsic(&format!("{neon}1"), vec_ty);
-                    let zip2 = simple_intrinsic(&format!("{neon}2"), vec_ty);
+                OpSig::Zip(zip1) => {
+                    let neon = if zip1 { "vzip1" } else { "vzip2" };
+                    let zip = simple_intrinsic(neon, vec_ty);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             let x = a.into();
                             let y = b.into();
                             unsafe {
-                                (
-                                    #zip1(x, y).simd_into(self),
-                                    #zip2(x, y).simd_into(self),
-                                )
+                                #zip(x, y).simd_into(self)
                             }
                         }
                     }
@@ -224,6 +293,23 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                 #neon(a.into()).simd_into(self)
                             }
                         }
+                    }
+                }
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    if valid_reinterpret(vec_ty, scalar, scalar_bits) {
+                        let to_ty = reinterpret_ty(vec_ty, scalar, scalar_bits);
+                        let neon = cvt_intrinsic("vreinterpret", &to_ty, vec_ty);
+
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                unsafe {
+                                    #neon(a.into()).simd_into(self)
+                                }
+                            }
+                        }
+                    } else {
+                        quote! {}
                     }
                 }
             };
@@ -269,7 +355,7 @@ fn mk_type_impl() -> TokenStream {
     let mut result = vec![];
     for ty in SIMD_TYPES {
         let n_bits = ty.n_bits();
-        if !(n_bits == 64 || n_bits == 128) {
+        if !(n_bits == 64 || n_bits == 128 || n_bits == 256 || n_bits == 512) {
             continue;
         }
         let simd = ty.rust();

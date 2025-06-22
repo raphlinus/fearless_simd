@@ -63,6 +63,30 @@ impl VecType {
         quote! { #ident }
     }
 
+    pub fn widened(&self) -> Option<VecType> {
+        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float)
+            || self.n_bits() > 256
+            || self.scalar_bits != 8
+        {
+            return None;
+        }
+
+        let scalar_bits = self.scalar_bits * 2;
+        Some(Self::new(self.scalar, scalar_bits, self.len))
+    }
+
+    pub fn narrowed(&self) -> Option<VecType> {
+        if matches!(self.scalar, ScalarType::Mask | ScalarType::Float)
+            || self.n_bits() < 256
+            || self.scalar_bits != 16
+        {
+            return None;
+        }
+
+        let scalar_bits = self.scalar_bits / 2;
+        Some(Self::new(self.scalar, scalar_bits, self.len))
+    }
+
     pub fn mask_ty(&self) -> Self {
         VecType::new(ScalarType::Mask, self.scalar_bits, self.len)
     }
@@ -91,6 +115,17 @@ pub const SIMD_TYPES: &[VecType] = &[
     VecType::new(ScalarType::Int, 32, 8),
     VecType::new(ScalarType::Unsigned, 32, 8),
     VecType::new(ScalarType::Mask, 32, 8),
+    // 512 bit types
+    VecType::new(ScalarType::Float, 32, 16),
+    VecType::new(ScalarType::Int, 8, 64),
+    VecType::new(ScalarType::Unsigned, 8, 64),
+    VecType::new(ScalarType::Mask, 8, 64),
+    VecType::new(ScalarType::Int, 16, 32),
+    VecType::new(ScalarType::Unsigned, 16, 32),
+    VecType::new(ScalarType::Mask, 16, 32),
+    VecType::new(ScalarType::Int, 32, 16),
+    VecType::new(ScalarType::Unsigned, 32, 16),
+    VecType::new(ScalarType::Mask, 32, 16),
 ];
 
 pub fn type_imports() -> TokenStream {

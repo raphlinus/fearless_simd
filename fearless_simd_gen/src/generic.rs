@@ -5,6 +5,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
+use crate::ops::reinterpret_ty;
 use crate::{
     ops::{OpSig, TyFlavor},
     types::{ScalarType, VecType},
@@ -96,6 +97,15 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
+        OpSig::Shift => {
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>, b: u32) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0, b), self.#do_half(a1, b))
+                }
+            }
+        }
         OpSig::Ternary => {
             quote! {
                 #[inline(always)]
@@ -137,32 +147,42 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
-        OpSig::Zip => {
-            let body = match op {
-                "zip" => quote! {
-                    let (c00, c01) = self.#do_half(a0, b0);
-                    let (c10, c11) = self.#do_half(a1, b1);
-                    (
-                        self.#combine(c00, c01),
-                        self.#combine(c10, c11),
-                    )
+        OpSig::Zip(zip1) => {
+            let (e1, e2, e3) = if zip1 {
+                (
+                    quote! { 
+                    (a0, _)
                 },
-                "unzip" => quote! {
-                    let (c00, c01) = self.#do_half(a0, a1);
-                    let (c10, c11) = self.#do_half(b0, b1);
-                    (
-                        self.#combine(c00, c10),
-                        self.#combine(c01, c11),
-                    )
+                    quote! { 
+                    (b0, _)
                 },
-                _ => unreachable!(),
+                    quote! { 
+                    a0, b0
+                }
+                    )
+            }   else {
+                (
+                    quote! { 
+                    (_, a1)
+                },
+                    quote! { 
+                    (_, b1)
+                },
+                    quote! { 
+                    a1, b1
+                }
+                )
             };
+
+            let zip1_half = Ident::new(&format!("zip1_{}", half.rust_name()), Span::call_site());
+            let zip2_half = Ident::new(&format!("zip2_{}", half.rust_name()), Span::call_site());
+
             quote! {
                 #[inline(always)]
                 fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
-                    let (a0, a1) = self.#split(a);
-                    let (b0, b1) = self.#split(b);
-                    #body
+                    let #e1 = self.#split(a);
+                    let #e2 = self.#split(b);
+                    self.#combine(self.#zip1_half(#e3), self.#zip2_half(#e3))
                 }
             }
         }
@@ -177,6 +197,30 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
-        _ => unimplemented!(),
+        OpSig::Reinterpret(scalar, scalar_bits) => {
+            let mut half = reinterpret_ty(ty, scalar, scalar_bits);
+            half.len = half.len / 2;
+            let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0), self.#do_half(a1))
+                }
+            }
+        }
+        OpSig::WidenNarrow(mut half) => {
+            half.len = half.len / 2;
+            let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    self.#combine(self.#do_half(a0), self.#do_half(a1))
+                }
+            }
+        }
+        OpSig::Split => generic_split(ty),
+        OpSig::Combine => generic_combine(ty),
     }
 }

@@ -71,7 +71,11 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
-                    let expr = Wasm.expr(method, vec_ty, &args);
+                    let expr = if method == "fract" {
+                        quote! {todo!() }
+                    }   else {
+                        Wasm.expr(method, vec_ty, &args)
+                    };
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
@@ -140,7 +144,17 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         quote! { c.into() },
                     ];
 
-                    if method == "madd" {
+                    if matches!(method, "madd" | "msub") {
+                        let first_ident = {
+                            let str = if method == "madd" {
+                                "add_f32x4"
+                            }   else {
+                                "sub_f32x4"
+                            };
+                            
+                            Ident::new(str, Span::call_site())
+                        };
+                        
                         assert_eq!(
                             vec_ty,
                             &VecType {
@@ -153,7 +167,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         quote! {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
-                                self.add_f32x4(a, self.mul_f32x4(b, c))
+                                self.#first_ident(a, self.mul_f32x4(b, c))
                             }
                         }
                     } else {
@@ -188,7 +202,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip => {
+                OpSig::Zip(_)| OpSig::Shift => {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
@@ -196,7 +210,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::Cvt(scalar, scalar_bits) => {
+                OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                     // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
                     quote! {
                         #[inline(always)]
@@ -204,7 +218,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             todo!()
                         }
                     }
-                }
+                },
             };
 
             methods.push(m);
