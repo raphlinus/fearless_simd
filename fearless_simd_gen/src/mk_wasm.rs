@@ -202,10 +202,18 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip(_)| OpSig::Shift => {
+                OpSig::Zip(_) => {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                            todo!()
+                        }
+                    }
+                }
+                OpSig::Shift => {
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, shift: u32) -> #ret_ty {
                             todo!()
                         }
                     }

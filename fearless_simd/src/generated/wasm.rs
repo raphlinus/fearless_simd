@@ -192,7 +192,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+    fn shr_i8x16(self, a: i8x16<Self>, shift: u32) -> i8x16<Self> {
         todo!()
     }
     #[inline(always)]
@@ -283,7 +283,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+    fn shr_u8x16(self, a: u8x16<Self>, shift: u32) -> u8x16<Self> {
         todo!()
     }
     #[inline(always)]
@@ -418,7 +418,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+    fn shr_i16x8(self, a: i16x8<Self>, shift: u32) -> i16x8<Self> {
         todo!()
     }
     #[inline(always)]
@@ -509,7 +509,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+    fn shr_u16x8(self, a: u16x8<Self>, shift: u32) -> u16x8<Self> {
         todo!()
     }
     #[inline(always)]
@@ -644,7 +644,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+    fn shr_i32x4(self, a: i32x4<Self>, shift: u32) -> i32x4<Self> {
         todo!()
     }
     #[inline(always)]
@@ -735,7 +735,7 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
-    fn shr_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+    fn shr_u32x4(self, a: u32x4<Self>, shift: u32) -> u32x4<Self> {
         todo!()
     }
     #[inline(always)]
