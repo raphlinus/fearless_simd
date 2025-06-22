@@ -10,6 +10,7 @@ use core::ops::*;
 #[cfg(all(feature = "libm", not(feature = "std")))]
 trait FloatExt {
     fn floor(self) -> f32;
+    fn fract(self) -> f32;
     fn sqrt(self) -> f32;
 }
 #[cfg(all(feature = "libm", not(feature = "std")))]
@@ -21,6 +22,10 @@ impl FloatExt for f32 {
     #[inline(always)]
     fn sqrt(self) -> f32 {
         libm::sqrtf(self)
+    }
+    #[inline(always)]
+    fn fract(self) -> f32 {
+        self - libm::truncf(self)
     }
 }
 /// The SIMD token for the "fallback" level.

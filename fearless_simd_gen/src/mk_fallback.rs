@@ -36,6 +36,7 @@ pub fn mk_fallback_impl() -> TokenStream {
         #[cfg(all(feature = "libm", not(feature = "std")))]
         trait FloatExt {
             fn floor(self) -> f32;
+            fn fract(self) -> f32;
             fn sqrt(self) -> f32;
         }
 
@@ -48,6 +49,10 @@ pub fn mk_fallback_impl() -> TokenStream {
             #[inline(always)]
             fn sqrt(self) -> f32 {
                 libm::sqrtf(self)
+            }
+            #[inline(always)]
+            fn fract(self) -> f32 {
+                self - libm::truncf(self)
             }
         }
 
