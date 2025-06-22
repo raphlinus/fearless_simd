@@ -1595,8 +1595,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn narrow_u16x16(self, a: u16x16<Self>) -> u8x16<Self> {
-        let (a0, a1) = self.split_u16x16(a);
-        self.combine_u8x8(self.narrow_u16x8(a0), self.narrow_u16x8(a1))
+        todo!()
     }
     #[inline(always)]
     fn reinterpret_u8_u16x16(self, a: u16x16<Self>) -> u8x32<Self> {
@@ -2719,8 +2718,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
-        let (a0, a1) = self.split_u16x32(a);
-        self.combine_u8x16(self.narrow_u16x16(a0), self.narrow_u16x16(a1))
+        todo!()
     }
     #[inline(always)]
     fn reinterpret_u8_u16x32(self, a: u16x32<Self>) -> u8x64<Self> {
