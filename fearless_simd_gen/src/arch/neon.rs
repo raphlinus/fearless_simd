@@ -15,7 +15,7 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "floor" => "vrndm",
         "sqrt" => "vsqrt",
         "add" => "vadd",
-        "sub" => "vsub",
+        "sub" | "wrapping_sub" => "vsub",
         "mul" => "vmul",
         "div" => "vdiv",
         "simd_eq" => "vceq",

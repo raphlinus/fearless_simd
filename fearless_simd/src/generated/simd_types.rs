@@ -403,6 +403,10 @@ impl<S: Simd> i8x16<S> {
         self.simd.max_i8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.wrapping_sub_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.combine_i8x16(self, rhs.simd_into(self.simd))
     }
@@ -474,6 +478,10 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
         self.simd.max_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.wrapping_sub_i8x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -622,6 +630,10 @@ impl<S: Simd> u8x16<S> {
         self.simd.max_u8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.wrapping_sub_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.combine_u8x16(self, rhs.simd_into(self.simd))
     }
@@ -689,6 +701,10 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
         self.simd.max_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.wrapping_sub_u8x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -966,6 +982,10 @@ impl<S: Simd> i16x8<S> {
         self.simd.max_i16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.wrapping_sub_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.combine_i16x8(self, rhs.simd_into(self.simd))
     }
@@ -1037,6 +1057,10 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x8<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
         self.simd.max_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.wrapping_sub_i16x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -1177,6 +1201,10 @@ impl<S: Simd> u16x8<S> {
         self.simd.max_u16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.wrapping_sub_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.combine_u16x8(self, rhs.simd_into(self.simd))
     }
@@ -1248,6 +1276,10 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x8<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
         self.simd.max_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.wrapping_sub_u16x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -1508,6 +1540,10 @@ impl<S: Simd> i32x4<S> {
         self.simd.max_i32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.wrapping_sub_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.combine_i32x4(self, rhs.simd_into(self.simd))
     }
@@ -1579,6 +1615,10 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x4<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
         self.simd.max_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.wrapping_sub_i32x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -1710,6 +1750,10 @@ impl<S: Simd> u32x4<S> {
         self.simd.max_u32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.wrapping_sub_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.combine_u32x4(self, rhs.simd_into(self.simd))
     }
@@ -1781,6 +1825,10 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x4<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
         self.simd.max_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.wrapping_sub_u32x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -2330,6 +2378,10 @@ impl<S: Simd> i8x32<S> {
         self.simd.max_i8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.wrapping_sub_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
         self.simd.combine_i8x32(self, rhs.simd_into(self.simd))
     }
@@ -2401,6 +2453,10 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x32<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.max_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.wrapping_sub_i8x32(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -2565,6 +2621,10 @@ impl<S: Simd> u8x32<S> {
         self.simd.max_u8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.wrapping_sub_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.combine_u8x32(self, rhs.simd_into(self.simd))
     }
@@ -2632,6 +2692,10 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x32<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.max_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.wrapping_sub_u8x32(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -2933,6 +2997,11 @@ impl<S: Simd> i16x16<S> {
         self.simd.max_i16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd
+            .wrapping_sub_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
         self.simd.combine_i16x16(self, rhs.simd_into(self.simd))
     }
@@ -3004,6 +3073,11 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.max_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd
+            .wrapping_sub_i16x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -3152,6 +3226,11 @@ impl<S: Simd> u16x16<S> {
         self.simd.max_u16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd
+            .wrapping_sub_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
         self.simd.combine_u16x16(self, rhs.simd_into(self.simd))
     }
@@ -3223,6 +3302,11 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.max_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd
+            .wrapping_sub_u16x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -3500,6 +3584,10 @@ impl<S: Simd> i32x8<S> {
         self.simd.max_i32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.wrapping_sub_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
         self.simd.combine_i32x8(self, rhs.simd_into(self.simd))
     }
@@ -3571,6 +3659,10 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x8<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.max_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.wrapping_sub_i32x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -3711,6 +3803,10 @@ impl<S: Simd> u32x8<S> {
         self.simd.max_u32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.wrapping_sub_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
         self.simd.combine_u32x8(self, rhs.simd_into(self.simd))
     }
@@ -3782,6 +3878,10 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x8<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.max_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.wrapping_sub_u32x8(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -4377,6 +4477,10 @@ impl<S: Simd> i8x64<S> {
         self.simd.max_i8x64(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
+        self.simd.wrapping_sub_i8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_i8x64(self)
     }
@@ -4445,6 +4549,10 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x64<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
         self.simd.max_i8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
+        self.simd.wrapping_sub_i8x64(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -4640,6 +4748,10 @@ impl<S: Simd> u8x64<S> {
     pub fn max(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.max_u8x64(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
+        self.simd.wrapping_sub_u8x64(self, rhs.simd_into(self.simd))
+    }
 }
 impl<S: Simd> crate::SimdBase<u8, S> for u8x64<S> {
     const N: usize = 64;
@@ -4705,6 +4817,10 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x64<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.max_u8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
+        self.simd.wrapping_sub_u8x64(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -5051,6 +5167,11 @@ impl<S: Simd> i16x32<S> {
         self.simd.max_i16x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
+        self.simd
+            .wrapping_sub_i16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_i16x32(self)
     }
@@ -5119,6 +5240,11 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x32<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
         self.simd.max_i16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
+        self.simd
+            .wrapping_sub_i16x32(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -5283,6 +5409,11 @@ impl<S: Simd> u16x32<S> {
         self.simd.max_u16x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
+        self.simd
+            .wrapping_sub_u16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_u16x32(self)
     }
@@ -5351,6 +5482,11 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x32<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
         self.simd.max_u16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
+        self.simd
+            .wrapping_sub_u16x32(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -5649,6 +5785,11 @@ impl<S: Simd> i32x16<S> {
         self.simd.max_i32x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
+        self.simd
+            .wrapping_sub_i32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_i32x16(self)
     }
@@ -5717,6 +5858,11 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
         self.simd.max_i32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
+        self.simd
+            .wrapping_sub_i32x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -5865,6 +6011,11 @@ impl<S: Simd> u32x16<S> {
         self.simd.max_u32x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
+        self.simd
+            .wrapping_sub_u32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_u32x16(self)
     }
@@ -5933,6 +6084,11 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x16<S> {
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
         self.simd.max_u32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn wrapping_sub(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
+        self.simd
+            .wrapping_sub_u32x16(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]

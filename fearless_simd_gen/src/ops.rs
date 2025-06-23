@@ -74,6 +74,7 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("select", OpSig::Select),
     ("min", OpSig::Binary),
     ("max", OpSig::Binary),
+    ("wrapping_sub", OpSig::Binary)
 ];
 
 pub const MASK_OPS: &[(&str, OpSig)] = &[
