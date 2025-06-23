@@ -44,7 +44,7 @@ pub fn mk_simd_types() -> TokenStream {
                 .collect::<Vec<_>>(),
         );
         result.extend(quote! {
-            #[derive(Clone, Copy)]
+            #[derive(Clone, Copy, Debug)]
             #[repr(C, align(#align_lit))]
             pub struct #name<S: Simd> {
                 pub val: [#rust_scalar; #len],
@@ -137,14 +137,23 @@ fn simd_impl(ty: &VecType) -> TokenStream {
         let trait_method = Ident::new(&format!("{method}_{ty_name}"), Span::call_site());
         if matches!(
             sig,
-            OpSig::Unary | OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Cvt(_, _)
+            OpSig::Unary
+                | OpSig::Binary
+                | OpSig::Compare
+                | OpSig::Combine
+                | OpSig::Cvt(_, _)
+                | OpSig::Reinterpret(_, _)
+                | OpSig::Shift
         ) {
             if let Some(args) = sig.vec_trait_args() {
                 let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
                 let call_args = match sig {
-                    OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
+                    OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) => quote! { self },
                     OpSig::Binary | OpSig::Compare | OpSig::Combine => {
                         quote! { self, rhs.simd_into(self.simd) }
+                    }
+                    OpSig::Shift => {
+                        quote! { self, shift }
                     }
                     OpSig::Ternary => {
                         quote! { self, op1.simd_into(self.simd), op2.simd_into(self.simd) }
@@ -196,7 +205,7 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
             let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
             let call_args = match sig {
                 OpSig::Unary => quote! { self },
-                OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
+                OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) => {
                     quote! { self, rhs.simd_into(self.simd) }
                 }
                 OpSig::Ternary => {

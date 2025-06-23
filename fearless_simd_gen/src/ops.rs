@@ -16,8 +16,12 @@ pub enum OpSig {
     Select,
     Combine,
     Split,
-    Zip,
+    Zip(bool),
     Cvt(ScalarType, usize),
+    Reinterpret(ScalarType, usize),
+    WidenNarrow(VecType),
+    // TODO: Make clear that this is right-shift
+    Shift,
     // TODO: fma
 }
 
@@ -36,14 +40,16 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
+    ("zip_low", OpSig::Zip(true)),
+    ("zip_high", OpSig::Zip(false)),
     ("max", OpSig::Binary),
     ("max_precise", OpSig::Binary),
     ("min", OpSig::Binary),
     ("min_precise", OpSig::Binary),
     ("madd", OpSig::Ternary),
+    ("msub", OpSig::Ternary),
     ("floor", OpSig::Unary),
+    ("fract", OpSig::Unary),
     // TODO: simd_ne, but this requires additional implementation work on Neon
     ("select", OpSig::Select),
 ];
@@ -57,14 +63,17 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("and", OpSig::Binary),
     ("or", OpSig::Binary),
     ("xor", OpSig::Binary),
+    ("shr", OpSig::Shift),
     ("simd_eq", OpSig::Compare),
     ("simd_lt", OpSig::Compare),
     ("simd_le", OpSig::Compare),
     ("simd_ge", OpSig::Compare),
     ("simd_gt", OpSig::Compare),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
+    ("zip_low", OpSig::Zip(true)),
+    ("zip_high", OpSig::Zip(false)),
     ("select", OpSig::Select),
+    ("min", OpSig::Binary),
+    ("max", OpSig::Binary),
 ];
 
 pub const MASK_OPS: &[(&str, OpSig)] = &[
@@ -74,13 +83,13 @@ pub const MASK_OPS: &[(&str, OpSig)] = &[
     ("or", OpSig::Binary),
     ("xor", OpSig::Binary),
     ("select", OpSig::Select),
-    ("zip", OpSig::Zip),
-    ("unzip", OpSig::Zip),
     ("simd_eq", OpSig::Compare),
 ];
 
 /// Ops covered by core::ops
-pub const CORE_OPS: &[&str] = &["not", "neg", "add", "sub", "mul", "div", "and", "or", "xor"];
+pub const CORE_OPS: &[&str] = &[
+    "not", "neg", "add", "sub", "mul", "div", "and", "or", "xor", "shr",
+];
 
 pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     let base = match ty.scalar {
@@ -89,13 +98,31 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
         ScalarType::Mask => MASK_OPS,
     };
     let mut ops = base.to_vec();
-    if ty.n_bits() < 256 {
+    if ty.n_bits() < 512 {
         ops.push(("combine", OpSig::Combine));
     }
     if ty.n_bits() > 128 {
         ops.push(("split", OpSig::Split));
     }
+
     if cvt {
+        if matches!(ty.scalar, ScalarType::Unsigned) {
+            if let Some(widened) = ty.widened() {
+                ops.push(("widen", OpSig::WidenNarrow(widened)));
+            }
+
+            if let Some(narrowed) = ty.narrowed() {
+                ops.push(("narrow", OpSig::WidenNarrow(narrowed)));
+            }
+        }
+
+        if valid_reinterpret(ty, ScalarType::Unsigned, 8) {
+            ops.push((
+                "reinterpret_u8",
+                OpSig::Reinterpret(ScalarType::Unsigned, 8),
+            ));
+        }
+
         match (ty.scalar, ty.scalar_bits) {
             (ScalarType::Float, 32) => ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32))),
             _ => (),
@@ -120,9 +147,16 @@ impl OpSig {
                 let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
                 quote! { self, val: #scalar }
             }
-            OpSig::Unary | OpSig::Split | OpSig::Cvt(_, _) => quote! { self, a: #ty<Self> },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip => {
+            OpSig::Unary
+            | OpSig::Split
+            | OpSig::Cvt(_, _)
+            | OpSig::Reinterpret(_, _)
+            | OpSig::WidenNarrow(_) => quote! { self, a: #ty<Self> },
+            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
+            }
+            OpSig::Shift => {
+                quote! { self, a: #ty<Self>, shift: u32 }
             }
             OpSig::Ternary => {
                 quote! { self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self> }
@@ -137,9 +171,14 @@ impl OpSig {
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
             OpSig::Splat => return None,
-            OpSig::Unary | OpSig::Cvt(_, _) => quote! { self },
-            OpSig::Binary | OpSig::Compare | OpSig::Zip | OpSig::Combine => {
+            OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
+                quote! { self }
+            }
+            OpSig::Binary | OpSig::Compare | OpSig::Zip(_) | OpSig::Combine => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
+            }
+            OpSig::Shift => {
+                quote! { self, shift: u32 }
             }
             OpSig::Ternary => {
                 quote! { self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S> }
@@ -159,7 +198,12 @@ impl OpSig {
             TyFlavor::VecImpl => quote! { <S> },
         };
         match self {
-            OpSig::Splat | OpSig::Unary | OpSig::Binary | OpSig::Select | OpSig::Ternary => {
+            OpSig::Splat
+            | OpSig::Unary
+            | OpSig::Binary
+            | OpSig::Select
+            | OpSig::Ternary
+            | OpSig::Shift => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -177,14 +221,38 @@ impl OpSig {
                 let result = VecType::new(ty.scalar, ty.scalar_bits, len).rust();
                 quote! { ( #result #quant, #result #quant ) }
             }
-            OpSig::Zip => {
+            OpSig::Zip(_) => {
                 let rust = ty.rust();
-                quote! { ( #rust #quant, #rust #quant ) }
+                quote! { #rust #quant }
             }
             OpSig::Cvt(scalar, scalar_bits) => {
                 let result = VecType::new(*scalar, *scalar_bits, ty.len).rust();
                 quote! { #result #quant }
             }
+            OpSig::Reinterpret(scalar, scalar_bits) => {
+                let result = reinterpret_ty(ty, *scalar, *scalar_bits).rust();
+                quote! { #result #quant }
+            }
+            OpSig::WidenNarrow(t) => {
+                let result = t.rust();
+                quote! { #result #quant }
+            }
         }
     }
+}
+
+pub(crate) fn reinterpret_ty(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> VecType {
+    VecType::new(dst_scalar, dst_bits, src.n_bits() / dst_bits)
+}
+
+pub(crate) fn valid_reinterpret(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> bool {
+    if src.scalar == dst_scalar && src.scalar_bits == dst_bits {
+        return false;
+    }
+
+    if matches!(src.scalar, ScalarType::Mask | ScalarType::Float) {
+        return false;
+    }
+
+    true
 }

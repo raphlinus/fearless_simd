@@ -29,9 +29,11 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "xor" => "veor",
         "max" => "vmax",
         "min" => "vmin",
+        "shr" => "vshl",
         "max_precise" => "vmaxnm",
         "min_precise" => "vminnm",
         "madd" => "vfma",
+        "msub" => "vfms",
         _ => return None,
     })
 }
@@ -43,7 +45,13 @@ impl Arch for Neon {
             ScalarType::Unsigned => "uint",
             ScalarType::Int | ScalarType::Mask => "int",
         };
-        let name = format!("{}{}x{}_t", scalar, ty.scalar_bits, ty.len);
+        let name = if ty.n_bits() == 256 {
+            format!("{}{}x{}x2_t", scalar, ty.scalar_bits, ty.len / 2)
+        } else if ty.n_bits() == 512 {
+            format!("{}{}x{}x4_t", scalar, ty.scalar_bits, ty.len / 4)
+        } else {
+            format!("{}{}x{}_t", scalar, ty.scalar_bits, ty.len)
+        };
         let ident = Ident::new(&name, Span::call_site());
         quote! { #ident }
     }
@@ -58,6 +66,18 @@ impl Arch for Neon {
             "splat" => {
                 let intrinsic = split_intrinsic("vdup", "n", ty);
                 quote! { #intrinsic ( #( #args ),* ) }
+            }
+            "fract" => {
+                let to = VecType::new(ScalarType::Int, ty.scalar_bits, ty.len);
+                let c1 = cvt_intrinsic("vcvt", &to, ty);
+                let c2 = cvt_intrinsic("vcvt", ty, &to);
+                let sub = simple_intrinsic("vsub", ty);
+                quote! {
+                    let c1 = #c1(a.into());
+                    let c2 = #c2(c1);
+
+                    #sub(a.into(), c2)
+                }
             }
             _ => unimplemented!("missing {op}"),
         }

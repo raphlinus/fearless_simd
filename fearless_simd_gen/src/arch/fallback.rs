@@ -12,6 +12,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "copysign" => "copysign",
         "neg" => "neg",
         "floor" => "floor",
+        "fract" => "fract",
         "sqrt" => "sqrt",
         "add" => "add",
         "sub" => "sub",
@@ -26,6 +27,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "and" => "bitand",
         "or" => "bitor",
         "xor" => "bitxor",
+        "shr" => "shr",
         // TODO: Do we need to polyfill so behavior is consistent with NEON?
         "max" => "max",
         "min" => "min",
@@ -61,7 +63,9 @@ impl Arch for Fallback {
             let intrinsic = simple_intrinsic(translated, ty);
             quote! { #intrinsic ( #( #args ),* ) }
         } else {
-            unimplemented!("missing {op}")
+            match op {
+                _ => unimplemented!("missing {op}"),
+            }
         }
     }
 }

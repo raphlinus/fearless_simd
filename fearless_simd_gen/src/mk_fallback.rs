@@ -4,7 +4,7 @@
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
-use crate::ops::{OpSig, TyFlavor, ops_for_type};
+use crate::ops::{OpSig, TyFlavor, ops_for_type, reinterpret_ty, valid_reinterpret};
 use crate::types::{SIMD_TYPES, ScalarType, VecType, type_imports};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -36,6 +36,7 @@ pub fn mk_fallback_impl() -> TokenStream {
         #[cfg(all(feature = "libm", not(feature = "std")))]
         trait FloatExt {
             fn floor(self) -> f32;
+            fn fract(self) -> f32;
             fn sqrt(self) -> f32;
         }
 
@@ -48,6 +49,10 @@ pub fn mk_fallback_impl() -> TokenStream {
             #[inline(always)]
             fn sqrt(self) -> f32 {
                 libm::sqrtf(self)
+            }
+            #[inline(always)]
+            fn fract(self) -> f32 {
+                self - libm::truncf(self)
             }
         }
 
@@ -80,7 +85,9 @@ fn mk_simd_impl() -> TokenStream {
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if vec_ty.n_bits() > 128 && method != "split" {
+            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+                || vec_ty.n_bits() > 256
+            {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -105,6 +112,23 @@ fn mk_simd_impl() -> TokenStream {
                                 let args = [quote! { a[#idx] }];
                                 let expr = Fallback.expr(method, vec_ty, &args);
                                 quote! { #expr }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            #items.simd_into(self)
+                        }
+                    }
+                }
+                OpSig::WidenNarrow(t) => {
+                    let items = make_list(
+                        (0..vec_ty.len)
+                            .map(|idx| {
+                                let scalar_ty = t.scalar.rust(t.scalar_bits);
+                                quote! { a[#idx] as #scalar_ty }
                             })
                             .collect::<Vec<_>>(),
                     );
@@ -143,6 +167,25 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     }
                 }
+                OpSig::Shift => {
+                    let arch_ty = Fallback.arch_ty(vec_ty);
+                    let items = make_list(
+                        (0..vec_ty.len)
+                            .map(|idx| {
+                                let args = [quote! { a[#idx] }, quote! { b as #arch_ty }];
+                                let expr = Fallback.expr(method, vec_ty, &args);
+                                quote! { #expr }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: u32) -> #ret_ty {
+                            #items.simd_into(self)
+                        }
+                    }
+                }
                 OpSig::Ternary => {
                     if method == "madd" {
                         // TODO: This is has slightly different semantics than a fused multiply-add,
@@ -151,6 +194,14 @@ fn mk_simd_impl() -> TokenStream {
                             #[inline(always)]
                             fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
                                a.add(b.mul(c))
+                            }
+                        }
+                    } else if method == "msub" {
+                        // TODO: Same as above
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
+                               a.sub(b.mul(c))
                             }
                         }
                     } else {
@@ -208,74 +259,25 @@ fn mk_simd_impl() -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip => {
-                    let (zip1, zip2) = match method {
-                        "zip" => {
-                            let zip1 = make_list(
-                                (0..vec_ty.len / 2)
-                                    .map(|idx| {
-                                        quote! {a[#idx], b[#idx] }
-                                    })
-                                    .collect::<Vec<_>>(),
-                            );
-
-                            let zip2 = make_list(
-                                (vec_ty.len / 2..vec_ty.len)
-                                    .map(|idx| {
-                                        quote! {a[#idx], b[#idx] }
-                                    })
-                                    .collect::<Vec<_>>(),
-                            );
-
-                            (zip1, zip2)
-                        }
-                        "unzip" => {
-                            let len = vec_ty.len;
-
-                            let unzip_a = {
-                                let mut low = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { a[#i * 2] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                let high = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { b[#i * 2] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                low.extend(high);
-
-                                make_list(low)
-                            };
-
-                            let unzip_b = {
-                                let mut low = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { a[#i * 2 + 1] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                let high = (0..len / 2)
-                                    .map(|i| {
-                                        quote! { b[#i * 2 + 1] }
-                                    })
-                                    .collect::<Vec<_>>();
-                                low.extend(high);
-
-                                make_list(low)
-                            };
-
-                            (unzip_a, unzip_b)
-                        }
-                        _ => todo!(),
+                OpSig::Zip(zip1) => {
+                    let indices = if zip1 {
+                        0..vec_ty.len / 2
+                    } else {
+                        (vec_ty.len / 2)..vec_ty.len
                     };
+
+                    let zip = make_list(
+                        indices
+                            .map(|idx| {
+                                quote! {a[#idx], b[#idx] }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
 
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            (
-                                #zip1.simd_into(self),
-                                #zip2.simd_into(self),
-                            )
+                            #zip.simd_into(self)
                         }
                     }
                 }
@@ -294,6 +296,23 @@ fn mk_simd_impl() -> TokenStream {
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
                             #items.simd_into(self)
                         }
+                    }
+                }
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    if valid_reinterpret(vec_ty, scalar, scalar_bits) {
+                        let to_ty = reinterpret_ty(vec_ty, scalar, scalar_bits).rust();
+
+                        quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                #to_ty {
+                                    val: bytemuck::cast(a.val),
+                                    simd: a.simd,
+                                }
+                            }
+                        }
+                    } else {
+                        quote! {}
                     }
                 }
             };
