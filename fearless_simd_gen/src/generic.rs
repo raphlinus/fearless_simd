@@ -174,15 +174,15 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 )
             };
 
-            let zip1_half = Ident::new(&format!("zip1_{}", half.rust_name()), Span::call_site());
-            let zip2_half = Ident::new(&format!("zip2_{}", half.rust_name()), Span::call_site());
+            let zip_low_half = Ident::new(&format!("zip_low_{}", half.rust_name()), Span::call_site());
+            let zip_high_half = Ident::new(&format!("zip_high_{}", half.rust_name()), Span::call_site());
 
             quote! {
                 #[inline(always)]
                 fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
                     let #e1 = self.#split(a);
                     let #e2 = self.#split(b);
-                    self.#combine(self.#zip1_half(#e3), self.#zip2_half(#e3))
+                    self.#combine(self.#zip_low_half(#e3), self.#zip_high_half(#e3))
                 }
             }
         }
