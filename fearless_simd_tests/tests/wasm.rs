@@ -61,6 +61,26 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
+    fn mul_u8x16() {
+        |s| -> [u8; 16] {
+            let a = u8x16::from_slice(s, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+            let b = u8x16::from_slice(s, &[0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3]);
+            (a * b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn mul_i8x16() {
+        |s| -> [i8; 16] {
+            let a = i8x16::from_slice(s, &[0, -0, 3, -3, 0, -0, 3, -3, 0, -0, 3, -3, 0, -0, 3, -3]);
+            let b = i8x16::from_slice(s, &[0, 0, 0, 0, -0, -0, -0, -0, 3, 3, 3, 3, -3, -3, -3, -3]);
+            (a * b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
     fn splat_f32x4() {
         |s| -> [f32; 4] {
             f32x4::splat(s, 1.0).into()
