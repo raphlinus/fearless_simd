@@ -174,8 +174,10 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 )
             };
 
-            let zip_low_half = Ident::new(&format!("zip_low_{}", half.rust_name()), Span::call_site());
-            let zip_high_half = Ident::new(&format!("zip_high_{}", half.rust_name()), Span::call_site());
+            let zip_low_half =
+                Ident::new(&format!("zip_low_{}", half.rust_name()), Span::call_site());
+            let zip_high_half =
+                Ident::new(&format!("zip_high_{}", half.rust_name()), Span::call_site());
 
             quote! {
                 #[inline(always)]
