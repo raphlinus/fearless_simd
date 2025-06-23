@@ -71,7 +71,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
-                    let expr = if method == "fract" {
+                    let expr = if matches!(method, "fract" | "trunc") {
                         quote! {todo!() }
                     } else {
                         let expr = Wasm.expr(method, vec_ty, &args);

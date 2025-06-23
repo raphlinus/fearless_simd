@@ -12,6 +12,7 @@ trait FloatExt {
     fn floor(self) -> f32;
     fn fract(self) -> f32;
     fn sqrt(self) -> f32;
+    fn trunc(self) -> f32;
 }
 #[cfg(all(feature = "libm", not(feature = "std")))]
 impl FloatExt for f32 {
@@ -25,7 +26,11 @@ impl FloatExt for f32 {
     }
     #[inline(always)]
     fn fract(self) -> f32 {
-        self - libm::truncf(self)
+        self - self.trunc()
+    }
+    #[inline(always)]
+    fn trunc(self) -> f32 {
+        libm::truncf(self)
     }
 }
 /// The SIMD token for the "fallback" level.
@@ -268,6 +273,16 @@ impl Simd for Fallback {
             f32::fract(a[1usize]),
             f32::fract(a[2usize]),
             f32::fract(a[3usize]),
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
+    fn trunc_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
+        [
+            f32::trunc(a[0usize]),
+            f32::trunc(a[1usize]),
+            f32::trunc(a[2usize]),
+            f32::trunc(a[3usize]),
         ]
         .simd_into(self)
     }
@@ -2606,6 +2621,11 @@ impl Simd for Fallback {
         self.combine_f32x4(self.fract_f32x4(a0), self.fract_f32x4(a1))
     }
     #[inline(always)]
+    fn trunc_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f32x4(self.trunc_f32x4(a0), self.trunc_f32x4(a1))
+    }
+    #[inline(always)]
     fn select_f32x8(self, a: mask32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self> {
         let (a0, a1) = self.split_mask32x8(a);
         let (b0, b1) = self.split_f32x8(b);
@@ -3837,6 +3857,11 @@ impl Simd for Fallback {
     fn fract_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
         let (a0, a1) = self.split_f32x16(a);
         self.combine_f32x8(self.fract_f32x8(a0), self.fract_f32x8(a1))
+    }
+    #[inline(always)]
+    fn trunc_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_f32x8(self.trunc_f32x8(a0), self.trunc_f32x8(a1))
     }
     #[inline(always)]
     fn select_f32x16(self, a: mask32x16<Self>, b: f32x16<Self>, c: f32x16<Self>) -> f32x16<Self> {

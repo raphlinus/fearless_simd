@@ -38,6 +38,7 @@ pub fn mk_fallback_impl() -> TokenStream {
             fn floor(self) -> f32;
             fn fract(self) -> f32;
             fn sqrt(self) -> f32;
+            fn trunc(self) -> f32;
         }
 
         #[cfg(all(feature = "libm", not(feature = "std")))]
@@ -52,7 +53,11 @@ pub fn mk_fallback_impl() -> TokenStream {
             }
             #[inline(always)]
             fn fract(self) -> f32 {
-                self - libm::truncf(self)
+                self - self.trunc()
+            }
+            #[inline(always)]
+            fn trunc(self) -> f32 {
+                libm::truncf(self)
             }
         }
 

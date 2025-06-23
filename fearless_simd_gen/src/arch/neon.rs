@@ -13,6 +13,7 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "abs" => "vabs",
         "neg" => "vneg",
         "floor" => "vrndm",
+        "trunc" => "vrnd",
         "sqrt" => "vsqrt",
         "add" => "vadd",
         "sub" | "wrapping_sub" => "vsub",
