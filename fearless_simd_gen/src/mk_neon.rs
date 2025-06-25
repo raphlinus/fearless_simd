@@ -6,7 +6,7 @@ use quote::quote;
 use syn::Ident;
 
 use crate::arch::neon::split_intrinsic;
-use crate::ops::{reinterpret_ty, valid_reinterpret};
+use crate::ops::{load_interleaved_arg_ty, reinterpret_ty, valid_reinterpret};
 use crate::types::ScalarType;
 use crate::{
     arch::Arch,
@@ -77,10 +77,16 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let scalar_bits = vec_ty.scalar_bits;
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
+        
+        
+        
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
-                || vec_ty.n_bits() > 256
-            {
+            let b1 = (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+                || vec_ty.n_bits() > 256;
+            
+            let b2 = !matches!(method, "load_interleaved_128");
+            
+            if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -131,6 +137,23 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
                             unsafe {
                                 #expr.simd_into(self)
+                            }
+                        }
+                    }
+                }
+                OpSig::LoadInterleaved(block_size, count) => {
+                    let intrinsic = {
+                        // The function expects 64-bit or 128-bit
+                        let ty = VecType::new(vec_ty.scalar, vec_ty.scalar_bits, block_size as usize / vec_ty.scalar_bits);
+                        simple_intrinsic("vld4", &ty)
+                    };
+                    let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, #arg) -> #ret_ty {
+                            unsafe {
+                                #intrinsic(a.as_ptr()).simd_into(self)
                             }
                         }
                     }

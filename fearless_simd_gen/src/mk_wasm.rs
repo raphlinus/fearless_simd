@@ -11,6 +11,7 @@ use crate::{
     ops::{OpSig, TyFlavor, ops_for_type},
     types::{SIMD_TYPES, ScalarType, VecType, type_imports},
 };
+use crate::ops::load_interleaved_arg_ty;
 
 #[derive(Clone, Copy)]
 pub enum Level {
@@ -40,10 +41,14 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let ty = vec_ty.rust();
 
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow") {
+            let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow");
+            let b2 = !matches!(method, "load_interleaved_128");
+            
+            if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
+            
             let method_name = format!("{method}_{ty_name}");
             let method_ident = Ident::new(&method_name, Span::call_site());
             let ret_ty = sig.ret_ty(vec_ty, TyFlavor::SimdTrait);
@@ -224,6 +229,16 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            todo!()
+                        }
+                    }
+                }
+                OpSig::LoadInterleaved(block_size, count) => {
+                    let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, #arg) -> #ret_ty {
                             todo!()
                         }
                     }

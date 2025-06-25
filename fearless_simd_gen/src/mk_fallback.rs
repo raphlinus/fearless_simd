@@ -4,10 +4,11 @@
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
-use crate::ops::{OpSig, TyFlavor, ops_for_type, reinterpret_ty, valid_reinterpret};
+use crate::ops::{OpSig, TyFlavor, ops_for_type, reinterpret_ty, valid_reinterpret, load_interleaved_arg_ty};
 use crate::types::{SIMD_TYPES, ScalarType, VecType, type_imports};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
+use crate::arch::neon::simple_intrinsic;
 
 #[derive(Clone, Copy)]
 pub struct Level;
@@ -90,9 +91,11 @@ fn mk_simd_impl() -> TokenStream {
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
-                || vec_ty.n_bits() > 256
-            {
+            let b1 = (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+                || vec_ty.n_bits() > 256;
+            let b2 = !matches!(method, "load_interleaved_128");
+            
+            if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -318,6 +321,16 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     } else {
                         quote! {}
+                    }
+                }
+                OpSig::LoadInterleaved(block_size, count) => {
+                    let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, #arg) -> #ret_ty {
+                            todo!()
+                        }
                     }
                 }
             };
