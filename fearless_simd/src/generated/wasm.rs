@@ -36,7 +36,6 @@ impl Simd for WasmSimd128 {
     }
     #[inline]
     fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
-        #[target_feature(enable = "simd128")]
         #[inline]
         unsafe fn vectorize_simd128<F: FnOnce() -> R, R>(f: F) -> R {
             f()

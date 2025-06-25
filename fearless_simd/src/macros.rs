@@ -19,17 +19,20 @@ macro_rules! simd_dispatch {
             unsafe fn inner_neon(neon: $crate::aarch64::Neon $( , $arg: $ty )* ) $( -> $ret )? {
                 $inner( neon $( , $arg )* )
             }
-            #[cfg(target_arch = "wasm32")]
-            #[target_feature(enable = "simd128")]
+            #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
             #[inline]
             unsafe fn inner_wasm_simd128(simd128: $crate::wasm32::WasmSimd128 $( , $arg: $ty )* ) $( -> $ret )? {
+                println!("GOT IN HERE WHAT THE!");
                 $inner( simd128 $( , $arg )* )
             }
             match level {
-                Level::Fallback(fb) => $inner(fb $( , $arg )* ),
+                Level::Fallback(fb) => {
+                    println!("fallback dispatched");
+                    $inner(fb $( , $arg )* )
+                },
                 #[cfg(target_arch = "aarch64")]
                 Level::Neon(neon) => unsafe { inner_neon (neon $( , $arg )* ) }
-                #[cfg(target_arch = "wasm32")]
+                #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
                 Level::WasmSimd128(wasm) => unsafe { inner_wasm_simd128 (wasm $( , $arg )* ) }
             }
         }
@@ -46,15 +49,14 @@ macro_rules! simd_dispatch {
     ) => {
         $( #[$meta] )* $vis
         fn $func(level: $crate::Level $(, $arg: $ty )*) $( -> $ret )? {
-            #[cfg(target_arch = "wasm32")]
-            #[target_feature(enable = "simd128")]
+            #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
             #[inline]
             unsafe fn inner_wasm_simd128(simd128: $crate::wasm32::WasmSimd128 $( , $arg: $ty )* ) $( -> $ret )? {
                 $inner( simd128 $( , $arg )* )
             }
             match level {
                 Level::Fallback(fb) => $inner(fb $( , $arg )* ),
-                #[cfg(target_arch = "wasm32")]
+                #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
                 Level::WasmSimd128(wasm) => unsafe { inner_wasm_simd128 (wasm $( , $arg )* ) }
             }
         }

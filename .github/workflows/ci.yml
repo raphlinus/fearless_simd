@@ -73,7 +73,7 @@ jobs:
           tool: wasm-pack
 
       - name: Run fearless_simd_tests on Chrome
-        run: wasm-pack test --headless --chrome
+        run: RUSTFLAGS=-Ctarget-feature=+simd128 wasm-pack test --headless --chrome
         working-directory: fearless_simd_tests
   
   build-no-std:
