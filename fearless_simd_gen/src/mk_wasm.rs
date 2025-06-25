@@ -257,7 +257,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
 
             #[inline]
             fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R {
-                #[target_feature(enable = "simd128")]
                 #[inline]
                 // unsafe not needed here with tf11, but can be justified
                 unsafe fn vectorize_simd128<F: FnOnce() -> R, R>(f: F) -> R {
