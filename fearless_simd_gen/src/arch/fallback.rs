@@ -13,6 +13,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "neg" => "neg",
         "floor" => "floor",
         "fract" => "fract",
+        "trunc" => "trunc",
         "sqrt" => "sqrt",
         "add" => "add",
         "sub" => "sub",
@@ -33,6 +34,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "min" => "min",
         "max_precise" => "max",
         "min_precise" => "min",
+        "wrapping_sub" => "wrapping_sub",
         _ => return None,
     })
 }

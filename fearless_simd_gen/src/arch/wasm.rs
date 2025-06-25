@@ -15,7 +15,8 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "floor" => "floor",
         "sqrt" => "sqrt",
         "add" => "add",
-        "sub" => "sub",
+        // TODO: Is wrapping sub same on WASM?
+        "sub" | "wrapping_sub" => "sub",
         "mul" => "mul",
         "div" => "div",
         "simd_eq" => "eq",
