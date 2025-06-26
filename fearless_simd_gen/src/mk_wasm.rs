@@ -58,17 +58,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::Unary if method == "not" => {
-                    let args = [quote! { a.into() }];
-                    let expr = Wasm.expr(method, vec_ty, &args);
-                    quote! {
-                        #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                            /// TODO: If v128 is used, we need to reinterpret it.
-                            todo!()
-                        }
-                    }
-                }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
                     let expr = if method == "fract" {
@@ -90,17 +79,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             /// TODO: copysign
-                            todo!()
-                        }
-                    }
-                }
-                OpSig::Binary if method == "xor" || method == "or" || method == "and" => {
-                    let args = [quote! { a.into() }, quote! { b.into() }];
-                    let expr = Wasm.expr(method, vec_ty, &args);
-                    quote! {
-                        #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            /// TODO: If v128 is used we need to reinterpret it accurately...
                             todo!()
                         }
                     }
