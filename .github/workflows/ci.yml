@@ -24,7 +24,7 @@ jobs:
           components: rustfmt
 
       - name: cargo fmt
-        run: cargo fmt  --check
+        run: cargo fmt --check
 
   clippy-stable:
     name: cargo clippy
