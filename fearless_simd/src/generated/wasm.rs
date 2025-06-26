@@ -160,8 +160,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_i8x16(self, a: i8x16<Self>) -> i8x16<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
@@ -180,18 +179,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_i8x16(self, a: i8x16<Self>, shift: u32) -> i8x16<Self> {
@@ -254,8 +250,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_u8x16(self, a: u8x16<Self>) -> u8x16<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
@@ -274,18 +269,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_u8x16(self, a: u8x16<Self>, shift: u32) -> u8x16<Self> {
@@ -348,23 +340,19 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_mask8x16(self, a: mask8x16<Self>) -> mask8x16<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn and_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_mask8x16(self, a: mask8x16<Self>, b: mask8x16<Self>) -> mask8x16<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_mask8x16(
@@ -392,8 +380,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_i16x8(self, a: i16x8<Self>) -> i16x8<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
@@ -409,18 +396,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_i16x8(self, a: i16x8<Self>, shift: u32) -> i16x8<Self> {
@@ -483,8 +467,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_u16x8(self, a: u16x8<Self>) -> u16x8<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
@@ -500,18 +483,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_u16x8(self, a: u16x8<Self>, shift: u32) -> u16x8<Self> {
@@ -574,23 +554,19 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_mask16x8(self, a: mask16x8<Self>) -> mask16x8<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn and_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_mask16x8(self, a: mask16x8<Self>, b: mask16x8<Self>) -> mask16x8<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_mask16x8(
@@ -618,8 +594,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_i32x4(self, a: i32x4<Self>) -> i32x4<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
@@ -635,18 +610,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_i32x4(self, a: i32x4<Self>, shift: u32) -> i32x4<Self> {
@@ -709,8 +681,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_u32x4(self, a: u32x4<Self>) -> u32x4<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn add_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
@@ -726,18 +697,15 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn and_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn shr_u32x4(self, a: u32x4<Self>, shift: u32) -> u32x4<Self> {
@@ -800,23 +768,19 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn not_mask32x4(self, a: mask32x4<Self>) -> mask32x4<Self> {
-        /// TODO: If v128 is used, we need to reinterpret it.
-        todo!()
+        v128_not(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn and_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_and(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn or_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_or(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn xor_mask32x4(self, a: mask32x4<Self>, b: mask32x4<Self>) -> mask32x4<Self> {
-        /// TODO: If v128 is used we need to reinterpret it accurately...
-        todo!()
+        v128_xor(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_mask32x4(
