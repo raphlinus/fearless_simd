@@ -22,12 +22,10 @@ macro_rules! simd_dispatch {
             #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
             #[inline]
             unsafe fn inner_wasm_simd128(simd128: $crate::wasm32::WasmSimd128 $( , $arg: $ty )* ) $( -> $ret )? {
-                println!("GOT IN HERE WHAT THE!");
                 $inner( simd128 $( , $arg )* )
             }
             match level {
                 Level::Fallback(fb) => {
-                    println!("fallback dispatched");
                     $inner(fb $( , $arg )* )
                 },
                 #[cfg(target_arch = "aarch64")]
