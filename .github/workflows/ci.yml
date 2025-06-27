@@ -66,11 +66,6 @@ jobs:
       - name: cargo clippy
         run: cargo hack clippy --workspace --locked --optional-deps --each-feature --ignore-unknown-features --features std
 
-      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
-      # Currently there are too many warnings to turn on this lint.
-      - name: cargo clippy (auxiliary)
-        run: cargo hack clippy --workspace --locked --optional-deps --each-feature --ignore-unknown-features --features std --tests --benches --examples
-
 
   clippy-stable-wasm:
     name: cargo clippy (wasm32)
@@ -95,14 +90,15 @@ jobs:
         with:
           save-if: ${{ github.event_name != 'merge_group' }}
 
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
       - name: cargo clippy (no_std)
         run: cargo hack clippy -p fearless_simd --locked --target wasm32-unknown-unknown --optional-deps --each-feature --ignore-unknown-features --features libm --exclude-features std,default,half
 
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
       - name: cargo clippy
         run: cargo hack clippy -p fearless_simd --locked --target wasm32-unknown-unknown --optional-deps --each-feature --ignore-unknown-features --features std
-
-      - name: cargo clippy (auxiliary)
-        run: cargo hack clippy -p fearless_simd --locked --target wasm32-unknown-unknown --optional-deps --each-feature --ignore-unknown-features --features std --tests --benches --examples
 
 
   test-stable:
