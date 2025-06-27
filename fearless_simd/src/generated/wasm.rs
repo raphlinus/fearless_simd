@@ -824,6 +824,10 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
+    fn cvt_f32_u32x4(self, a: u32x4<Self>) -> f32x4<Self> {
+        todo!()
+    }
+    #[inline(always)]
     fn splat_mask32x4(self, val: i32) -> mask32x4<Self> {
         i32x4_splat(val).simd_into(self)
     }
@@ -2024,6 +2028,11 @@ impl Simd for WasmSimd128 {
         self.combine_u8x16(self.reinterpret_u8_u32x4(a0), self.reinterpret_u8_u32x4(a1))
     }
     #[inline(always)]
+    fn cvt_f32_u32x8(self, a: u32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        self.combine_f32x4(self.cvt_f32_u32x4(a0), self.cvt_f32_u32x4(a1))
+    }
+    #[inline(always)]
     fn splat_mask32x8(self, a: i32) -> mask32x8<Self> {
         let half = self.splat_mask32x4(a);
         self.combine_mask32x4(half, half)
@@ -3201,6 +3210,11 @@ impl Simd for WasmSimd128 {
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_u32x16(a);
         self.combine_u8x32(self.reinterpret_u8_u32x8(a0), self.reinterpret_u8_u32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_f32_u32x16(self, a: u32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        self.combine_f32x8(self.cvt_f32_u32x8(a0), self.cvt_f32_u32x8(a1))
     }
     #[inline(always)]
     fn splat_mask32x16(self, a: i32) -> mask32x16<Self> {

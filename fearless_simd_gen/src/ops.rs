@@ -135,6 +135,7 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
 
         match (ty.scalar, ty.scalar_bits) {
             (ScalarType::Float, 32) => ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32))),
+            (ScalarType::Unsigned, 32) => ops.push(("cvt_f32", OpSig::Cvt(ScalarType::Float, 32))),
             _ => (),
         }
     }
