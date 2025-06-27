@@ -310,7 +310,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Cvt(scalar, scalar_bits) => {
                     let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
-                    let neon = cvt_intrinsic("vcvtn", to_ty, vec_ty);
+                    let neon = cvt_intrinsic("vcvt", to_ty, vec_ty);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {

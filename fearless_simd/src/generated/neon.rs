@@ -169,7 +169,7 @@ impl Simd for Neon {
     }
     #[inline(always)]
     fn cvt_u32_f32x4(self, a: f32x4<Self>) -> u32x4<Self> {
-        unsafe { vcvtnq_u32_f32(a.into()).simd_into(self) }
+        unsafe { vcvtq_u32_f32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn splat_i8x16(self, val: i8) -> i8x16<Self> {
