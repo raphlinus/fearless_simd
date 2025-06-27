@@ -17,6 +17,7 @@ macro_rules! delegate {
         ) $(-> $ret: ty)?;
     )*) => {
         $(
+            #[allow(clippy::not_unsafe_ptr_arg_deref)]
             #[doc=concat!("See [`", stringify!($prefix), "::", stringify!($func), "`].")]
             $(#[$attr])*
             #[inline(always)]

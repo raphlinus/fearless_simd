@@ -1,6 +1,6 @@
 env:
   RUST_STABLE_VER: "1.87"
-  
+
 name: CI
 
 on:
@@ -23,9 +23,83 @@ jobs:
           toolchain: ${{ env.RUST_STABLE_VER }}
           components: rustfmt
 
-      # For now, we only check `fearless_simd_gen`, since `fearless_simd` uses `prettyplease`.
       - name: cargo fmt
-        run: cd fearless_simd_gen && cargo fmt  --check
+        run: cargo fmt --all --check
+
+  clippy-stable:
+    name: cargo clippy
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_STABLE_VER }}
+          targets: x86_64-unknown-none
+          components: clippy
+
+      - name: install cargo-hack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+
+      - name: install native dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+
+      - name: restore cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.event_name != 'merge_group' }}
+
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
+      - name: cargo clippy (no_std)
+        run: cargo hack clippy -p fearless_simd --locked --optional-deps --each-feature --ignore-unknown-features --features libm --exclude-features std,default,half --target x86_64-unknown-none
+
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
+      - name: cargo clippy
+        run: cargo hack clippy --workspace --locked --optional-deps --each-feature --ignore-unknown-features --features std
+
+
+  clippy-stable-wasm:
+    name: cargo clippy (wasm32)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_STABLE_VER }}
+          targets: wasm32-unknown-unknown
+          components: clippy
+
+      - name: install cargo-hack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-hack
+
+      - name: restore cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.event_name != 'merge_group' }}
+
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
+      - name: cargo clippy (no_std)
+        run: cargo hack clippy -p fearless_simd --locked --target wasm32-unknown-unknown --optional-deps --each-feature --ignore-unknown-features --features libm --exclude-features std,default,half
+
+      # TODO: Add back the suffix ` -- -D warnings` onto this command to make warnings errors.
+      # Currently there are too many warnings to turn on this lint.
+      - name: cargo clippy
+        run: cargo hack clippy -p fearless_simd --locked --target wasm32-unknown-unknown --optional-deps --each-feature --ignore-unknown-features --features std
+
 
   test-stable:
     name: test
@@ -94,4 +168,5 @@ jobs:
 
       - name: cargo build
         run: cd fearless_simd && cargo build --no-default-features --features libm
+
     
