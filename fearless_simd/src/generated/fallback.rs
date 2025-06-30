@@ -3748,7 +3748,7 @@ impl Simd for Fallback {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
-    fn store_interleaved_128_f32x16(self, dest: &mut [f32; 16usize]) -> () {
+    fn store_interleaved_128_f32x16(self, a: f32x16<Self>, dest: &mut [f32; 16usize]) -> () {
         todo!()
     }
     #[inline(always)]
@@ -4072,7 +4072,7 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
-    fn store_interleaved_128_u8x64(self, dest: &mut [u8; 64usize]) -> () {
+    fn store_interleaved_128_u8x64(self, a: u8x64<Self>, dest: &mut [u8; 64usize]) -> () {
         todo!()
     }
     #[inline(always)]
@@ -4425,7 +4425,7 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
-    fn store_interleaved_128_u16x32(self, dest: &mut [u16; 32usize]) -> () {
+    fn store_interleaved_128_u16x32(self, a: u16x32<Self>, dest: &mut [u16; 32usize]) -> () {
         todo!()
     }
     #[inline(always)]
@@ -4769,7 +4769,7 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
-    fn store_interleaved_128_u32x16(self, dest: &mut [u32; 16usize]) -> () {
+    fn store_interleaved_128_u32x16(self, a: u32x16<Self>, dest: &mut [u32; 16usize]) -> () {
         todo!()
     }
     #[inline(always)]

@@ -327,19 +327,8 @@ fn mk_simd_impl() -> TokenStream {
                 }
                 OpSig::LoadInterleaved(block_size, count) => {
                     let len = (block_size * count) as usize / vec_ty.scalar_bits;
-                    let indices = {
-                        let indices = (0..len).collect::<Vec<_>>();
-                        interleave(&indices, len / count as usize)
-                    };
+                    let items = interleave_indices(len, count as usize, |idx| quote! { src[#idx] });
 
-                    let items = make_list(
-                        indices
-                            .into_iter()
-                            .map(|idx| {
-                                quote! { src[#idx] }
-                            })
-                            .collect::<Vec<_>>(),
-                    );
                     let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
 
                     quote! {
@@ -389,6 +378,20 @@ fn mk_simd_impl() -> TokenStream {
             #( #methods )*
         }
     }
+}
+
+fn interleave_indices(len: usize, count: usize, func: impl FnMut(usize) -> TokenStream ) -> TokenStream {
+    let indices = {
+        let indices = (0..len).collect::<Vec<_>>();
+        interleave(&indices, len / count as usize)
+    };
+
+    make_list(
+        indices
+            .into_iter()
+            .map(func)
+            .collect::<Vec<_>>(),
+    )
 }
 
 /// Whether the second argument of the function needs to be passed by reference.

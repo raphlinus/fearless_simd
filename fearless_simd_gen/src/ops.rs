@@ -273,9 +273,10 @@ pub(crate) fn load_interleaved_arg_ty(block_size: u16, i: u16, vec_ty: &VecType)
 }
 
 pub(crate) fn store_interleaved_arg_ty(block_size: u16, i: u16, vec_ty: &VecType) -> TokenStream {
+    let ty = vec_ty.rust();
     let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
     let len = (block_size * i) as usize / vec_ty.scalar_bits;
-    quote! { dest: &mut [#scalar; #len] }
+    quote! { a: #ty<Self>, dest: &mut [#scalar; #len] }
 }
 
 pub(crate) fn reinterpret_ty(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> VecType {
