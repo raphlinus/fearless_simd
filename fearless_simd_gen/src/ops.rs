@@ -26,7 +26,7 @@ pub enum OpSig {
     // is how many blocks. For example, `LoadInterleaved(128, 4)` would correspond to the
     // NEON instructions `vld4q_f32`, while `LoadInterleaved(64, 4)` would correspond to
     // `vld4_f32`.
-    LoadInterleaved(u16, u16), 
+    LoadInterleaved(u16, u16),
     StoreInterleaved(u16, u16), // TODO: fma
 }
 
@@ -114,7 +114,7 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     if ty.scalar == ScalarType::Unsigned && ty.n_bits() == 512 {
         ops.push(("load_interleaved_128", OpSig::LoadInterleaved(128, 4)));
     }
-    
+
     if matches!(ty.scalar, ScalarType::Unsigned | ScalarType::Float) && ty.n_bits() == 512 {
         ops.push(("store_interleaved_128", OpSig::StoreInterleaved(128, 4)));
     }
@@ -193,7 +193,9 @@ impl OpSig {
 
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
-            OpSig::Splat | OpSig::LoadInterleaved(_, _) | OpSig::StoreInterleaved(_, _) => return None,
+            OpSig::Splat | OpSig::LoadInterleaved(_, _) | OpSig::StoreInterleaved(_, _) => {
+                return None;
+            }
             OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                 quote! { self }
             }
@@ -227,7 +229,7 @@ impl OpSig {
             | OpSig::Select
             | OpSig::Ternary
             | OpSig::Shift
-            | OpSig::LoadInterleaved(_, _)  => {
+            | OpSig::LoadInterleaved(_, _) => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -261,7 +263,7 @@ impl OpSig {
                 let result = t.rust();
                 quote! { #result #quant }
             }
-            | OpSig::StoreInterleaved(_, _) => quote! {()}
+            OpSig::StoreInterleaved(_, _) => quote! {()},
         }
     }
 }

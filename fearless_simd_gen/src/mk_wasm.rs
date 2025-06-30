@@ -42,7 +42,8 @@ fn mk_simd_impl(level: Level) -> TokenStream {
 
         for (method, sig) in ops_for_type(vec_ty, true) {
             let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow");
-            let b2 = !matches!(method, "load_interleaved_128") && !matches!(method, "store_interleaved_128");
+            let b2 = !matches!(method, "load_interleaved_128")
+                && !matches!(method, "store_interleaved_128");
 
             if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));

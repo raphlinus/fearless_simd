@@ -6,7 +6,9 @@ use quote::quote;
 use syn::Ident;
 
 use crate::arch::neon::split_intrinsic;
-use crate::ops::{load_interleaved_arg_ty, reinterpret_ty, store_interleaved_arg_ty, valid_reinterpret};
+use crate::ops::{
+    load_interleaved_arg_ty, reinterpret_ty, store_interleaved_arg_ty, valid_reinterpret,
+};
 use crate::types::ScalarType;
 use crate::{
     arch::Arch,
@@ -82,7 +84,8 @@ fn mk_simd_impl(level: Level) -> TokenStream {
             let b1 = (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
                 || vec_ty.n_bits() > 256;
 
-            let b2 = !matches!(method, "load_interleaved_128") && !matches!(method, "store_interleaved_128");
+            let b2 = !matches!(method, "load_interleaved_128")
+                && !matches!(method, "store_interleaved_128");
 
             if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));

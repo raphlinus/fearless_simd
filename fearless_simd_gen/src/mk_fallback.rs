@@ -4,7 +4,10 @@
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
-use crate::ops::{OpSig, TyFlavor, load_interleaved_arg_ty, ops_for_type, reinterpret_ty, valid_reinterpret, store_interleaved_arg_ty};
+use crate::ops::{
+    OpSig, TyFlavor, load_interleaved_arg_ty, ops_for_type, reinterpret_ty,
+    store_interleaved_arg_ty, valid_reinterpret,
+};
 use crate::types::{SIMD_TYPES, ScalarType, VecType, type_imports};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -92,7 +95,8 @@ fn mk_simd_impl() -> TokenStream {
         for (method, sig) in ops_for_type(vec_ty, true) {
             let b1 = (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
                 || vec_ty.n_bits() > 256;
-            let b2 = !matches!(method, "load_interleaved_128") && !matches!(method, "store_interleaved_128");
+            let b2 = !matches!(method, "load_interleaved_128")
+                && !matches!(method, "store_interleaved_128");
 
             if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
@@ -343,7 +347,7 @@ fn mk_simd_impl() -> TokenStream {
                     let items = interleave_indices(len, count as usize, |idx| quote! { a[#idx] });
 
                     let arg = store_interleaved_arg_ty(block_size, count, vec_ty);
-                    
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {
@@ -384,18 +388,17 @@ fn mk_simd_impl() -> TokenStream {
     }
 }
 
-fn interleave_indices(len: usize, count: usize, func: impl FnMut(usize) -> TokenStream ) -> TokenStream {
+fn interleave_indices(
+    len: usize,
+    count: usize,
+    func: impl FnMut(usize) -> TokenStream,
+) -> TokenStream {
     let indices = {
         let indices = (0..len).collect::<Vec<_>>();
         interleave(&indices, len / count as usize)
     };
 
-    make_list(
-        indices
-            .into_iter()
-            .map(func)
-            .collect::<Vec<_>>(),
-    )
+    make_list(indices.into_iter().map(func).collect::<Vec<_>>())
 }
 
 /// Whether the second argument of the function needs to be passed by reference.
