@@ -153,9 +153,12 @@ fn mk_simd_impl() -> TokenStream {
                     let items = make_list(
                         (0..vec_ty.len)
                             .map(|idx| {
-                                let b = if fallback::translate_op(method, vec_ty.scalar == ScalarType::Float)
-                                    .map(rhs_reference)
-                                    .unwrap_or(true)
+                                let b = if fallback::translate_op(
+                                    method,
+                                    vec_ty.scalar == ScalarType::Float,
+                                )
+                                .map(rhs_reference)
+                                .unwrap_or(true)
                                 {
                                     quote! { &b[#idx] }
                                 } else {
