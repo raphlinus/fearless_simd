@@ -339,11 +339,15 @@ fn mk_simd_impl() -> TokenStream {
                     }
                 }
                 OpSig::StoreInterleaved(block_size, count) => {
+                    let len = (block_size * count) as usize / vec_ty.scalar_bits;
+                    let items = interleave_indices(len, count as usize, |idx| quote! { a[#idx] });
+
                     let arg = store_interleaved_arg_ty(block_size, count, vec_ty);
+                    
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {
-                            todo!()
+                            *dest = #items;
                         }
                     }
                 }
