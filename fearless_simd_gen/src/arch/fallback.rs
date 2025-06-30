@@ -6,7 +6,7 @@ use crate::types::{ScalarType, VecType};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
 
-pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
+pub(crate) fn translate_op(op: &str, is_float: bool) -> Option<&'static str> {
     Some(match op {
         "abs" => "abs",
         "copysign" => "copysign",
@@ -16,7 +16,7 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "trunc" => "trunc",
         "sqrt" => "sqrt",
         "add" => "add",
-        "sub" => "sub",
+        "sub" => if is_float { "sub" } else { "wrapping_sub" },
         "mul" => "mul",
         "div" => "div",
         "simd_eq" => "eq",
@@ -34,7 +34,6 @@ pub(crate) fn translate_op(op: &str) -> Option<&'static str> {
         "min" => "min",
         "max_precise" => "max",
         "min_precise" => "min",
-        "wrapping_sub" => "wrapping_sub",
         _ => return None,
     })
 }
@@ -61,7 +60,7 @@ impl Arch for Fallback {
     }
 
     fn expr(&self, op: &str, ty: &VecType, args: &[TokenStream]) -> TokenStream {
-        if let Some(translated) = translate_op(op) {
+        if let Some(translated) = translate_op(op, ty.scalar == ScalarType::Float) {
             let intrinsic = simple_intrinsic(translated, ty);
             quote! { #intrinsic ( #( #args ),* ) }
         } else {

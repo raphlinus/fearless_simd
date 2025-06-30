@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 use crate::arch::fallback::Fallback;
-use crate::arch::neon::simple_intrinsic;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
 use crate::ops::{
@@ -154,7 +153,7 @@ fn mk_simd_impl() -> TokenStream {
                     let items = make_list(
                         (0..vec_ty.len)
                             .map(|idx| {
-                                let b = if fallback::translate_op(method)
+                                let b = if fallback::translate_op(method, vec_ty.scalar == ScalarType::Float)
                                     .map(rhs_reference)
                                     .unwrap_or(true)
                                 {
