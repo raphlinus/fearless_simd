@@ -108,6 +108,19 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                 }
                             }
                         }
+                        "max_precise" | "min_precise" => {
+                            // For `max_precise` and `min_precise` the arguments are switched such
+                            // that `max(NaN, x)` and `min(NaN, x)` result in `x`. This matches
+                            // `_mm_max_ps` and `_mm_min_ps` semantics on x86.
+                            let swapped_args = [quote! { b.into() }, quote! { a.into() }];
+                            let expr: TokenStream = Wasm.expr(method, vec_ty, &swapped_args);
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                                    #expr.simd_into(self)
+                                }
+                            }
+                        }
                         _ => {
                             let expr = Wasm.expr(method, vec_ty, &args);
                             quote! {

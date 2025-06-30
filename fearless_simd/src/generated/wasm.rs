@@ -113,7 +113,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn max_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        f32x4_max(a.into(), b.into()).simd_into(self)
+        f32x4_pmax(b.into(), a.into()).simd_into(self)
     }
     #[inline(always)]
     fn min_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
@@ -121,7 +121,7 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn min_precise_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        f32x4_min(a.into(), b.into()).simd_into(self)
+        f32x4_pmin(b.into(), a.into()).simd_into(self)
     }
     #[inline(always)]
     fn madd_f32x4(self, a: f32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
