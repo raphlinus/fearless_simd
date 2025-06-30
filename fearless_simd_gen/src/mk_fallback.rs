@@ -4,7 +4,9 @@
 use crate::arch::fallback::Fallback;
 use crate::arch::{Arch, fallback};
 use crate::generic::{generic_combine, generic_op, generic_split};
-use crate::ops::{OpSig, TyFlavor, ops_for_type, reinterpret_ty, valid_reinterpret};
+use crate::ops::{
+    OpSig, TyFlavor, load_interleaved_arg_ty, ops_for_type, reinterpret_ty, valid_reinterpret,
+};
 use crate::types::{SIMD_TYPES, ScalarType, VecType, type_imports};
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -38,6 +40,7 @@ pub fn mk_fallback_impl() -> TokenStream {
             fn floor(self) -> f32;
             fn fract(self) -> f32;
             fn sqrt(self) -> f32;
+            fn trunc(self) -> f32;
         }
 
         #[cfg(all(feature = "libm", not(feature = "std")))]
@@ -52,7 +55,11 @@ pub fn mk_fallback_impl() -> TokenStream {
             }
             #[inline(always)]
             fn fract(self) -> f32 {
-                self - libm::truncf(self)
+                self - self.trunc()
+            }
+            #[inline(always)]
+            fn trunc(self) -> f32 {
+                libm::truncf(self)
             }
         }
 
@@ -85,9 +92,11 @@ fn mk_simd_impl() -> TokenStream {
         let ty_name = vec_ty.rust_name();
         let ty = vec_ty.rust();
         for (method, sig) in ops_for_type(vec_ty, true) {
-            if (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
-                || vec_ty.n_bits() > 256
-            {
+            let b1 = (vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow"))
+                || vec_ty.n_bits() > 256;
+            let b2 = !matches!(method, "load_interleaved_128");
+
+            if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
                 continue;
             }
@@ -144,9 +153,12 @@ fn mk_simd_impl() -> TokenStream {
                     let items = make_list(
                         (0..vec_ty.len)
                             .map(|idx| {
-                                let b = if fallback::translate_op(method)
-                                    .map(rhs_reference)
-                                    .unwrap_or(true)
+                                let b = if fallback::translate_op(
+                                    method,
+                                    vec_ty.scalar == ScalarType::Float,
+                                )
+                                .map(rhs_reference)
+                                .unwrap_or(true)
                                 {
                                     quote! { &b[#idx] }
                                 } else {
@@ -315,6 +327,30 @@ fn mk_simd_impl() -> TokenStream {
                         quote! {}
                     }
                 }
+                OpSig::LoadInterleaved(block_size, count) => {
+                    let len = (block_size * count) as usize / vec_ty.scalar_bits;
+                    let indices = {
+                        let indices = (0..len).collect::<Vec<_>>();
+                        interleave(&indices, len / count as usize)
+                    };
+
+                    let items = make_list(
+                        indices
+                            .into_iter()
+                            .map(|idx| {
+                                quote! { src[#idx] }
+                            })
+                            .collect::<Vec<_>>(),
+                    );
+                    let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, #arg) -> #ret_ty {
+                            #items.simd_into(self)
+                        }
+                    }
+                }
             };
             methods.push(method);
         }
@@ -350,9 +386,21 @@ fn mk_simd_impl() -> TokenStream {
 
 /// Whether the second argument of the function needs to be passed by reference.
 fn rhs_reference(method: &str) -> bool {
-    !matches!(method, "copysign" | "min" | "max")
+    !matches!(method, "copysign" | "min" | "max" | "wrapping_sub")
 }
 
 fn make_list(items: Vec<TokenStream>) -> TokenStream {
     quote!([#( #items, )*])
+}
+
+fn interleave(input: &[usize], width: usize) -> Vec<usize> {
+    let height = input.len() / width;
+
+    let mut output = Vec::with_capacity(input.len());
+    for col in 0..width {
+        for row in 0..height {
+            output.push(input[row * width + col]);
+        }
+    }
+    output
 }

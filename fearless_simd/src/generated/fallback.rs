@@ -12,6 +12,7 @@ trait FloatExt {
     fn floor(self) -> f32;
     fn fract(self) -> f32;
     fn sqrt(self) -> f32;
+    fn trunc(self) -> f32;
 }
 #[cfg(all(feature = "libm", not(feature = "std")))]
 impl FloatExt for f32 {
@@ -25,7 +26,11 @@ impl FloatExt for f32 {
     }
     #[inline(always)]
     fn fract(self) -> f32 {
-        self - libm::truncf(self)
+        self - self.trunc()
+    }
+    #[inline(always)]
+    fn trunc(self) -> f32 {
+        libm::truncf(self)
     }
 }
 /// The SIMD token for the "fallback" level.
@@ -272,6 +277,16 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
+    fn trunc_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
+        [
+            f32::trunc(a[0usize]),
+            f32::trunc(a[1usize]),
+            f32::trunc(a[2usize]),
+            f32::trunc(a[3usize]),
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
         [
             if a[0usize] != 0 { b[0usize] } else { c[0usize] },
@@ -349,22 +364,22 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
         [
-            i8::sub(a[0usize], &b[0usize]),
-            i8::sub(a[1usize], &b[1usize]),
-            i8::sub(a[2usize], &b[2usize]),
-            i8::sub(a[3usize], &b[3usize]),
-            i8::sub(a[4usize], &b[4usize]),
-            i8::sub(a[5usize], &b[5usize]),
-            i8::sub(a[6usize], &b[6usize]),
-            i8::sub(a[7usize], &b[7usize]),
-            i8::sub(a[8usize], &b[8usize]),
-            i8::sub(a[9usize], &b[9usize]),
-            i8::sub(a[10usize], &b[10usize]),
-            i8::sub(a[11usize], &b[11usize]),
-            i8::sub(a[12usize], &b[12usize]),
-            i8::sub(a[13usize], &b[13usize]),
-            i8::sub(a[14usize], &b[14usize]),
-            i8::sub(a[15usize], &b[15usize]),
+            i8::wrapping_sub(a[0usize], b[0usize]),
+            i8::wrapping_sub(a[1usize], b[1usize]),
+            i8::wrapping_sub(a[2usize], b[2usize]),
+            i8::wrapping_sub(a[3usize], b[3usize]),
+            i8::wrapping_sub(a[4usize], b[4usize]),
+            i8::wrapping_sub(a[5usize], b[5usize]),
+            i8::wrapping_sub(a[6usize], b[6usize]),
+            i8::wrapping_sub(a[7usize], b[7usize]),
+            i8::wrapping_sub(a[8usize], b[8usize]),
+            i8::wrapping_sub(a[9usize], b[9usize]),
+            i8::wrapping_sub(a[10usize], b[10usize]),
+            i8::wrapping_sub(a[11usize], b[11usize]),
+            i8::wrapping_sub(a[12usize], b[12usize]),
+            i8::wrapping_sub(a[13usize], b[13usize]),
+            i8::wrapping_sub(a[14usize], b[14usize]),
+            i8::wrapping_sub(a[15usize], b[15usize]),
         ]
         .simd_into(self)
     }
@@ -760,22 +775,22 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
         [
-            u8::sub(a[0usize], &b[0usize]),
-            u8::sub(a[1usize], &b[1usize]),
-            u8::sub(a[2usize], &b[2usize]),
-            u8::sub(a[3usize], &b[3usize]),
-            u8::sub(a[4usize], &b[4usize]),
-            u8::sub(a[5usize], &b[5usize]),
-            u8::sub(a[6usize], &b[6usize]),
-            u8::sub(a[7usize], &b[7usize]),
-            u8::sub(a[8usize], &b[8usize]),
-            u8::sub(a[9usize], &b[9usize]),
-            u8::sub(a[10usize], &b[10usize]),
-            u8::sub(a[11usize], &b[11usize]),
-            u8::sub(a[12usize], &b[12usize]),
-            u8::sub(a[13usize], &b[13usize]),
-            u8::sub(a[14usize], &b[14usize]),
-            u8::sub(a[15usize], &b[15usize]),
+            u8::wrapping_sub(a[0usize], b[0usize]),
+            u8::wrapping_sub(a[1usize], b[1usize]),
+            u8::wrapping_sub(a[2usize], b[2usize]),
+            u8::wrapping_sub(a[3usize], b[3usize]),
+            u8::wrapping_sub(a[4usize], b[4usize]),
+            u8::wrapping_sub(a[5usize], b[5usize]),
+            u8::wrapping_sub(a[6usize], b[6usize]),
+            u8::wrapping_sub(a[7usize], b[7usize]),
+            u8::wrapping_sub(a[8usize], b[8usize]),
+            u8::wrapping_sub(a[9usize], b[9usize]),
+            u8::wrapping_sub(a[10usize], b[10usize]),
+            u8::wrapping_sub(a[11usize], b[11usize]),
+            u8::wrapping_sub(a[12usize], b[12usize]),
+            u8::wrapping_sub(a[13usize], b[13usize]),
+            u8::wrapping_sub(a[14usize], b[14usize]),
+            u8::wrapping_sub(a[15usize], b[15usize]),
         ]
         .simd_into(self)
     }
@@ -1342,14 +1357,14 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
         [
-            i16::sub(a[0usize], &b[0usize]),
-            i16::sub(a[1usize], &b[1usize]),
-            i16::sub(a[2usize], &b[2usize]),
-            i16::sub(a[3usize], &b[3usize]),
-            i16::sub(a[4usize], &b[4usize]),
-            i16::sub(a[5usize], &b[5usize]),
-            i16::sub(a[6usize], &b[6usize]),
-            i16::sub(a[7usize], &b[7usize]),
+            i16::wrapping_sub(a[0usize], b[0usize]),
+            i16::wrapping_sub(a[1usize], b[1usize]),
+            i16::wrapping_sub(a[2usize], b[2usize]),
+            i16::wrapping_sub(a[3usize], b[3usize]),
+            i16::wrapping_sub(a[4usize], b[4usize]),
+            i16::wrapping_sub(a[5usize], b[5usize]),
+            i16::wrapping_sub(a[6usize], b[6usize]),
+            i16::wrapping_sub(a[7usize], b[7usize]),
         ]
         .simd_into(self)
     }
@@ -1598,14 +1613,14 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
         [
-            u16::sub(a[0usize], &b[0usize]),
-            u16::sub(a[1usize], &b[1usize]),
-            u16::sub(a[2usize], &b[2usize]),
-            u16::sub(a[3usize], &b[3usize]),
-            u16::sub(a[4usize], &b[4usize]),
-            u16::sub(a[5usize], &b[5usize]),
-            u16::sub(a[6usize], &b[6usize]),
-            u16::sub(a[7usize], &b[7usize]),
+            u16::wrapping_sub(a[0usize], b[0usize]),
+            u16::wrapping_sub(a[1usize], b[1usize]),
+            u16::wrapping_sub(a[2usize], b[2usize]),
+            u16::wrapping_sub(a[3usize], b[3usize]),
+            u16::wrapping_sub(a[4usize], b[4usize]),
+            u16::wrapping_sub(a[5usize], b[5usize]),
+            u16::wrapping_sub(a[6usize], b[6usize]),
+            u16::wrapping_sub(a[7usize], b[7usize]),
         ]
         .simd_into(self)
     }
@@ -1946,10 +1961,10 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
         [
-            i32::sub(a[0usize], &b[0usize]),
-            i32::sub(a[1usize], &b[1usize]),
-            i32::sub(a[2usize], &b[2usize]),
-            i32::sub(a[3usize], &b[3usize]),
+            i32::wrapping_sub(a[0usize], b[0usize]),
+            i32::wrapping_sub(a[1usize], b[1usize]),
+            i32::wrapping_sub(a[2usize], b[2usize]),
+            i32::wrapping_sub(a[3usize], b[3usize]),
         ]
         .simd_into(self)
     }
@@ -2132,10 +2147,10 @@ impl Simd for Fallback {
     #[inline(always)]
     fn sub_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
         [
-            u32::sub(a[0usize], &b[0usize]),
-            u32::sub(a[1usize], &b[1usize]),
-            u32::sub(a[2usize], &b[2usize]),
-            u32::sub(a[3usize], &b[3usize]),
+            u32::wrapping_sub(a[0usize], b[0usize]),
+            u32::wrapping_sub(a[1usize], b[1usize]),
+            u32::wrapping_sub(a[2usize], b[2usize]),
+            u32::wrapping_sub(a[3usize], b[3usize]),
         ]
         .simd_into(self)
     }
@@ -2512,6 +2527,11 @@ impl Simd for Fallback {
     fn fract_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
         let (a0, a1) = self.split_f32x8(a);
         self.combine_f32x4(self.fract_f32x4(a0), self.fract_f32x4(a1))
+    }
+    #[inline(always)]
+    fn trunc_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f32x4(self.trunc_f32x4(a0), self.trunc_f32x4(a1))
     }
     #[inline(always)]
     fn select_f32x8(self, a: mask32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self> {
@@ -3693,6 +3713,11 @@ impl Simd for Fallback {
         self.combine_f32x8(self.fract_f32x8(a0), self.fract_f32x8(a1))
     }
     #[inline(always)]
+    fn trunc_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_f32x8(self.trunc_f32x8(a0), self.trunc_f32x8(a1))
+    }
+    #[inline(always)]
     fn select_f32x16(self, a: mask32x16<Self>, b: f32x16<Self>, c: f32x16<Self>) -> f32x16<Self> {
         let (a0, a1) = self.split_mask32x16(a);
         let (b0, b1) = self.split_f32x16(b);
@@ -3956,6 +3981,76 @@ impl Simd for Fallback {
         b0.copy_from_slice(&a.val[0..32usize]);
         b1.copy_from_slice(&a.val[32usize..64usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u8x64(self, src: &[u8; 64usize]) -> u8x64<Self> {
+        [
+            src[0usize],
+            src[16usize],
+            src[32usize],
+            src[48usize],
+            src[1usize],
+            src[17usize],
+            src[33usize],
+            src[49usize],
+            src[2usize],
+            src[18usize],
+            src[34usize],
+            src[50usize],
+            src[3usize],
+            src[19usize],
+            src[35usize],
+            src[51usize],
+            src[4usize],
+            src[20usize],
+            src[36usize],
+            src[52usize],
+            src[5usize],
+            src[21usize],
+            src[37usize],
+            src[53usize],
+            src[6usize],
+            src[22usize],
+            src[38usize],
+            src[54usize],
+            src[7usize],
+            src[23usize],
+            src[39usize],
+            src[55usize],
+            src[8usize],
+            src[24usize],
+            src[40usize],
+            src[56usize],
+            src[9usize],
+            src[25usize],
+            src[41usize],
+            src[57usize],
+            src[10usize],
+            src[26usize],
+            src[42usize],
+            src[58usize],
+            src[11usize],
+            src[27usize],
+            src[43usize],
+            src[59usize],
+            src[12usize],
+            src[28usize],
+            src[44usize],
+            src[60usize],
+            src[13usize],
+            src[29usize],
+            src[45usize],
+            src[61usize],
+            src[14usize],
+            src[30usize],
+            src[46usize],
+            src[62usize],
+            src[15usize],
+            src[31usize],
+            src[47usize],
+            src[63usize],
+        ]
+        .simd_into(self)
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -4267,6 +4362,44 @@ impl Simd for Fallback {
         b0.copy_from_slice(&a.val[0..16usize]);
         b1.copy_from_slice(&a.val[16usize..32usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u16x32(self, src: &[u16; 32usize]) -> u16x32<Self> {
+        [
+            src[0usize],
+            src[8usize],
+            src[16usize],
+            src[24usize],
+            src[1usize],
+            src[9usize],
+            src[17usize],
+            src[25usize],
+            src[2usize],
+            src[10usize],
+            src[18usize],
+            src[26usize],
+            src[3usize],
+            src[11usize],
+            src[19usize],
+            src[27usize],
+            src[4usize],
+            src[12usize],
+            src[20usize],
+            src[28usize],
+            src[5usize],
+            src[13usize],
+            src[21usize],
+            src[29usize],
+            src[6usize],
+            src[14usize],
+            src[22usize],
+            src[30usize],
+            src[7usize],
+            src[15usize],
+            src[23usize],
+            src[31usize],
+        ]
+        .simd_into(self)
     }
     #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
@@ -4585,6 +4718,28 @@ impl Simd for Fallback {
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u32x16(self, src: &[u32; 16usize]) -> u32x16<Self> {
+        [
+            src[0usize],
+            src[4usize],
+            src[8usize],
+            src[12usize],
+            src[1usize],
+            src[5usize],
+            src[9usize],
+            src[13usize],
+            src[2usize],
+            src[6usize],
+            src[10usize],
+            src[14usize],
+            src[3usize],
+            src[7usize],
+            src[11usize],
+            src[15usize],
+        ]
+        .simd_into(self)
     }
     #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {

@@ -22,7 +22,11 @@ pub enum OpSig {
     WidenNarrow(VecType),
     // TODO: Make clear that this is right-shift
     Shift,
-    // TODO: fma
+    // First argument is the base block size (i.e. 128), second argument
+    // is how many blocks. For example, `LoadInterleaved(128, 4)` would correspond to the
+    // NEON instructions `vld4q_f32`, while `LoadInterleaved(64, 4)` would correspond to
+    // `vld4_f32`.
+    LoadInterleaved(u16, u16), // TODO: fma
 }
 
 pub const FLOAT_OPS: &[(&str, OpSig)] = &[
@@ -50,6 +54,7 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("msub", OpSig::Ternary),
     ("floor", OpSig::Unary),
     ("fract", OpSig::Unary),
+    ("trunc", OpSig::Unary),
     // TODO: simd_ne, but this requires additional implementation work on Neon
     ("select", OpSig::Select),
 ];
@@ -105,6 +110,10 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
         ops.push(("split", OpSig::Split));
     }
 
+    if ty.scalar == ScalarType::Unsigned && ty.n_bits() == 512 {
+        ops.push(("load_interleaved_128", OpSig::LoadInterleaved(128, 4)));
+    }
+
     if cvt {
         if matches!(ty.scalar, ScalarType::Unsigned) {
             if let Some(widened) = ty.widened() {
@@ -147,6 +156,10 @@ impl OpSig {
                 let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
                 quote! { self, val: #scalar }
             }
+            OpSig::LoadInterleaved(block_size, i) => {
+                let ty = load_interleaved_arg_ty(*block_size, *i, vec_ty);
+                quote! { self, #ty }
+            }
             OpSig::Unary
             | OpSig::Split
             | OpSig::Cvt(_, _)
@@ -170,7 +183,7 @@ impl OpSig {
 
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
-            OpSig::Splat => return None,
+            OpSig::Splat | OpSig::LoadInterleaved(_, _) => return None,
             OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                 quote! { self }
             }
@@ -203,7 +216,8 @@ impl OpSig {
             | OpSig::Binary
             | OpSig::Select
             | OpSig::Ternary
-            | OpSig::Shift => {
+            | OpSig::Shift
+            | OpSig::LoadInterleaved(_, _) => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -239,6 +253,12 @@ impl OpSig {
             }
         }
     }
+}
+
+pub(crate) fn load_interleaved_arg_ty(block_size: u16, i: u16, vec_ty: &VecType) -> TokenStream {
+    let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
+    let len = (block_size * i) as usize / vec_ty.scalar_bits;
+    quote! { src: &[#scalar; #len] }
 }
 
 pub(crate) fn reinterpret_ty(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> VecType {

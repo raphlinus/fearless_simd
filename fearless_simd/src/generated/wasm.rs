@@ -140,6 +140,10 @@ impl Simd for WasmSimd128 {
         todo!()
     }
     #[inline(always)]
+    fn trunc_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
+        todo!()
+    }
+    #[inline(always)]
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
         todo!()
     }
@@ -947,6 +951,11 @@ impl Simd for WasmSimd128 {
     fn fract_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
         let (a0, a1) = self.split_f32x8(a);
         self.combine_f32x4(self.fract_f32x4(a0), self.fract_f32x4(a1))
+    }
+    #[inline(always)]
+    fn trunc_f32x8(self, a: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f32x4(self.trunc_f32x4(a0), self.trunc_f32x4(a1))
     }
     #[inline(always)]
     fn select_f32x8(self, a: mask32x8<Self>, b: f32x8<Self>, c: f32x8<Self>) -> f32x8<Self> {
@@ -2110,6 +2119,11 @@ impl Simd for WasmSimd128 {
         self.combine_f32x8(self.fract_f32x8(a0), self.fract_f32x8(a1))
     }
     #[inline(always)]
+    fn trunc_f32x16(self, a: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_f32x8(self.trunc_f32x8(a0), self.trunc_f32x8(a1))
+    }
+    #[inline(always)]
     fn select_f32x16(self, a: mask32x16<Self>, b: f32x16<Self>, c: f32x16<Self>) -> f32x16<Self> {
         let (a0, a1) = self.split_mask32x16(a);
         let (b0, b1) = self.split_f32x16(b);
@@ -2373,6 +2387,10 @@ impl Simd for WasmSimd128 {
         b0.copy_from_slice(&a.val[0..32usize]);
         b1.copy_from_slice(&a.val[32usize..64usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u8x64(self, src: &[u8; 64usize]) -> u8x64<Self> {
+        todo!()
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -2684,6 +2702,10 @@ impl Simd for WasmSimd128 {
         b0.copy_from_slice(&a.val[0..16usize]);
         b1.copy_from_slice(&a.val[16usize..32usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u16x32(self, src: &[u16; 32usize]) -> u16x32<Self> {
+        todo!()
     }
     #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
@@ -3001,6 +3023,10 @@ impl Simd for WasmSimd128 {
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_u32x16(self, src: &[u32; 16usize]) -> u32x16<Self> {
+        todo!()
     }
     #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {
