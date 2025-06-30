@@ -5,7 +5,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
 
-use crate::ops::load_interleaved_arg_ty;
+use crate::ops::{load_interleaved_arg_ty, store_interleaved_arg_ty};
 use crate::{
     arch::{Arch, wasm::Wasm},
     generic::{generic_combine, generic_op, generic_split},
@@ -42,7 +42,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
 
         for (method, sig) in ops_for_type(vec_ty, true) {
             let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow");
-            let b2 = !matches!(method, "load_interleaved_128");
+            let b2 = !matches!(method, "load_interleaved_128") && !matches!(method, "store_interleaved_128");
 
             if b1 && b2 {
                 methods.push(generic_op(method, sig, vec_ty));
@@ -239,6 +239,15 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 OpSig::LoadInterleaved(block_size, count) => {
                     let arg = load_interleaved_arg_ty(block_size, count, vec_ty);
 
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, #arg) -> #ret_ty {
+                            todo!()
+                        }
+                    }
+                }
+                OpSig::StoreInterleaved(block_size, count) => {
+                    let arg = store_interleaved_arg_ty(block_size, count, vec_ty);
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {

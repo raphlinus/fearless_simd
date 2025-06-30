@@ -26,7 +26,8 @@ pub enum OpSig {
     // is how many blocks. For example, `LoadInterleaved(128, 4)` would correspond to the
     // NEON instructions `vld4q_f32`, while `LoadInterleaved(64, 4)` would correspond to
     // `vld4_f32`.
-    LoadInterleaved(u16, u16), // TODO: fma
+    LoadInterleaved(u16, u16), 
+    StoreInterleaved(u16, u16), // TODO: fma
 }
 
 pub const FLOAT_OPS: &[(&str, OpSig)] = &[
@@ -113,6 +114,10 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
     if ty.scalar == ScalarType::Unsigned && ty.n_bits() == 512 {
         ops.push(("load_interleaved_128", OpSig::LoadInterleaved(128, 4)));
     }
+    
+    if matches!(ty.scalar, ScalarType::Unsigned | ScalarType::Float) && ty.n_bits() == 512 {
+        ops.push(("store_interleaved_128", OpSig::StoreInterleaved(128, 4)));
+    }
 
     if cvt {
         if matches!(ty.scalar, ScalarType::Unsigned) {
@@ -161,6 +166,10 @@ impl OpSig {
                 let ty = load_interleaved_arg_ty(*block_size, *i, vec_ty);
                 quote! { self, #ty }
             }
+            OpSig::StoreInterleaved(block_size, i) => {
+                let ty = store_interleaved_arg_ty(*block_size, *i, vec_ty);
+                quote! { self, #ty }
+            }
             OpSig::Unary
             | OpSig::Split
             | OpSig::Cvt(_, _)
@@ -184,7 +193,7 @@ impl OpSig {
 
     pub fn vec_trait_args(&self) -> Option<TokenStream> {
         let args = match self {
-            OpSig::Splat | OpSig::LoadInterleaved(_, _) => return None,
+            OpSig::Splat | OpSig::LoadInterleaved(_, _) | OpSig::StoreInterleaved(_, _) => return None,
             OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                 quote! { self }
             }
@@ -218,7 +227,7 @@ impl OpSig {
             | OpSig::Select
             | OpSig::Ternary
             | OpSig::Shift
-            | OpSig::LoadInterleaved(_, _) => {
+            | OpSig::LoadInterleaved(_, _)  => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -252,6 +261,7 @@ impl OpSig {
                 let result = t.rust();
                 quote! { #result #quant }
             }
+            | OpSig::StoreInterleaved(_, _) => quote! {()}
         }
     }
 }
@@ -260,6 +270,12 @@ pub(crate) fn load_interleaved_arg_ty(block_size: u16, i: u16, vec_ty: &VecType)
     let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
     let len = (block_size * i) as usize / vec_ty.scalar_bits;
     quote! { src: &[#scalar; #len] }
+}
+
+pub(crate) fn store_interleaved_arg_ty(block_size: u16, i: u16, vec_ty: &VecType) -> TokenStream {
+    let scalar = vec_ty.scalar.rust(vec_ty.scalar_bits);
+    let len = (block_size * i) as usize / vec_ty.scalar_bits;
+    quote! { dest: &mut [#scalar; #len] }
 }
 
 pub(crate) fn reinterpret_ty(src: &VecType, dst_scalar: ScalarType, dst_bits: usize) -> VecType {

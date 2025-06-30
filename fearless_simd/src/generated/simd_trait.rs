@@ -449,6 +449,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn trunc_f32x16(self, a: f32x16<Self>) -> f32x16<Self>;
     fn select_f32x16(self, a: mask32x16<Self>, b: f32x16<Self>, c: f32x16<Self>) -> f32x16<Self>;
     fn split_f32x16(self, a: f32x16<Self>) -> (f32x8<Self>, f32x8<Self>);
+    fn store_interleaved_128_f32x16(self, dest: &mut [f32; 16usize]) -> ();
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self>;
     fn splat_i8x64(self, val: i8) -> i8x64<Self>;
     fn not_i8x64(self, a: i8x64<Self>) -> i8x64<Self>;
@@ -492,6 +493,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn max_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self>;
     fn split_u8x64(self, a: u8x64<Self>) -> (u8x32<Self>, u8x32<Self>);
     fn load_interleaved_128_u8x64(self, src: &[u8; 64usize]) -> u8x64<Self>;
+    fn store_interleaved_128_u8x64(self, dest: &mut [u8; 64usize]) -> ();
     fn splat_mask8x64(self, val: i8) -> mask8x64<Self>;
     fn not_mask8x64(self, a: mask8x64<Self>) -> mask8x64<Self>;
     fn and_mask8x64(self, a: mask8x64<Self>, b: mask8x64<Self>) -> mask8x64<Self>;
@@ -547,6 +549,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn max_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self>;
     fn split_u16x32(self, a: u16x32<Self>) -> (u16x16<Self>, u16x16<Self>);
     fn load_interleaved_128_u16x32(self, src: &[u16; 32usize]) -> u16x32<Self>;
+    fn store_interleaved_128_u16x32(self, dest: &mut [u16; 32usize]) -> ();
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self>;
     fn reinterpret_u8_u16x32(self, a: u16x32<Self>) -> u8x64<Self>;
     fn splat_mask16x32(self, val: i16) -> mask16x32<Self>;
@@ -604,6 +607,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn max_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self>;
     fn split_u32x16(self, a: u32x16<Self>) -> (u32x8<Self>, u32x8<Self>);
     fn load_interleaved_128_u32x16(self, src: &[u32; 16usize]) -> u32x16<Self>;
+    fn store_interleaved_128_u32x16(self, dest: &mut [u32; 16usize]) -> ();
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self>;
     fn cvt_f32_u32x16(self, a: u32x16<Self>) -> f32x16<Self>;
     fn splat_mask32x16(self, val: i32) -> mask32x16<Self>;
