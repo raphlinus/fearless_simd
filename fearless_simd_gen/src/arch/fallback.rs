@@ -16,7 +16,13 @@ pub(crate) fn translate_op(op: &str, is_float: bool) -> Option<&'static str> {
         "trunc" => "trunc",
         "sqrt" => "sqrt",
         "add" => "add",
-        "sub" => if is_float { "sub" } else { "wrapping_sub" },
+        "sub" => {
+            if is_float {
+                "sub"
+            } else {
+                "wrapping_sub"
+            }
+        }
         "mul" => "mul",
         "div" => "div",
         "simd_eq" => "eq",
