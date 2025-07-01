@@ -1,9 +1,9 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#[cfg(target_arch = "wasm32")]
+#![cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+
 use fearless_simd::*;
-#[cfg(target_arch = "wasm32")]
 use wasm_bindgen_test::*;
 
 /// `test_wasm_simd_parity` enforces that the fallback level and +simd128 levels output the same
@@ -14,7 +14,6 @@ macro_rules! test_wasm_simd_parity {
             |$s:ident| -> $ret_type:ty $body:block
         }
     ) => {
-        #[cfg(target_arch = "wasm32")]
         #[wasm_bindgen_test]
         fn $test_name() {
             fn test_impl<S: Simd>($s: S) -> $ret_type $body
@@ -223,6 +222,50 @@ test_wasm_simd_parity! {
             let b = f32x4::from_slice(s, &[1.0, -2.0, 7.0, 3.0]);
             a.min_precise(b).into()
         }
+    }
+}
+
+#[wasm_bindgen_test]
+fn max_precise_f32x4_with_nan() {
+    fn test_impl<S: Simd>(s: S) -> [f32; 4] {
+        let a = f32x4::from_slice(s, &[f32::NAN, -3.0, f32::INFINITY, 0.5]);
+        let b = f32x4::from_slice(s, &[1.0, f32::NAN, 7.0, f32::NEG_INFINITY]);
+        a.max_precise(b).into()
+    }
+
+    simd_dispatch!(test(level) -> [f32; 4] = test_impl);
+    let wasm_result = test(Level::WasmSimd128(wasm32::WasmSimd128::new_unchecked()));
+
+    // Note: f32::NAN != f32::NAN hence we transmute to compare the bit pattern. In this case NaN
+    // bit pattern is preserved.
+    unsafe {
+        assert_eq!(
+            std::mem::transmute::<[f32; 4], [u32; 4]>(wasm_result),
+            std::mem::transmute::<[f32; 4], [u32; 4]>([1., f32::NAN, f32::INFINITY, 0.5]),
+            "Wasm did not match expected result."
+        );
+    }
+}
+
+#[wasm_bindgen_test]
+fn min_precise_f32x4_with_nan() {
+    fn test_impl<S: Simd>(s: S) -> [f32; 4] {
+        let a = f32x4::from_slice(s, &[f32::NAN, -3.0, f32::INFINITY, 0.5]);
+        let b = f32x4::from_slice(s, &[1.0, f32::NAN, 7.0, f32::NEG_INFINITY]);
+        a.min_precise(b).into()
+    }
+
+    simd_dispatch!(test(level) -> [f32; 4] = test_impl);
+    let wasm_result = test(Level::WasmSimd128(wasm32::WasmSimd128::new_unchecked()));
+
+    // Note: f32::NAN != f32::NAN hence we transmute to compare the bit pattern. In this case NaN
+    // bit pattern is preserved.
+    unsafe {
+        assert_eq!(
+            std::mem::transmute::<[f32; 4], [u32; 4]>(wasm_result),
+            std::mem::transmute::<[f32; 4], [u32; 4]>([1., f32::NAN, 7., f32::NEG_INFINITY]),
+            "Wasm did not match expected result."
+        );
     }
 }
 

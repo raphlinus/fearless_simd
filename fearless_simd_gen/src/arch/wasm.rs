@@ -28,12 +28,10 @@ fn translate_op(op: &str) -> Option<&'static str> {
         "and" => "and",
         "or" => "or",
         "xor" => "xor",
-        // TODO: With target-feature "relaxed-simd" this could be "relaxed_max".
         "max" => "max",
-        // TODO: With target-feature "relaxed-simd" this could be "relaxed_min".
         "min" => "min",
-        "max_precise" => "max",
-        "min_precise" => "min",
+        "max_precise" => "pmax",
+        "min_precise" => "pmin",
         "splat" => "splat",
         // TODO: Only target-feature "relaxed-simd" has "relaxed_madd".
         _ => return None,
