@@ -1,7 +1,7 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-#![cfg(target_arch = "wasm32")]
+#![cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
 
 use fearless_simd::*;
 use wasm_bindgen_test::*;
