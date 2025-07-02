@@ -404,3 +404,54 @@ test_wasm_simd_parity! {
         }
     }
 }
+
+// Interleave tests
+
+test_wasm_simd_parity! {
+    fn load_interleaved_128_u32x16() {
+        |s| -> [u32; 16] {
+            let data: [u32; 16] = [
+                1, 2, 3, 4,
+                10, 20, 30, 40,
+                100, 200, 300, 400,
+                1000, 2000, 3000, 4000,
+            ];
+
+            s.load_interleaved_128_u32x16(&data).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn load_interleaved_128_u16x32() {
+        |s| -> [u16; 32] {
+            let data: [u16; 32] = [
+                1,  2, 3, 4, 5, 6, 7, 8,
+                10, 20, 30, 40, 50, 60, 70, 80,
+                100, 200, 300, 400, 500, 600, 700, 800,
+                1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000,
+            ];
+
+            s.load_interleaved_128_u16x32(&data).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn load_interleaved_128_u8x64() {
+        |s| -> [u8; 64] {
+            let data: [u8; 64] = [
+                // Group a
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                // Group b
+                16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                // Group c
+                32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                // Group d
+                48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+            ];
+
+            s.load_interleaved_128_u8x64(&data).into()
+        }
+    }
+}
