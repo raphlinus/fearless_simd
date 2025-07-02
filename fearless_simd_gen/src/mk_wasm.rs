@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 use proc_macro2::{Span, TokenStream};
-use quote::quote;
+use quote::{format_ident, quote};
 use syn::Ident;
 
 use crate::ops::load_interleaved_arg_ty;
@@ -254,7 +254,20 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         _ => panic!("unsupported scalar_bits"),
                     };
 
-                    let total_elems = elems_per_vec * count as usize;
+                    let combine_method_name = |scalar_bits: usize, lane_count: usize| -> Ident {
+                        format_ident!("combine_u{}x{}", scalar_bits, lane_count)
+                    };
+
+                    let combine_method = combine_method_name(vec_ty.scalar_bits, elems_per_vec);
+                    let combine_method_2x =
+                        combine_method_name(vec_ty.scalar_bits, elems_per_vec * 2);
+
+                    let combine_code = quote! {
+                        let combined_lower = self.#combine_method(out0.simd_into(self), out1.simd_into(self));
+                        let combined_upper = self.#combine_method(out2.simd_into(self), out3.simd_into(self));
+                        self.#combine_method_2x(combined_lower, combined_upper)
+                    };
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {
@@ -277,12 +290,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                 let out2 = #shuffle_fn::<#lower_indices>(v02_upper, v13_upper);
                                 let out3 = #shuffle_fn::<#upper_indices>(v02_upper, v13_upper);
 
-                                let mut result = [0; #total_elems];
-                                unsafe { v128_store(result[0..].as_mut_ptr() as *mut v128, out0) };
-                                unsafe { v128_store(result[#elems_per_vec..].as_mut_ptr() as *mut v128, out1) };
-                                unsafe { v128_store(result[#elems_per_vec * 2..].as_mut_ptr() as *mut v128, out2) };
-                                unsafe { v128_store(result[#elems_per_vec * 3..].as_mut_ptr() as *mut v128, out3) };
-                                result.simd_into(self)
+                                #combine_code
                         }
                     }
                 }

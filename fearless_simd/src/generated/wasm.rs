@@ -2414,12 +2414,9 @@ impl Simd for WasmSimd128 {
         let out3 = u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
             v02_upper, v13_upper,
         );
-        let mut result = [0; 64usize];
-        unsafe { v128_store(result[0..].as_mut_ptr() as *mut v128, out0) };
-        unsafe { v128_store(result[16usize..].as_mut_ptr() as *mut v128, out1) };
-        unsafe { v128_store(result[16usize * 2..].as_mut_ptr() as *mut v128, out2) };
-        unsafe { v128_store(result[16usize * 3..].as_mut_ptr() as *mut v128, out3) };
-        result.simd_into(self)
+        let combined_lower = self.combine_u8x16(out0.simd_into(self), out1.simd_into(self));
+        let combined_upper = self.combine_u8x16(out2.simd_into(self), out3.simd_into(self));
+        self.combine_u8x32(combined_lower, combined_upper)
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -2746,12 +2743,9 @@ impl Simd for WasmSimd128 {
         let out1 = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v02_lower, v13_lower);
         let out2 = u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(v02_upper, v13_upper);
         let out3 = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v02_upper, v13_upper);
-        let mut result = [0; 32usize];
-        unsafe { v128_store(result[0..].as_mut_ptr() as *mut v128, out0) };
-        unsafe { v128_store(result[8usize..].as_mut_ptr() as *mut v128, out1) };
-        unsafe { v128_store(result[8usize * 2..].as_mut_ptr() as *mut v128, out2) };
-        unsafe { v128_store(result[8usize * 3..].as_mut_ptr() as *mut v128, out3) };
-        result.simd_into(self)
+        let combined_lower = self.combine_u16x8(out0.simd_into(self), out1.simd_into(self));
+        let combined_upper = self.combine_u16x8(out2.simd_into(self), out3.simd_into(self));
+        self.combine_u16x16(combined_lower, combined_upper)
     }
     #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
@@ -3084,12 +3078,9 @@ impl Simd for WasmSimd128 {
         let out1 = u32x4_shuffle::<2, 6, 3, 7>(v02_lower, v13_lower);
         let out2 = u32x4_shuffle::<0, 4, 1, 5>(v02_upper, v13_upper);
         let out3 = u32x4_shuffle::<2, 6, 3, 7>(v02_upper, v13_upper);
-        let mut result = [0; 16usize];
-        unsafe { v128_store(result[0..].as_mut_ptr() as *mut v128, out0) };
-        unsafe { v128_store(result[4usize..].as_mut_ptr() as *mut v128, out1) };
-        unsafe { v128_store(result[4usize * 2..].as_mut_ptr() as *mut v128, out2) };
-        unsafe { v128_store(result[4usize * 3..].as_mut_ptr() as *mut v128, out3) };
-        result.simd_into(self)
+        let combined_lower = self.combine_u32x4(out0.simd_into(self), out1.simd_into(self));
+        let combined_upper = self.combine_u32x4(out2.simd_into(self), out3.simd_into(self));
+        self.combine_u32x8(combined_lower, combined_upper)
     }
     #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {
