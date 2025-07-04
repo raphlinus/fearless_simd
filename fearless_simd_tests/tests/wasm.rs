@@ -279,6 +279,50 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
+    fn fract_f32x4() {
+        |s| -> [f32; 4] {
+            let a = f32x4::from_slice(s, &[1.7, -2.3, 3.9, -4.1]);
+            s.fract_f32x4(a).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn trunc_f32x4() {
+        |s| -> [f32; 4] {
+            let a = f32x4::from_slice(s, &[2.9, -3.2, 0.0, 0.5]);
+            a.trunc().into()
+        }
+    }
+}
+
+#[wasm_bindgen_test]
+fn trunc_f32x4_special_values() {
+    fn test_impl<S: Simd>(s: S) -> [f32; 4] {
+        let a = f32x4::from_slice(s, &[f32::NAN, f32::NEG_INFINITY, f32::INFINITY, -f32::NAN]);
+        a.trunc().into()
+    }
+
+    simd_dispatch!(test(level) -> [f32; 4] = test_impl);
+    let wasm_result = test(Level::WasmSimd128(wasm32::WasmSimd128::new_unchecked()));
+
+    // Note: f32::NAN != f32::NAN hence we transmute to compare the bit pattern. In this case NaN
+    // bit pattern is preserved.
+    unsafe {
+        assert_eq!(
+            std::mem::transmute::<[f32; 4], [u32; 4]>(wasm_result),
+            std::mem::transmute::<[f32; 4], [u32; 4]>([
+                f32::NAN,
+                f32::NEG_INFINITY,
+                f32::INFINITY,
+                -f32::NAN
+            ]),
+            "Wasm did not match expected result."
+        );
+    }
+}
+
+test_wasm_simd_parity! {
     fn combine_f32x4() {
         |s| -> [f32; 8] {
             let a = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
@@ -448,6 +492,148 @@ test_wasm_simd_parity! {
             ];
 
             s.load_interleaved_128_u8x64(&data).into()
+        }
+    }
+}
+
+// Zip Load and High tests
+
+test_wasm_simd_parity! {
+    fn zip_low_f32x4() {
+        |s| -> [f32; 4] {
+            let a = f32x4::from_slice(s, &[0.0, 1.0, 2.0, 3.0]);
+            let b = f32x4::from_slice(s, &[4.0, 5.0, 6.0, 7.0]);
+            s.zip_low_f32x4(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_f32x4() {
+        |s| -> [f32; 4] {
+            let a = f32x4::from_slice(s, &[0.0, 1.0, 2.0, 3.0]);
+            let b = f32x4::from_slice(s, &[4.0, 5.0, 6.0, 7.0]);
+            s.zip_high_f32x4(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_i8x16() {
+        |s| -> [i8; 16] {
+            let a = i8x16::from_slice(s, &[1, -2, 3, -4, 5, -6, 7, -8, 9, -10, 11, -12, 13, -14, 15, -16]);
+            let b = i8x16::from_slice(s, &[17, -18, 19, -20, 21, -22, 23, -24, 25, -26, 27, -28, 29, -30, 31, -32]);
+            s.zip_low_i8x16(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_i8x16() {
+        |s| -> [i8; 16] {
+            let a = i8x16::from_slice(s, &[1, -2, 3, -4, 5, -6, 7, -8, 9, -10, 11, -12, 13, -14, 15, -16]);
+            let b = i8x16::from_slice(s, &[17, -18, 19, -20, 21, -22, 23, -24, 25, -26, 27, -28, 29, -30, 31, -32]);
+            s.zip_high_i8x16(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_u8x16() {
+        |s| -> [u8; 16] {
+            let a = u8x16::from_slice(s, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+            let b = u8x16::from_slice(s, &[16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+            s.zip_low_u8x16(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_u8x16() {
+        |s| -> [u8; 16] {
+            let a = u8x16::from_slice(s, &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+            let b = u8x16::from_slice(s, &[16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
+            s.zip_high_u8x16(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_i16x8() {
+        |s| -> [i16; 8] {
+            let a = i16x8::from_slice(s, &[1, -2, 3, -4, 5, -6, 7, -8]);
+            let b = i16x8::from_slice(s, &[9, -10, 11, -12, 13, -14, 15, -16]);
+            s.zip_low_i16x8(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_i16x8() {
+        |s| -> [i16; 8] {
+            let a = i16x8::from_slice(s, &[1, -2, 3, -4, 5, -6, 7, -8]);
+            let b = i16x8::from_slice(s, &[9, -10, 11, -12, 13, -14, 15, -16]);
+            s.zip_high_i16x8(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_u16x8() {
+        |s| -> [u16; 8] {
+            let a = u16x8::from_slice(s, &[0, 1, 2, 3, 4, 5, 6, 7]);
+            let b = u16x8::from_slice(s, &[8, 9, 10, 11, 12, 13, 14, 15]);
+            s.zip_low_u16x8(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_u16x8() {
+        |s| -> [u16; 8] {
+            let a = u16x8::from_slice(s, &[0, 1, 2, 3, 4, 5, 6, 7]);
+            let b = u16x8::from_slice(s, &[8, 9, 10, 11, 12, 13, 14, 15]);
+            s.zip_high_u16x8(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_i32x4() {
+        |s| -> [i32; 4] {
+            let a = i32x4::from_slice(s, &[1, -2, 3, -4]);
+            let b = i32x4::from_slice(s, &[5, -6, 7, -8]);
+            s.zip_low_i32x4(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_i32x4() {
+        |s| -> [i32; 4] {
+            let a = i32x4::from_slice(s, &[1, -2, 3, -4]);
+            let b = i32x4::from_slice(s, &[5, -6, 7, -8]);
+            s.zip_high_i32x4(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_low_u32x4() {
+        |s| -> [u32; 4] {
+            let a = u32x4::from_slice(s, &[0, 1, 2, 3]);
+            let b = u32x4::from_slice(s, &[4, 5, 6, 7]);
+            s.zip_low_u32x4(a, b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn zip_high_u32x4() {
+        |s| -> [u32; 4] {
+            let a = u32x4::from_slice(s, &[0, 1, 2, 3]);
+            let b = u32x4::from_slice(s, &[4, 5, 6, 7]);
+            s.zip_high_u32x4(a, b).into()
         }
     }
 }

@@ -66,8 +66,11 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Unary => {
                     let args = [quote! { a.into() }];
-                    let expr = if matches!(method, "fract" | "trunc") {
-                        quote! {todo!() }
+                    let expr = if matches!(method, "fract") {
+                        assert_eq!(ty_name, "f32x4", "only support fract_f32x4");
+                        quote! {
+                            self.sub_f32x4(a, self.trunc_f32x4(a))
+                        }
                     } else {
                         let expr = Wasm.expr(method, vec_ty, &args);
                         quote! { #expr.simd_into(self) }
@@ -203,11 +206,39 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                 }
                 OpSig::Combine => generic_combine(vec_ty),
                 OpSig::Split => generic_split(vec_ty),
-                OpSig::Zip(_) => {
+                OpSig::Zip(is_low) => {
+                    let (indices, shuffle_fn) = match vec_ty.scalar_bits {
+                        8 => {
+                            let indices = if is_low {
+                                quote! { 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23 }
+                            } else {
+                                quote! { 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31 }
+                            };
+                            (indices, quote! { u8x16_shuffle })
+                        }
+                        16 => {
+                            let indices = if is_low {
+                                quote! { 0, 8, 1, 9, 2, 10, 3, 11 }
+                            } else {
+                                quote! { 4, 12, 5, 13, 6, 14, 7, 15 }
+                            };
+                            (indices, quote! { u16x8_shuffle })
+                        }
+                        32 => {
+                            let indices = if is_low {
+                                quote! { 0, 4, 1, 5 }
+                            } else {
+                                quote! { 2, 6, 3, 7 }
+                            };
+                            (indices, quote! { u32x4_shuffle })
+                        }
+                        _ => panic!("unsupported scalar_bits for zip operation"),
+                    };
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            todo!()
+                            #shuffle_fn::<#indices>(a.into(), b.into()).simd_into(self)
                         }
                     }
                 }

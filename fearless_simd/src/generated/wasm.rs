@@ -101,11 +101,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        todo!()
+        u32x4_shuffle::<0, 4, 1, 5>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn zip_high_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
-        todo!()
+        u32x4_shuffle::<2, 6, 3, 7>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn max_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
@@ -137,11 +137,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn fract_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        todo!()
+        self.sub_f32x4(a, self.trunc_f32x4(a))
     }
     #[inline(always)]
     fn trunc_f32x4(self, a: f32x4<Self>) -> f32x4<Self> {
-        todo!()
+        f32x4_trunc(a.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self> {
@@ -219,11 +219,16 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        todo!()
+        u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(a.into(), b.into())
+            .simd_into(self)
     }
     #[inline(always)]
     fn zip_high_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
-        todo!()
+        u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
+            a.into(),
+            b.into(),
+        )
+        .simd_into(self)
     }
     #[inline(always)]
     fn select_i8x16(self, a: mask8x16<Self>, b: i8x16<Self>, c: i8x16<Self>) -> i8x16<Self> {
@@ -309,11 +314,16 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        todo!()
+        u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(a.into(), b.into())
+            .simd_into(self)
     }
     #[inline(always)]
     fn zip_high_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
-        todo!()
+        u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
+            a.into(),
+            b.into(),
+        )
+        .simd_into(self)
     }
     #[inline(always)]
     fn select_u8x16(self, a: mask8x16<Self>, b: u8x16<Self>, c: u8x16<Self>) -> u8x16<Self> {
@@ -436,11 +446,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        todo!()
+        u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn zip_high_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
-        todo!()
+        u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_i16x8(self, a: mask16x8<Self>, b: i16x8<Self>, c: i16x8<Self>) -> i16x8<Self> {
@@ -523,11 +533,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        todo!()
+        u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn zip_high_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
-        todo!()
+        u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_u16x8(self, a: mask16x8<Self>, b: u16x8<Self>, c: u16x8<Self>) -> u16x8<Self> {
@@ -650,11 +660,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        todo!()
+        u32x4_shuffle::<0, 4, 1, 5>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn zip_high_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
-        todo!()
+        u32x4_shuffle::<2, 6, 3, 7>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_i32x4(self, a: mask32x4<Self>, b: i32x4<Self>, c: i32x4<Self>) -> i32x4<Self> {
@@ -737,11 +747,11 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn zip_low_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        todo!()
+        u32x4_shuffle::<0, 4, 1, 5>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn zip_high_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
-        todo!()
+        u32x4_shuffle::<2, 6, 3, 7>(a.into(), b.into()).simd_into(self)
     }
     #[inline(always)]
     fn select_u32x4(self, a: mask32x4<Self>, b: u32x4<Self>, c: u32x4<Self>) -> u32x4<Self> {
