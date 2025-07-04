@@ -2307,6 +2307,16 @@ impl Simd for Fallback {
         }
     }
     #[inline(always)]
+    fn cvt_f32_u32x4(self, a: u32x4<Self>) -> f32x4<Self> {
+        [
+            a[0usize] as f32,
+            a[1usize] as f32,
+            a[2usize] as f32,
+            a[3usize] as f32,
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
     fn splat_mask32x4(self, val: i32) -> mask32x4<Self> {
         [val; 4usize].simd_into(self)
     }
@@ -3503,6 +3513,11 @@ impl Simd for Fallback {
         self.combine_u8x16(self.reinterpret_u8_u32x4(a0), self.reinterpret_u8_u32x4(a1))
     }
     #[inline(always)]
+    fn cvt_f32_u32x8(self, a: u32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        self.combine_f32x4(self.cvt_f32_u32x4(a0), self.cvt_f32_u32x4(a1))
+    }
+    #[inline(always)]
     fn splat_mask32x8(self, a: i32) -> mask32x8<Self> {
         let half = self.splat_mask32x4(a);
         self.combine_mask32x4(half, half)
@@ -3731,6 +3746,36 @@ impl Simd for Fallback {
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn load_interleaved_128_f32x16(self, src: &[f32; 16usize]) -> f32x16<Self> {
+        [
+            src[0usize],
+            src[4usize],
+            src[8usize],
+            src[12usize],
+            src[1usize],
+            src[5usize],
+            src[9usize],
+            src[13usize],
+            src[2usize],
+            src[6usize],
+            src[10usize],
+            src[14usize],
+            src[3usize],
+            src[7usize],
+            src[11usize],
+            src[15usize],
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
+    fn store_interleaved_128_f32x16(self, a: f32x16<Self>, dest: &mut [f32; 16usize]) -> () {
+        *dest = [
+            a[0usize], a[4usize], a[8usize], a[12usize], a[1usize], a[5usize], a[9usize],
+            a[13usize], a[2usize], a[6usize], a[10usize], a[14usize], a[3usize], a[7usize],
+            a[11usize], a[15usize],
+        ];
     }
     #[inline(always)]
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
@@ -4051,6 +4096,21 @@ impl Simd for Fallback {
             src[63usize],
         ]
         .simd_into(self)
+    }
+    #[inline(always)]
+    fn store_interleaved_128_u8x64(self, a: u8x64<Self>, dest: &mut [u8; 64usize]) -> () {
+        *dest = [
+            a[0usize], a[16usize], a[32usize], a[48usize], a[1usize], a[17usize], a[33usize],
+            a[49usize], a[2usize], a[18usize], a[34usize], a[50usize], a[3usize], a[19usize],
+            a[35usize], a[51usize], a[4usize], a[20usize], a[36usize], a[52usize], a[5usize],
+            a[21usize], a[37usize], a[53usize], a[6usize], a[22usize], a[38usize], a[54usize],
+            a[7usize], a[23usize], a[39usize], a[55usize], a[8usize], a[24usize], a[40usize],
+            a[56usize], a[9usize], a[25usize], a[41usize], a[57usize], a[10usize], a[26usize],
+            a[42usize], a[58usize], a[11usize], a[27usize], a[43usize], a[59usize], a[12usize],
+            a[28usize], a[44usize], a[60usize], a[13usize], a[29usize], a[45usize], a[61usize],
+            a[14usize], a[30usize], a[46usize], a[62usize], a[15usize], a[31usize], a[47usize],
+            a[63usize],
+        ];
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -4402,6 +4462,16 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
+    fn store_interleaved_128_u16x32(self, a: u16x32<Self>, dest: &mut [u16; 32usize]) -> () {
+        *dest = [
+            a[0usize], a[8usize], a[16usize], a[24usize], a[1usize], a[9usize], a[17usize],
+            a[25usize], a[2usize], a[10usize], a[18usize], a[26usize], a[3usize], a[11usize],
+            a[19usize], a[27usize], a[4usize], a[12usize], a[20usize], a[28usize], a[5usize],
+            a[13usize], a[21usize], a[29usize], a[6usize], a[14usize], a[22usize], a[30usize],
+            a[7usize], a[15usize], a[23usize], a[31usize],
+        ];
+    }
+    #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_u16x32(a);
         self.combine_u8x16(self.narrow_u16x16(a0), self.narrow_u16x16(a1))
@@ -4742,9 +4812,22 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
+    fn store_interleaved_128_u32x16(self, a: u32x16<Self>, dest: &mut [u32; 16usize]) -> () {
+        *dest = [
+            a[0usize], a[4usize], a[8usize], a[12usize], a[1usize], a[5usize], a[9usize],
+            a[13usize], a[2usize], a[6usize], a[10usize], a[14usize], a[3usize], a[7usize],
+            a[11usize], a[15usize],
+        ];
+    }
+    #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_u32x16(a);
         self.combine_u8x32(self.reinterpret_u8_u32x8(a0), self.reinterpret_u8_u32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_f32_u32x16(self, a: u32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        self.combine_f32x8(self.cvt_f32_u32x8(a0), self.cvt_f32_u32x8(a1))
     }
     #[inline(always)]
     fn splat_mask32x16(self, a: i32) -> mask32x16<Self> {

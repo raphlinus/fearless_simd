@@ -1725,6 +1725,10 @@ impl<S: Simd> u32x4<S> {
     pub fn reinterpret_u8(self) -> u8x16<S> {
         self.simd.reinterpret_u8_u32x4(self)
     }
+    #[inline(always)]
+    pub fn cvt_f32(self) -> f32x4<S> {
+        self.simd.cvt_f32_u32x4(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u32, S> for u32x4<S> {
     const N: usize = 4;
@@ -3733,6 +3737,10 @@ impl<S: Simd> u32x8<S> {
     #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x32<S> {
         self.simd.reinterpret_u8_u32x8(self)
+    }
+    #[inline(always)]
+    pub fn cvt_f32(self) -> f32x8<S> {
+        self.simd.cvt_f32_u32x8(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u32, S> for u32x8<S> {
@@ -5891,6 +5899,10 @@ impl<S: Simd> u32x16<S> {
     #[inline(always)]
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_u32x16(self)
+    }
+    #[inline(always)]
+    pub fn cvt_f32(self) -> f32x16<S> {
+        self.simd.cvt_f32_u32x16(self)
     }
 }
 impl<S: Simd> crate::SimdBase<u32, S> for u32x16<S> {
