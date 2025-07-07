@@ -5,7 +5,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::Ident;
 
-use crate::ops::{load_interleaved_arg_ty, store_interleaved_arg_ty};
+use crate::ops::{load_interleaved_arg_ty, store_interleaved_arg_ty, valid_reinterpret};
 use crate::{
     arch::{Arch, wasm::Wasm},
     generic::{generic_combine, generic_op, generic_split},
@@ -83,12 +83,14 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Binary if method == "copysign" => {
-                    // let args = [quote! { a.into() }, quote! { b.into() }];
+                    assert_eq!(ty_name, "f32x4", "only support copysign_f32x4");
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            /// TODO: copysign
-                            todo!()
+                            let sign_mask = f32x4_splat(-0.0_f32);
+                            let sign_bits = v128_and(b.into(), sign_mask.into());
+                            let magnitude = v128_andnot(a.into(), sign_mask.into());
+                            v128_or(magnitude, sign_bits).simd_into(self)
                         }
                     }
                 }
@@ -200,7 +202,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
-                            todo!()
+                            v128_bitselect(b.into(), c.into(), a.into()).simd_into(self)
                         }
                     }
                 }
@@ -243,14 +245,53 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Shift => {
+                    let prefix = match vec_ty.scalar {
+                        ScalarType::Int => "i",
+                        ScalarType::Unsigned => "u",
+                        _ => unimplemented!(),
+                    };
+                    let shift_name = format!("{prefix}{}x{}_shr", vec_ty.scalar_bits, vec_ty.len);
+                    let shift_fn = Ident::new(&shift_name, Span::call_site());
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, shift: u32) -> #ret_ty {
-                            todo!()
+                            #shift_fn(a.into(), shift).simd_into(self)
                         }
                     }
                 }
-                OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    // The underlying data for WASM SIMD is a v128, so a reinterpret is just that, a
+                    // reinterpretation of the v128.
+                    assert!(valid_reinterpret(vec_ty, scalar, scalar_bits));
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            <v128>::from(a).simd_into(self)
+                        }
+                    }
+                }
+                OpSig::Cvt(scalar, scalar_bits) => {
+                    let conversion_fn =
+                        match (scalar, scalar_bits, vec_ty.scalar, vec_ty.scalar_bits) {
+                            (ScalarType::Unsigned, 32, ScalarType::Float, 32) => {
+                                quote! { u32x4_trunc_sat_f32x4 }
+                            }
+                            (ScalarType::Float, 32, ScalarType::Unsigned, 32) => {
+                                quote! { f32x4_convert_u32x4 }
+                            }
+                            _ => unimplemented!(),
+                        };
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            #conversion_fn(a.into()).simd_into(self)
+                        }
+                    }
+                }
+                OpSig::WidenNarrow(_) => {
                     // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
                     quote! {
                         #[inline(always)]
@@ -286,13 +327,20 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         _ => panic!("unsupported scalar_bits"),
                     };
 
-                    let combine_method_name = |scalar_bits: usize, lane_count: usize| -> Ident {
-                        format_ident!("combine_u{}x{}", scalar_bits, lane_count)
-                    };
+                    let combine_method_name =
+                        |scalar: ScalarType, scalar_bits: usize, lane_count: usize| -> Ident {
+                            let scalar = match scalar {
+                                ScalarType::Float => 'f',
+                                ScalarType::Unsigned => 'u',
+                                _ => unimplemented!(),
+                            };
+                            format_ident!("combine_{scalar}{scalar_bits}x{lane_count}")
+                        };
 
-                    let combine_method = combine_method_name(vec_ty.scalar_bits, elems_per_vec);
+                    let combine_method =
+                        combine_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec);
                     let combine_method_2x =
-                        combine_method_name(vec_ty.scalar_bits, elems_per_vec * 2);
+                        combine_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 2);
 
                     let combine_code = quote! {
                         let combined_lower = self.#combine_method(out0.simd_into(self), out1.simd_into(self));
