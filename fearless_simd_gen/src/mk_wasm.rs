@@ -312,7 +312,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                         _ => unimplemented!(),
                     }
-                    // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
                 }
                 OpSig::LoadInterleaved(block_size, count) => {
                     assert_eq!(count, 4, "only count of 4 is crrently supported");
