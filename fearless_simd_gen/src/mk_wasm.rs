@@ -41,7 +41,8 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let ty = vec_ty.rust();
 
         for (method, sig) in ops_for_type(vec_ty, true) {
-            let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow");
+            let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow")
+                || vec_ty.n_bits() > 256;
             let b2 = !matches!(method, "load_interleaved_128")
                 && !matches!(method, "store_interleaved_128");
 
@@ -305,12 +306,23 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                                 }
                             }
                         }
-                        "narrow" => quote! {
-                            #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                                todo!()
+                        "narrow" => {
+                            assert_eq!(vec_ty.rust_name(), "u16x16");
+                            assert_eq!(to_ty.rust_name(), "u8x16");
+                            // WASM SIMD only has saturating narrowing instructions, so we emulate
+                            // truncated narrowing by masking out the
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                    let mask = u16x8_splat(0xFF);
+                                    let (low, high) = self.split_u16x16(a);
+                                    let low_masked = v128_and(low.into(), mask);
+                                    let high_masked = v128_and(high.into(), mask);
+                                    let result = u8x16_narrow_i16x8(low_masked, high_masked);
+                                    result.simd_into(self)
+                                }
                             }
-                        },
+                        }
                         _ => unimplemented!(),
                     }
                     // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);

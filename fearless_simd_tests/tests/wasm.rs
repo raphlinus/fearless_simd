@@ -869,7 +869,7 @@ test_wasm_simd_parity! {
     }
 }
 
-// Widen
+// Narrow / Widen
 
 test_wasm_simd_parity! {
     fn widen_u8x16() {
@@ -879,6 +879,18 @@ test_wasm_simd_parity! {
                 8, 9, 10, 11, 12, 13, 14, 15
             ]);
             s.widen_u8x16(a).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn narrow_u16x16() {
+        |s| -> [u8; 16] {
+            let a = u16x16::from_slice(s, &[
+                0, 1, 127, 128, 255, 256, 300, 1000,
+                128, 192, 224, 240, 248, 252, 254, 65535
+            ]);
+            s.narrow_u16x16(a).into()
         }
     }
 }
