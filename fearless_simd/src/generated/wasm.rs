@@ -348,7 +348,9 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn widen_u8x16(self, a: u8x16<Self>) -> u16x16<Self> {
-        todo!()
+        let low = u16x8_extend_low_u8x16(a.into());
+        let high = u16x8_extend_high_u8x16(a.into());
+        self.combine_u16x8(low.simd_into(self), high.simd_into(self))
     }
     #[inline(always)]
     fn splat_mask8x16(self, val: i8) -> mask8x16<Self> {

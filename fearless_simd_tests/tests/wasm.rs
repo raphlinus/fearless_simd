@@ -868,3 +868,17 @@ test_wasm_simd_parity! {
         }
     }
 }
+
+// Widen
+
+test_wasm_simd_parity! {
+    fn widen_u8x16() {
+        |s| -> [u16; 16] {
+            let a = u8x16::from_slice(s, &[
+                0, 1, 2, 3, 4, 5, 6, 7,
+                8, 9, 10, 11, 12, 13, 14, 15
+            ]);
+            s.widen_u8x16(a).into()
+        }
+    }
+}

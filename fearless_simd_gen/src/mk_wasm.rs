@@ -291,14 +291,29 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         }
                     }
                 }
-                OpSig::WidenNarrow(_) => {
-                    // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
-                    quote! {
-                        #[inline(always)]
-                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                            todo!()
+                OpSig::WidenNarrow(to_ty) => {
+                    match method {
+                        "widen" => {
+                            assert_eq!(vec_ty.rust_name(), "u8x16");
+                            assert_eq!(to_ty.rust_name(), "u16x16");
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                    let low = u16x8_extend_low_u8x16(a.into());
+                                    let high = u16x8_extend_high_u8x16(a.into());
+                                    self.combine_u16x8(low.simd_into(self), high.simd_into(self))
+                                }
+                            }
                         }
+                        "narrow" => quote! {
+                            #[inline(always)]
+                            fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                todo!()
+                            }
+                        },
+                        _ => unimplemented!(),
                     }
+                    // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
                 }
                 OpSig::LoadInterleaved(block_size, count) => {
                     assert_eq!(count, 4, "only count of 4 is crrently supported");
