@@ -5,7 +5,7 @@ use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::Ident;
 
-use crate::ops::{load_interleaved_arg_ty, store_interleaved_arg_ty};
+use crate::ops::{load_interleaved_arg_ty, store_interleaved_arg_ty, valid_reinterpret};
 use crate::{
     arch::{Arch, wasm::Wasm},
     generic::{generic_combine, generic_op, generic_split},
@@ -41,7 +41,8 @@ fn mk_simd_impl(level: Level) -> TokenStream {
         let ty = vec_ty.rust();
 
         for (method, sig) in ops_for_type(vec_ty, true) {
-            let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow");
+            let b1 = vec_ty.n_bits() > 128 && !matches!(method, "split" | "narrow")
+                || vec_ty.n_bits() > 256;
             let b2 = !matches!(method, "load_interleaved_128")
                 && !matches!(method, "store_interleaved_128");
 
@@ -83,12 +84,14 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Binary if method == "copysign" => {
-                    // let args = [quote! { a.into() }, quote! { b.into() }];
+                    assert_eq!(ty_name, "f32x4", "only support copysign_f32x4");
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
-                            /// TODO: copysign
-                            todo!()
+                            let sign_mask = f32x4_splat(-0.0_f32);
+                            let sign_bits = v128_and(b.into(), sign_mask.into());
+                            let magnitude = v128_andnot(a.into(), sign_mask.into());
+                            v128_or(magnitude, sign_bits).simd_into(self)
                         }
                     }
                 }
@@ -142,12 +145,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Ternary => {
-                    let args = [
-                        quote! { a.into() },
-                        quote! { b.into() },
-                        quote! { c.into() },
-                    ];
-
                     if matches!(method, "madd" | "msub") {
                         let first_ident = {
                             let str = if method == "madd" {
@@ -175,14 +172,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             }
                         }
                     } else {
-                        let expr = Wasm.expr(method, vec_ty, &args);
-                        quote! {
-                            #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
-                                // TODO: OpSig::Ternary
-                                todo!()
-                            }
-                        }
+                        unimplemented!()
                     }
                 }
                 OpSig::Compare => {
@@ -200,7 +190,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #mask_ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
-                            todo!()
+                            v128_bitselect(b.into(), c.into(), a.into()).simd_into(self)
                         }
                     }
                 }
@@ -243,20 +233,84 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Shift => {
+                    let prefix = match vec_ty.scalar {
+                        ScalarType::Int => "i",
+                        ScalarType::Unsigned => "u",
+                        _ => unimplemented!(),
+                    };
+                    let shift_name = format!("{prefix}{}x{}_shr", vec_ty.scalar_bits, vec_ty.len);
+                    let shift_fn = Ident::new(&shift_name, Span::call_site());
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, shift: u32) -> #ret_ty {
-                            todo!()
+                            #shift_fn(a.into(), shift).simd_into(self)
                         }
                     }
                 }
-                OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
-                    // let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
+                OpSig::Reinterpret(scalar, scalar_bits) => {
+                    // The underlying data for WASM SIMD is a v128, so a reinterpret is just that, a
+                    // reinterpretation of the v128.
+                    assert!(valid_reinterpret(vec_ty, scalar, scalar_bits));
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
-                            todo!()
+                            <v128>::from(a).simd_into(self)
                         }
+                    }
+                }
+                OpSig::Cvt(scalar, scalar_bits) => {
+                    let conversion_fn =
+                        match (scalar, scalar_bits, vec_ty.scalar, vec_ty.scalar_bits) {
+                            (ScalarType::Unsigned, 32, ScalarType::Float, 32) => {
+                                quote! { u32x4_trunc_sat_f32x4 }
+                            }
+                            (ScalarType::Float, 32, ScalarType::Unsigned, 32) => {
+                                quote! { f32x4_convert_u32x4 }
+                            }
+                            _ => unimplemented!(),
+                        };
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                            #conversion_fn(a.into()).simd_into(self)
+                        }
+                    }
+                }
+                OpSig::WidenNarrow(to_ty) => {
+                    match method {
+                        "widen" => {
+                            assert_eq!(vec_ty.rust_name(), "u8x16");
+                            assert_eq!(to_ty.rust_name(), "u16x16");
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                    let low = u16x8_extend_low_u8x16(a.into());
+                                    let high = u16x8_extend_high_u8x16(a.into());
+                                    self.combine_u16x8(low.simd_into(self), high.simd_into(self))
+                                }
+                            }
+                        }
+                        "narrow" => {
+                            assert_eq!(vec_ty.rust_name(), "u16x16");
+                            assert_eq!(to_ty.rust_name(), "u8x16");
+                            // WASM SIMD only has saturating narrowing instructions, so we emulate
+                            // truncated narrowing by masking out the
+                            quote! {
+                                #[inline(always)]
+                                fn #method_ident(self, a: #ty<Self>) -> #ret_ty {
+                                    let mask = u16x8_splat(0xFF);
+                                    let (low, high) = self.split_u16x16(a);
+                                    let low_masked = v128_and(low.into(), mask);
+                                    let high_masked = v128_and(high.into(), mask);
+                                    let result = u8x16_narrow_i16x8(low_masked, high_masked);
+                                    result.simd_into(self)
+                                }
+                            }
+                        }
+                        _ => unimplemented!(),
                     }
                 }
                 OpSig::LoadInterleaved(block_size, count) => {
@@ -286,13 +340,20 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                         _ => panic!("unsupported scalar_bits"),
                     };
 
-                    let combine_method_name = |scalar_bits: usize, lane_count: usize| -> Ident {
-                        format_ident!("combine_u{}x{}", scalar_bits, lane_count)
-                    };
+                    let combine_method_name =
+                        |scalar: ScalarType, scalar_bits: usize, lane_count: usize| -> Ident {
+                            let scalar = match scalar {
+                                ScalarType::Float => 'f',
+                                ScalarType::Unsigned => 'u',
+                                _ => unimplemented!(),
+                            };
+                            format_ident!("combine_{scalar}{scalar_bits}x{lane_count}")
+                        };
 
-                    let combine_method = combine_method_name(vec_ty.scalar_bits, elems_per_vec);
+                    let combine_method =
+                        combine_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec);
                     let combine_method_2x =
-                        combine_method_name(vec_ty.scalar_bits, elems_per_vec * 2);
+                        combine_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 2);
 
                     let combine_code = quote! {
                         let combined_lower = self.#combine_method(out0.simd_into(self), out1.simd_into(self));
@@ -327,11 +388,80 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::StoreInterleaved(block_size, count) => {
+                    assert_eq!(count, 4, "only count of 4 is currently supported");
                     let arg = store_interleaved_arg_ty(block_size, count, vec_ty);
+                    let elems_per_vec = block_size as usize / vec_ty.scalar_bits;
+
+                    let (lower_indices, upper_indices, shuffle_fn) = match vec_ty.scalar_bits {
+                        8 => (
+                            quote! { 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23 },
+                            quote! { 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31 },
+                            quote! { u8x16_shuffle },
+                        ),
+                        16 => (
+                            quote! { 0, 8, 1, 9, 2, 10, 3, 11 },
+                            quote! { 4, 12, 5, 13, 6, 14, 7, 15 },
+                            quote! { u16x8_shuffle },
+                        ),
+                        32 => (
+                            quote! { 0, 4, 1, 5 },
+                            quote! { 2, 6, 3, 7 },
+                            quote! { u32x4_shuffle },
+                        ),
+                        _ => panic!("unsupported scalar_bits"),
+                    };
+
+                    let split_method_name =
+                        |scalar: ScalarType, scalar_bits: usize, lane_count: usize| -> Ident {
+                            let scalar = match scalar {
+                                ScalarType::Float => 'f',
+                                ScalarType::Unsigned => 'u',
+                                _ => unimplemented!(),
+                            };
+                            format_ident!("split_{scalar}{scalar_bits}x{lane_count}")
+                        };
+
+                    let split_method_2x =
+                        split_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 4);
+                    let split_method =
+                        split_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 2);
+
+                    let split_code = quote! {
+                        let (lower, upper) = self.#split_method_2x(a);
+                        let (v0_vec, v1_vec) = self.#split_method(lower);
+                        let (v2_vec, v3_vec) = self.#split_method(upper);
+
+                        let v0: v128 = v0_vec.into();
+                        let v1: v128 = v1_vec.into();
+                        let v2: v128 = v2_vec.into();
+                        let v3: v128 = v3_vec.into();
+                    };
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {
-                            todo!()
+                            #split_code
+
+                            // InterleaveLowerLanes(v0, v2) and InterleaveLowerLanes(v1, v3)
+                            let v02_lower = #shuffle_fn::<#lower_indices>(v0, v2);
+                            let v13_lower = #shuffle_fn::<#lower_indices>(v1, v3);
+
+                            // InterleaveUpperLanes(v0, v2) and InterleaveUpperLanes(v1, v3)
+                            let v02_upper = #shuffle_fn::<#upper_indices>(v0, v2);
+                            let v13_upper = #shuffle_fn::<#upper_indices>(v1, v3);
+
+                            // Interleave lower and upper to get final result
+                            let out0 = #shuffle_fn::<#lower_indices>(v02_lower, v13_lower);
+                            let out1 = #shuffle_fn::<#upper_indices>(v02_lower, v13_lower);
+                            let out2 = #shuffle_fn::<#lower_indices>(v02_upper, v13_upper);
+                            let out3 = #shuffle_fn::<#upper_indices>(v02_upper, v13_upper);
+
+                            unsafe {
+                                v128_store(dest[0 * #elems_per_vec..].as_mut_ptr() as *mut v128, out0);
+                                v128_store(dest[1 * #elems_per_vec..].as_mut_ptr() as *mut v128, out1);
+                                v128_store(dest[2 * #elems_per_vec..].as_mut_ptr() as *mut v128, out2);
+                                v128_store(dest[3 * #elems_per_vec..].as_mut_ptr() as *mut v128, out3);
+                            }
                         }
                     }
                 }

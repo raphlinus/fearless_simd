@@ -125,6 +125,16 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
+    fn copysign_f32x4() {
+        |s| -> [f32; 4] {
+            let a = f32x4::from_slice(s, &[1.0, -2.0, -3.0, 4.0]);
+            let b = f32x4::from_slice(s, &[-1.0, 1.0, -1.0, 1.0]);
+            a.copysign(b).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
     fn simd_eq_f32x4() {
         |s| -> [i32; 4] {
             let a = f32x4::from_slice(s, &[4.0, 2.0, 1.0, 0.0]);
@@ -333,6 +343,34 @@ test_wasm_simd_parity! {
 }
 
 test_wasm_simd_parity! {
+    fn cvt_u32_f32x4() {
+        |s| -> [u32; 4] {
+            let a = f32x4::from_slice(s, &[
+                -1.0,
+                42.7,
+                5e9,
+                f32::NAN,
+            ]);
+            a.cvt_u32().into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn cvt_f32_u32x4() {
+        |s| -> [f32; 4] {
+            let a = u32x4::from_slice(s, &[
+                0,
+                42,
+                1000000,
+                u32::MAX,
+            ]);
+            a.cvt_f32().into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
     fn and_i8x16() {
         |s| -> [i8; 16] {
             let a = i8x16::from_slice(s, &[-1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0]);
@@ -496,6 +534,120 @@ test_wasm_simd_parity! {
     }
 }
 
+#[wasm_bindgen_test]
+fn store_interleaved_128_f32x16() {
+    fn test_impl<S: Simd>(s: S) -> [f32; 16] {
+        let input = [
+            0.0,
+            f32::NAN,
+            f32::INFINITY,
+            -3.0,
+            4.0,
+            -0.0,
+            6.0,
+            f32::NEG_INFINITY,
+            8.0,
+            9.0,
+            -10.0,
+            11.0,
+            f32::MIN,
+            13.0,
+            f32::MAX,
+            15.0,
+        ];
+        let a = f32x16::from_slice(s, &input);
+        let mut dest = [0.0f32; 16];
+        s.store_interleaved_128_f32x16(a, &mut dest);
+        dest
+    }
+
+    simd_dispatch!(test(level) -> [f32; 16] = test_impl);
+    let wasm_result = test(Level::WasmSimd128(wasm32::WasmSimd128::new_unchecked()));
+
+    let expected = [
+        0.0,
+        4.0,
+        8.0,
+        f32::MIN,
+        f32::NAN,
+        -0.0,
+        9.0,
+        13.0,
+        f32::INFINITY,
+        6.0,
+        -10.0,
+        f32::MAX,
+        -3.0,
+        f32::NEG_INFINITY,
+        11.0,
+        15.0,
+    ];
+
+    // Note: f32::NAN != f32::NAN hence we transmute to compare the bit pattern. In this case NaN
+    // bit pattern is preserved.
+    unsafe {
+        assert_eq!(
+            std::mem::transmute::<[f32; 16], [u32; 16]>(wasm_result),
+            std::mem::transmute::<[f32; 16], [u32; 16]>(expected),
+            "Wasm did not match expected interleaved result with special values."
+        );
+    }
+}
+
+test_wasm_simd_parity! {
+    fn store_interleaved_128_u8x64() {
+        |s| -> [u8; 64] {
+            let input: [u8; 64] = [
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+                32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+            ];
+            let a = u8x64::from_slice(s, &input);
+
+            let mut dest = [0u8; 64];
+            s.store_interleaved_128_u8x64(a, &mut dest);
+            dest
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn store_interleaved_128_u16x32() {
+        |s| -> [u16; 32] {
+            let input: [u16; 32] = [
+                0, 1, 2, 3, 4, 5, 6, 7,
+                100, 101, 102, 103, 104, 105, 106, 107,
+                200, 201, 202, 203, 204, 205, 206, 207,
+                300, 301, 302, 303, 304, 305, 306, 307,
+            ];
+            let a = u16x32::from_slice(s, &input);
+
+            let mut dest = [0u16; 32];
+            s.store_interleaved_128_u16x32(a, &mut dest);
+            dest
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn store_interleaved_128_u32x16() {
+        |s| -> [u32; 16] {
+            let input: [u32; 16] = [
+                0, 1, u32::MAX, 3,
+                1000, 1001, 1002, 1003,
+                2000, 2001, 2002, 2003,
+                u32::MIN, 3001, 3002, u32::MAX - 1,
+            ];
+            let a = u32x16::from_slice(s, &input);
+
+            let mut dest = [0u32; 16];
+            s.store_interleaved_128_u32x16(a, &mut dest);
+            dest
+        }
+    }
+}
+
 // Zip Load and High tests
 
 test_wasm_simd_parity! {
@@ -634,6 +786,225 @@ test_wasm_simd_parity! {
             let a = u32x4::from_slice(s, &[0, 1, 2, 3]);
             let b = u32x4::from_slice(s, &[4, 5, 6, 7]);
             s.zip_high_u32x4(a, b).into()
+        }
+    }
+}
+
+// Right Shift
+
+test_wasm_simd_parity! {
+    fn shr_i8x16() {
+        |s| -> [i8; 16] {
+            let a = i8x16::from_slice(s, &[
+                -128, -64, -32, -16, -8, -4, -2, -1,
+                127, 64, 32, 16, 8, 4, 2, 1
+            ]);
+            a.shr(2).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn shr_u8x16() {
+        |s| -> [u8; 16] {
+            let a = u8x16::from_slice(s, &[
+                255, 128, 64, 32, 16, 8, 4, 2,
+                254, 127, 63, 31, 15, 7, 3, 1
+            ]);
+            a.shr(2).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn shr_i16x8() {
+        |s| -> [i16; 8] {
+            let a = i16x8::from_slice(s, &[
+                -32768, -16384, -1024, -1,
+                32767, 16384, 1024, 1
+            ]);
+            a.shr(4).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn shr_u16x8() {
+        |s| -> [u16; 8] {
+            let a = u16x8::from_slice(s, &[
+                65535, 32768, 16384, 8192,
+                4096, 2048, 1024, 512
+            ]);
+            a.shr(4).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn shr_i32x4() {
+        |s| -> [i32; 4] {
+            let a = i32x4::from_slice(s, &[
+                i32::MIN,
+                -65536,
+                65536,
+                i32::MAX
+            ]);
+            a.shr(8).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn shr_u32x4() {
+        |s| -> [u32; 4] {
+            let a = u32x4::from_slice(s, &[
+                u32::MAX,
+                2147483648,
+                65536,
+                256
+            ]);
+            a.shr(8).into()
+        }
+    }
+}
+
+// Select
+
+test_wasm_simd_parity! {
+    fn select_f32x4() {
+        |s| -> [f32; 4] {
+            let mask = mask32x4::from_slice(s, &[-1, 0, -1, 0]);
+            let b = f32x4::from_slice(s, &[1.0, 2.0, 3.0, 4.0]);
+            let c = f32x4::from_slice(s, &[5.0, 6.0, 7.0, 8.0]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_i8x16() {
+        |s| -> [i8; 16] {
+            let mask = mask8x16::from_slice(s, &[-1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0]);
+            let b = i8x16::from_slice(s, &[10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, -10, -20, -30, -40]);
+            let c = i8x16::from_slice(s, &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, -1, -2, -3, -4]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_u8x16() {
+        |s| -> [u8; 16] {
+            let mask = mask8x16::from_slice(s, &[0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1]);
+            let b = u8x16::from_slice(s, &[10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160]);
+            let c = u8x16::from_slice(s, &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_mask8x16() {
+        |s| -> [i8; 16] {
+            let mask = mask8x16::from_slice(s, &[-1, -1, 0, 0, -1, -1, 0, 0, -1, -1, 0, 0, -1, -1, 0, 0]);
+            let b = mask8x16::from_slice(s, &[-1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0]);
+            let c = mask8x16::from_slice(s, &[0, -1, 0, -1, -1, -1, 0, -1, 0, -1, 0, -1, 0, -1, 0, -1]);
+            let result: mask8x16<_> = mask.select(b, c);
+            result.into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_i16x8() {
+        |s| -> [i16; 8] {
+            let mask = mask16x8::from_slice(s, &[-1, 0, -1, 0, -1, 0, -1, 0]);
+            let b = i16x8::from_slice(s, &[100, 200, 300, 400, -100, -200, -300, -400]);
+            let c = i16x8::from_slice(s, &[10, 20, 30, 40, -10, -20, -30, -40]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_u16x8() {
+        |s| -> [u16; 8] {
+            let mask = mask16x8::from_slice(s, &[0, -1, 0, -1, 0, -1, 0, -1]);
+            let b = u16x8::from_slice(s, &[1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000]);
+            let c = u16x8::from_slice(s, &[100, 200, 300, 400, 500, 600, 700, 800]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_mask16x8() {
+        |s| -> [i16; 8] {
+            let mask = mask16x8::from_slice(s, &[-1, -1, 0, 0, -1, -1, 0, 0]);
+            let b = mask16x8::from_slice(s, &[-1, 0, -1, 0, -1, 0, -1, 0]);
+            let c = mask16x8::from_slice(s, &[0, -1, 0, -1, 0, -1, 0, -1]);
+            let result: mask16x8<_> = mask.select(b, c);
+            result.into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_i32x4() {
+        |s| -> [i32; 4] {
+            let mask = mask32x4::from_slice(s, &[-1, 0, 0, -1]);
+            let b = i32x4::from_slice(s, &[10000, 20000, -30000, -40000]);
+            let c = i32x4::from_slice(s, &[100, 200, -300, -400]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_u32x4() {
+        |s| -> [u32; 4] {
+            let mask = mask32x4::from_slice(s, &[0, -1, -1, 0]);
+            let b = u32x4::from_slice(s, &[100000, 200000, 300000, 400000]);
+            let c = u32x4::from_slice(s, &[1000, 2000, 3000, 4000]);
+            mask.select(b, c).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn select_mask32x4() {
+        |s| -> [i32; 4] {
+            let mask = mask32x4::from_slice(s, &[-1, 0, -1, 0]);
+            let b = mask32x4::from_slice(s, &[-1, -1, 0, 0]);
+            let c = mask32x4::from_slice(s, &[0, 0, -1, -1]);
+            let result: mask32x4<_> = mask.select(b, c);
+            result.into()
+        }
+    }
+}
+
+// Narrow / Widen
+
+test_wasm_simd_parity! {
+    fn widen_u8x16() {
+        |s| -> [u16; 16] {
+            let a = u8x16::from_slice(s, &[
+                0, 1, 2, 3, 4, 5, 6, 7,
+                8, 9, 10, 11, 12, 13, 14, 15
+            ]);
+            s.widen_u8x16(a).into()
+        }
+    }
+}
+
+test_wasm_simd_parity! {
+    fn narrow_u16x16() {
+        |s| -> [u8; 16] {
+            let a = u16x16::from_slice(s, &[
+                0, 1, 127, 128, 255, 256, 300, 1000,
+                128, 192, 224, 240, 248, 252, 254, 65535
+            ]);
+            s.narrow_u16x16(a).into()
         }
     }
 }
