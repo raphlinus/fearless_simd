@@ -2186,7 +2186,27 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn store_interleaved_128_f32x16(self, a: f32x16<Self>, dest: &mut [f32; 16usize]) -> () {
-        todo!()
+        let (lower, upper) = self.split_f32x16(a);
+        let (v0_vec, v1_vec) = self.split_f32x8(lower);
+        let (v2_vec, v3_vec) = self.split_f32x8(upper);
+        let v0: v128 = v0_vec.into();
+        let v1: v128 = v1_vec.into();
+        let v2: v128 = v2_vec.into();
+        let v3: v128 = v3_vec.into();
+        let v02_lower = u32x4_shuffle::<0, 4, 1, 5>(v0, v2);
+        let v13_lower = u32x4_shuffle::<0, 4, 1, 5>(v1, v3);
+        let v02_upper = u32x4_shuffle::<2, 6, 3, 7>(v0, v2);
+        let v13_upper = u32x4_shuffle::<2, 6, 3, 7>(v1, v3);
+        let out0 = u32x4_shuffle::<0, 4, 1, 5>(v02_lower, v13_lower);
+        let out1 = u32x4_shuffle::<2, 6, 3, 7>(v02_lower, v13_lower);
+        let out2 = u32x4_shuffle::<0, 4, 1, 5>(v02_upper, v13_upper);
+        let out3 = u32x4_shuffle::<2, 6, 3, 7>(v02_upper, v13_upper);
+        unsafe {
+            v128_store(dest[0 * 4usize..].as_mut_ptr() as *mut v128, out0);
+            v128_store(dest[1 * 4usize..].as_mut_ptr() as *mut v128, out1);
+            v128_store(dest[2 * 4usize..].as_mut_ptr() as *mut v128, out2);
+            v128_store(dest[3 * 4usize..].as_mut_ptr() as *mut v128, out3);
+        }
     }
     #[inline(always)]
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
@@ -2470,7 +2490,39 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn store_interleaved_128_u8x64(self, a: u8x64<Self>, dest: &mut [u8; 64usize]) -> () {
-        todo!()
+        let (lower, upper) = self.split_u8x64(a);
+        let (v0_vec, v1_vec) = self.split_u8x32(lower);
+        let (v2_vec, v3_vec) = self.split_u8x32(upper);
+        let v0: v128 = v0_vec.into();
+        let v1: v128 = v1_vec.into();
+        let v2: v128 = v2_vec.into();
+        let v3: v128 = v3_vec.into();
+        let v02_lower =
+            u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(v0, v2);
+        let v13_lower =
+            u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(v1, v3);
+        let v02_upper =
+            u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(v0, v2);
+        let v13_upper =
+            u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(v1, v3);
+        let out0 = u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(
+            v02_lower, v13_lower,
+        );
+        let out1 = u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
+            v02_lower, v13_lower,
+        );
+        let out2 = u8x16_shuffle::<0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23>(
+            v02_upper, v13_upper,
+        );
+        let out3 = u8x16_shuffle::<8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31>(
+            v02_upper, v13_upper,
+        );
+        unsafe {
+            v128_store(dest[0 * 16usize..].as_mut_ptr() as *mut v128, out0);
+            v128_store(dest[1 * 16usize..].as_mut_ptr() as *mut v128, out1);
+            v128_store(dest[2 * 16usize..].as_mut_ptr() as *mut v128, out2);
+            v128_store(dest[3 * 16usize..].as_mut_ptr() as *mut v128, out3);
+        }
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -2803,7 +2855,27 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn store_interleaved_128_u16x32(self, a: u16x32<Self>, dest: &mut [u16; 32usize]) -> () {
-        todo!()
+        let (lower, upper) = self.split_u16x32(a);
+        let (v0_vec, v1_vec) = self.split_u16x16(lower);
+        let (v2_vec, v3_vec) = self.split_u16x16(upper);
+        let v0: v128 = v0_vec.into();
+        let v1: v128 = v1_vec.into();
+        let v2: v128 = v2_vec.into();
+        let v3: v128 = v3_vec.into();
+        let v02_lower = u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(v0, v2);
+        let v13_lower = u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(v1, v3);
+        let v02_upper = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v0, v2);
+        let v13_upper = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v1, v3);
+        let out0 = u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(v02_lower, v13_lower);
+        let out1 = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v02_lower, v13_lower);
+        let out2 = u16x8_shuffle::<0, 8, 1, 9, 2, 10, 3, 11>(v02_upper, v13_upper);
+        let out3 = u16x8_shuffle::<4, 12, 5, 13, 6, 14, 7, 15>(v02_upper, v13_upper);
+        unsafe {
+            v128_store(dest[0 * 8usize..].as_mut_ptr() as *mut v128, out0);
+            v128_store(dest[1 * 8usize..].as_mut_ptr() as *mut v128, out1);
+            v128_store(dest[2 * 8usize..].as_mut_ptr() as *mut v128, out2);
+            v128_store(dest[3 * 8usize..].as_mut_ptr() as *mut v128, out3);
+        }
     }
     #[inline(always)]
     fn narrow_u16x32(self, a: u16x32<Self>) -> u8x32<Self> {
@@ -3143,7 +3215,27 @@ impl Simd for WasmSimd128 {
     }
     #[inline(always)]
     fn store_interleaved_128_u32x16(self, a: u32x16<Self>, dest: &mut [u32; 16usize]) -> () {
-        todo!()
+        let (lower, upper) = self.split_u32x16(a);
+        let (v0_vec, v1_vec) = self.split_u32x8(lower);
+        let (v2_vec, v3_vec) = self.split_u32x8(upper);
+        let v0: v128 = v0_vec.into();
+        let v1: v128 = v1_vec.into();
+        let v2: v128 = v2_vec.into();
+        let v3: v128 = v3_vec.into();
+        let v02_lower = u32x4_shuffle::<0, 4, 1, 5>(v0, v2);
+        let v13_lower = u32x4_shuffle::<0, 4, 1, 5>(v1, v3);
+        let v02_upper = u32x4_shuffle::<2, 6, 3, 7>(v0, v2);
+        let v13_upper = u32x4_shuffle::<2, 6, 3, 7>(v1, v3);
+        let out0 = u32x4_shuffle::<0, 4, 1, 5>(v02_lower, v13_lower);
+        let out1 = u32x4_shuffle::<2, 6, 3, 7>(v02_lower, v13_lower);
+        let out2 = u32x4_shuffle::<0, 4, 1, 5>(v02_upper, v13_upper);
+        let out3 = u32x4_shuffle::<2, 6, 3, 7>(v02_upper, v13_upper);
+        unsafe {
+            v128_store(dest[0 * 4usize..].as_mut_ptr() as *mut v128, out0);
+            v128_store(dest[1 * 4usize..].as_mut_ptr() as *mut v128, out1);
+            v128_store(dest[2 * 4usize..].as_mut_ptr() as *mut v128, out2);
+            v128_store(dest[3 * 4usize..].as_mut_ptr() as *mut v128, out3);
+        }
     }
     #[inline(always)]
     fn reinterpret_u8_u32x16(self, a: u32x16<Self>) -> u8x64<Self> {

@@ -145,12 +145,6 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Ternary => {
-                    let args = [
-                        quote! { a.into() },
-                        quote! { b.into() },
-                        quote! { c.into() },
-                    ];
-
                     if matches!(method, "madd" | "msub") {
                         let first_ident = {
                             let str = if method == "madd" {
@@ -178,14 +172,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             }
                         }
                     } else {
-                        let expr = Wasm.expr(method, vec_ty, &args);
-                        quote! {
-                            #[inline(always)]
-                            fn #method_ident(self, a: #ty<Self>, b: #ty<Self>, c: #ty<Self>) -> #ret_ty {
-                                // TODO: OpSig::Ternary
-                                todo!()
-                            }
-                        }
+                        unimplemented!()
                     }
                 }
                 OpSig::Compare => {
@@ -402,11 +389,80 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::StoreInterleaved(block_size, count) => {
+                    assert_eq!(count, 4, "only count of 4 is currently supported");
                     let arg = store_interleaved_arg_ty(block_size, count, vec_ty);
+                    let elems_per_vec = block_size as usize / vec_ty.scalar_bits;
+
+                    let (lower_indices, upper_indices, shuffle_fn) = match vec_ty.scalar_bits {
+                        8 => (
+                            quote! { 0, 16, 1, 17, 2, 18, 3, 19, 4, 20, 5, 21, 6, 22, 7, 23 },
+                            quote! { 8, 24, 9, 25, 10, 26, 11, 27, 12, 28, 13, 29, 14, 30, 15, 31 },
+                            quote! { u8x16_shuffle },
+                        ),
+                        16 => (
+                            quote! { 0, 8, 1, 9, 2, 10, 3, 11 },
+                            quote! { 4, 12, 5, 13, 6, 14, 7, 15 },
+                            quote! { u16x8_shuffle },
+                        ),
+                        32 => (
+                            quote! { 0, 4, 1, 5 },
+                            quote! { 2, 6, 3, 7 },
+                            quote! { u32x4_shuffle },
+                        ),
+                        _ => panic!("unsupported scalar_bits"),
+                    };
+
+                    let split_method_name =
+                        |scalar: ScalarType, scalar_bits: usize, lane_count: usize| -> Ident {
+                            let scalar = match scalar {
+                                ScalarType::Float => 'f',
+                                ScalarType::Unsigned => 'u',
+                                _ => unimplemented!(),
+                            };
+                            format_ident!("split_{scalar}{scalar_bits}x{lane_count}")
+                        };
+
+                    let split_method_2x =
+                        split_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 4);
+                    let split_method =
+                        split_method_name(vec_ty.scalar, vec_ty.scalar_bits, elems_per_vec * 2);
+
+                    let split_code = quote! {
+                        let (lower, upper) = self.#split_method_2x(a);
+                        let (v0_vec, v1_vec) = self.#split_method(lower);
+                        let (v2_vec, v3_vec) = self.#split_method(upper);
+
+                        let v0: v128 = v0_vec.into();
+                        let v1: v128 = v1_vec.into();
+                        let v2: v128 = v2_vec.into();
+                        let v3: v128 = v3_vec.into();
+                    };
+
                     quote! {
                         #[inline(always)]
                         fn #method_ident(self, #arg) -> #ret_ty {
-                            todo!()
+                            #split_code
+
+                            // InterleaveLowerLanes(v0, v2) and InterleaveLowerLanes(v1, v3)
+                            let v02_lower = #shuffle_fn::<#lower_indices>(v0, v2);
+                            let v13_lower = #shuffle_fn::<#lower_indices>(v1, v3);
+
+                            // InterleaveUpperLanes(v0, v2) and InterleaveUpperLanes(v1, v3)
+                            let v02_upper = #shuffle_fn::<#upper_indices>(v0, v2);
+                            let v13_upper = #shuffle_fn::<#upper_indices>(v1, v3);
+
+                            // Interleave lower and upper to get final result
+                            let out0 = #shuffle_fn::<#lower_indices>(v02_lower, v13_lower);
+                            let out1 = #shuffle_fn::<#upper_indices>(v02_lower, v13_lower);
+                            let out2 = #shuffle_fn::<#lower_indices>(v02_upper, v13_upper);
+                            let out3 = #shuffle_fn::<#upper_indices>(v02_upper, v13_upper);
+
+                            unsafe {
+                                v128_store(dest[0 * #elems_per_vec..].as_mut_ptr() as *mut v128, out0);
+                                v128_store(dest[1 * #elems_per_vec..].as_mut_ptr() as *mut v128, out1);
+                                v128_store(dest[2 * #elems_per_vec..].as_mut_ptr() as *mut v128, out2);
+                                v128_store(dest[3 * #elems_per_vec..].as_mut_ptr() as *mut v128, out3);
+                            }
                         }
                     }
                 }
