@@ -314,6 +314,16 @@ impl Simd for Fallback {
         .simd_into(self)
     }
     #[inline(always)]
+    fn cvt_i32_f32x4(self, a: f32x4<Self>) -> i32x4<Self> {
+        [
+            a[0usize] as i32,
+            a[1usize] as i32,
+            a[2usize] as i32,
+            a[3usize] as i32,
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
     fn splat_i8x16(self, val: i8) -> i8x16<Self> {
         [val; 16usize].simd_into(self)
     }
@@ -2121,6 +2131,16 @@ impl Simd for Fallback {
         }
     }
     #[inline(always)]
+    fn cvt_f32_i32x4(self, a: i32x4<Self>) -> f32x4<Self> {
+        [
+            a[0usize] as f32,
+            a[1usize] as f32,
+            a[2usize] as f32,
+            a[3usize] as f32,
+        ]
+        .simd_into(self)
+    }
+    #[inline(always)]
     fn splat_u32x4(self, val: u32) -> u32x4<Self> {
         [val; 4usize].simd_into(self)
     }
@@ -2569,6 +2589,11 @@ impl Simd for Fallback {
     fn cvt_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self> {
         let (a0, a1) = self.split_f32x8(a);
         self.combine_u32x4(self.cvt_u32_f32x4(a0), self.cvt_u32_f32x4(a1))
+    }
+    #[inline(always)]
+    fn cvt_i32_f32x8(self, a: f32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_i32x4(self.cvt_i32_f32x4(a0), self.cvt_i32_f32x4(a1))
     }
     #[inline(always)]
     fn splat_i8x32(self, a: i8) -> i8x32<Self> {
@@ -3381,6 +3406,11 @@ impl Simd for Fallback {
         self.combine_u8x16(self.reinterpret_u8_i32x4(a0), self.reinterpret_u8_i32x4(a1))
     }
     #[inline(always)]
+    fn cvt_f32_i32x8(self, a: i32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        self.combine_f32x4(self.cvt_f32_i32x4(a0), self.cvt_f32_i32x4(a1))
+    }
+    #[inline(always)]
     fn splat_u32x8(self, a: u32) -> u32x8<Self> {
         let half = self.splat_u32x4(a);
         self.combine_u32x4(half, half)
@@ -3781,6 +3811,11 @@ impl Simd for Fallback {
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
         let (a0, a1) = self.split_f32x16(a);
         self.combine_u32x8(self.cvt_u32_f32x8(a0), self.cvt_u32_f32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_i32_f32x16(self, a: f32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_i32x8(self.cvt_i32_f32x8(a0), self.cvt_i32_f32x8(a1))
     }
     #[inline(always)]
     fn splat_i8x64(self, a: i8) -> i8x64<Self> {
@@ -4668,6 +4703,11 @@ impl Simd for Fallback {
     fn reinterpret_u8_i32x16(self, a: i32x16<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_i32x16(a);
         self.combine_u8x32(self.reinterpret_u8_i32x8(a0), self.reinterpret_u8_i32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_f32_i32x16(self, a: i32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        self.combine_f32x8(self.cvt_f32_i32x8(a0), self.cvt_f32_i32x8(a1))
     }
     #[inline(always)]
     fn splat_u32x16(self, a: u32) -> u32x16<Self> {

@@ -266,8 +266,14 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                             (ScalarType::Unsigned, 32, ScalarType::Float, 32) => {
                                 quote! { u32x4_trunc_sat_f32x4 }
                             }
+                            (ScalarType::Int, 32, ScalarType::Float, 32) => {
+                                quote! { i32x4_trunc_sat_f32x4 }
+                            }
                             (ScalarType::Float, 32, ScalarType::Unsigned, 32) => {
                                 quote! { f32x4_convert_u32x4 }
+                            }
+                            (ScalarType::Float, 32, ScalarType::Int, 32) => {
+                                quote! { f32x4_convert_i32x4 }
                             }
                             _ => unimplemented!(),
                         };
