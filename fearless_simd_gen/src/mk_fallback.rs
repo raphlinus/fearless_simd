@@ -63,7 +63,7 @@ pub fn mk_fallback_impl() -> TokenStream {
                 libm::truncf(self)
             }
         }
-        
+
         #[cfg(all(feature = "libm", not(feature = "std")))]
         impl FloatExt for f64 {
             #[inline(always)]
