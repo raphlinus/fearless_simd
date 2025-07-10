@@ -20,13 +20,16 @@ pub struct VecType {
 }
 
 impl ScalarType {
-    pub fn rust(&self, scalar_bits: usize) -> TokenStream {
-        let scalar = match self {
+    pub fn prefix(self) -> &'static str {
+        match self {
             ScalarType::Float => "f",
             ScalarType::Unsigned => "u",
             ScalarType::Int | ScalarType::Mask => "i",
-        };
-        let name = format!("{}{}", scalar, scalar_bits);
+        }
+    }
+
+    pub fn rust(&self, scalar_bits: usize) -> TokenStream {
+        let name = format!("{}{}", self.prefix(), scalar_bits);
         let ident = Ident::new(&name, Span::call_site());
         quote! { #ident }
     }
