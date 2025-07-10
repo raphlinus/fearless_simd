@@ -28,9 +28,12 @@ impl ScalarType {
         }
     }
 
+    pub fn rust_name(&self, scalar_bits: usize) -> String {
+        format!("{}{}", self.prefix(), scalar_bits)
+    }
+
     pub fn rust(&self, scalar_bits: usize) -> TokenStream {
-        let name = format!("{}{}", self.prefix(), scalar_bits);
-        let ident = Ident::new(&name, Span::call_site());
+        let ident = Ident::new(&self.rust_name(scalar_bits), Span::call_site());
         quote! { #ident }
     }
 }

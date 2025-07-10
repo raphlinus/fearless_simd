@@ -364,6 +364,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
             methods.push(method);
         }
     }
+
     // Note: the `vectorize` implementation is pretty boilerplate and should probably
     // be factored out for DRY.
     quote! {

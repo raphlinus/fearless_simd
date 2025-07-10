@@ -105,3 +105,13 @@ impl SimdElement for u32 {
 impl SimdElement for i32 {
     type Mask = i32;
 }
+
+/// Construction of integer vectors from floats by truncation
+pub trait SimdCvtTruncate<T> {
+    fn truncate_from(x: T) -> Self;
+}
+
+/// Construction of floating point vectors from integers
+pub trait SimdCvtFloat<T> {
+    fn float_from(x: T) -> Self;
+}

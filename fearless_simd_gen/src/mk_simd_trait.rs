@@ -26,18 +26,18 @@ pub fn mk_simd_trait() -> TokenStream {
         }
     }
     let mut code = quote! {
-        use crate::{seal::Seal, Level, SimdElement, SimdInto};
+        use crate::{seal::Seal, Level, SimdElement, SimdInto, SimdCvtTruncate, SimdCvtFloat};
         #imports
         /// TODO: docstring
         // TODO: Seal
         pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
-            type f32s: SimdFloat<f32, Self, Block = f32x4<Self>>;
+            type f32s: SimdFloat<f32, Self, Block = f32x4<Self>> + SimdCvtFloat<Self::u32s> + SimdCvtFloat<Self::i32s>;
             type u8s: SimdInt<u8, Self, Block = u8x16<Self>>;
             type i8s: SimdInt<i8, Self, Block = i8x16<Self>>;
             type u16s: SimdInt<u16, Self, Block = u16x8<Self>>;
             type i16s: SimdInt<i16, Self, Block = i16x8<Self>>;
-            type u32s: SimdInt<u32, Self, Block = u32x4<Self>>;
-            type i32s: SimdInt<i32, Self, Block = i32x4<Self>>;
+            type u32s: SimdInt<u32, Self, Block = u32x4<Self>> + SimdCvtTruncate<Self::f32s>;
+            type i32s: SimdInt<i32, Self, Block = i32x4<Self>> + SimdCvtTruncate<Self::f32s>;
             type mask8s: SimdMask<i8, Self, Block = mask8x16<Self>>;
             type mask16s: SimdMask<i16, Self, Block = mask16x8<Self>>;
             type mask32s: SimdMask<i32, Self, Block = mask32x4<Self>>;
@@ -101,6 +101,9 @@ fn mk_simd_float() -> TokenStream {
             + core::ops::Div<Output = Self>
             + core::ops::Div<Element, Output = Self>
         {
+            #[inline(always)]
+            fn to_int<T: SimdCvtTruncate<Self>>(self) -> T { T::truncate_from(self) }
+
             #( #methods )*
         }
     }
@@ -123,6 +126,9 @@ fn mk_simd_int() -> TokenStream {
             + core::ops::BitXor<Output = Self>
             + core::ops::BitXor<Element, Output = Self>
         {
+            #[inline(always)]
+            fn to_float<T: SimdCvtFloat<Self>>(self) -> T { T::float_from(self) }
+
             #( #methods )*
         }
     }
