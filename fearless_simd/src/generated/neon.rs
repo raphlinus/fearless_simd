@@ -172,6 +172,10 @@ impl Simd for Neon {
         unsafe { vcvtq_u32_f32(a.into()).simd_into(self) }
     }
     #[inline(always)]
+    fn cvt_i32_f32x4(self, a: f32x4<Self>) -> i32x4<Self> {
+        unsafe { vcvtq_s32_f32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn splat_i8x16(self, val: i8) -> i8x16<Self> {
         unsafe { vdupq_n_s8(val).simd_into(self) }
     }
@@ -711,6 +715,10 @@ impl Simd for Neon {
         unsafe { vreinterpretq_u8_s32(a.into()).simd_into(self) }
     }
     #[inline(always)]
+    fn cvt_f32_i32x4(self, a: i32x4<Self>) -> f32x4<Self> {
+        unsafe { vcvtq_f32_s32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
     fn splat_u32x4(self, val: u32) -> u32x4<Self> {
         unsafe { vdupq_n_u32(val).simd_into(self) }
     }
@@ -1022,6 +1030,11 @@ impl Simd for Neon {
     fn cvt_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self> {
         let (a0, a1) = self.split_f32x8(a);
         self.combine_u32x4(self.cvt_u32_f32x4(a0), self.cvt_u32_f32x4(a1))
+    }
+    #[inline(always)]
+    fn cvt_i32_f32x8(self, a: f32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_i32x4(self.cvt_i32_f32x4(a0), self.cvt_i32_f32x4(a1))
     }
     #[inline(always)]
     fn splat_i8x32(self, a: i8) -> i8x32<Self> {
@@ -1821,6 +1834,11 @@ impl Simd for Neon {
         self.combine_u8x16(self.reinterpret_u8_i32x4(a0), self.reinterpret_u8_i32x4(a1))
     }
     #[inline(always)]
+    fn cvt_f32_i32x8(self, a: i32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        self.combine_f32x4(self.cvt_f32_i32x4(a0), self.cvt_f32_i32x4(a1))
+    }
+    #[inline(always)]
     fn splat_u32x8(self, a: u32) -> u32x8<Self> {
         let half = self.splat_u32x4(a);
         self.combine_u32x4(half, half)
@@ -2199,6 +2217,11 @@ impl Simd for Neon {
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
         let (a0, a1) = self.split_f32x16(a);
         self.combine_u32x8(self.cvt_u32_f32x8(a0), self.cvt_u32_f32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_i32_f32x16(self, a: f32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_i32x8(self.cvt_i32_f32x8(a0), self.cvt_i32_f32x8(a1))
     }
     #[inline(always)]
     fn splat_i8x64(self, a: i8) -> i8x64<Self> {
@@ -2969,6 +2992,11 @@ impl Simd for Neon {
     fn reinterpret_u8_i32x16(self, a: i32x16<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_i32x16(a);
         self.combine_u8x32(self.reinterpret_u8_i32x8(a0), self.reinterpret_u8_i32x8(a1))
+    }
+    #[inline(always)]
+    fn cvt_f32_i32x16(self, a: i32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        self.combine_f32x8(self.cvt_f32_i32x8(a0), self.cvt_f32_i32x8(a1))
     }
     #[inline(always)]
     fn splat_u32x16(self, a: u32) -> u32x16<Self> {

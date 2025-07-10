@@ -51,6 +51,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn select_f32x4(self, a: mask32x4<Self>, b: f32x4<Self>, c: f32x4<Self>) -> f32x4<Self>;
     fn combine_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x8<Self>;
     fn cvt_u32_f32x4(self, a: f32x4<Self>) -> u32x4<Self>;
+    fn cvt_i32_f32x4(self, a: f32x4<Self>) -> i32x4<Self>;
     fn splat_i8x16(self, val: i8) -> i8x16<Self>;
     fn not_i8x16(self, a: i8x16<Self>) -> i8x16<Self>;
     fn add_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self>;
@@ -182,6 +183,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn max_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self>;
     fn combine_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x8<Self>;
     fn reinterpret_u8_i32x4(self, a: i32x4<Self>) -> u8x16<Self>;
+    fn cvt_f32_i32x4(self, a: i32x4<Self>) -> f32x4<Self>;
     fn splat_u32x4(self, val: u32) -> u32x4<Self>;
     fn not_u32x4(self, a: u32x4<Self>) -> u32x4<Self>;
     fn add_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self>;
@@ -246,6 +248,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn combine_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x16<Self>;
     fn split_f32x8(self, a: f32x8<Self>) -> (f32x4<Self>, f32x4<Self>);
     fn cvt_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self>;
+    fn cvt_i32_f32x8(self, a: f32x8<Self>) -> i32x8<Self>;
     fn splat_i8x32(self, val: i8) -> i8x32<Self>;
     fn not_i8x32(self, a: i8x32<Self>) -> i8x32<Self>;
     fn add_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self>;
@@ -385,6 +388,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn combine_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x16<Self>;
     fn split_i32x8(self, a: i32x8<Self>) -> (i32x4<Self>, i32x4<Self>);
     fn reinterpret_u8_i32x8(self, a: i32x8<Self>) -> u8x32<Self>;
+    fn cvt_f32_i32x8(self, a: i32x8<Self>) -> f32x8<Self>;
     fn splat_u32x8(self, val: u32) -> u32x8<Self>;
     fn not_u32x8(self, a: u32x8<Self>) -> u32x8<Self>;
     fn add_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self>;
@@ -452,6 +456,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn load_interleaved_128_f32x16(self, src: &[f32; 16usize]) -> f32x16<Self>;
     fn store_interleaved_128_f32x16(self, a: f32x16<Self>, dest: &mut [f32; 16usize]) -> ();
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self>;
+    fn cvt_i32_f32x16(self, a: f32x16<Self>) -> i32x16<Self>;
     fn splat_i8x64(self, val: i8) -> i8x64<Self>;
     fn not_i8x64(self, a: i8x64<Self>) -> i8x64<Self>;
     fn add_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self>;
@@ -587,6 +592,7 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     fn max_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self>;
     fn split_i32x16(self, a: i32x16<Self>) -> (i32x8<Self>, i32x8<Self>);
     fn reinterpret_u8_i32x16(self, a: i32x16<Self>) -> u8x64<Self>;
+    fn cvt_f32_i32x16(self, a: i32x16<Self>) -> f32x16<Self>;
     fn splat_u32x16(self, val: u32) -> u32x16<Self>;
     fn not_u32x16(self, a: u32x16<Self>) -> u32x16<Self>;
     fn add_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self>;
