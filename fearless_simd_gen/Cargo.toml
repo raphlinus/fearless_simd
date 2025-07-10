@@ -13,7 +13,5 @@ publish = false
 
 [dependencies]
 proc-macro2 = "1.0.94"
-syn = { version = "2.0", features = ["extra-traits"] }
 quote = "1.0.40"
-prettyplease = "0.2.31"
 clap = { version = "4.5.39", features = ["derive"] }

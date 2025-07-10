@@ -6,7 +6,7 @@ use crate::{
     mask8x16, mask8x32, mask8x64, mask16x8, mask16x16, mask16x32, mask32x4, mask32x8, mask32x16,
     u8x16, u8x32, u8x64, u16x8, u16x16, u16x32, u32x4, u32x8, u32x16,
 };
-/// TODO: docstring
+#[doc = r" TODO: docstring"]
 pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     type f32s: SimdFloat<f32, Self, Block = f32x4<Self>>;
     type u8s: SimdInt<u8, Self, Block = u8x16<Self>>;
@@ -19,9 +19,9 @@ pub trait Simd: Sized + Clone + Copy + Send + Sync + Seal + 'static {
     type mask16s: SimdMask<i16, Self, Block = mask16x8<Self>>;
     type mask32s: SimdMask<i32, Self, Block = mask32x4<Self>>;
     fn level(self) -> Level;
-    /// Call function with CPU features enabled.
-    ///
-    /// For performance, the provided function should be `#[inline(always)]`.
+    #[doc = r" Call function with CPU features enabled."]
+    #[doc = r""]
+    #[doc = r" For performance, the provided function should be `#[inline(always)]`."]
     fn vectorize<F: FnOnce() -> R, R>(self, f: F) -> R;
     fn splat_f32x4(self, val: f32) -> f32x4<Self>;
     fn abs_f32x4(self, a: f32x4<Self>) -> f32x4<Self>;
@@ -629,22 +629,22 @@ pub trait SimdBase<Element: SimdElement, S: Simd>:
     Copy + Sync + Send + 'static + crate::Bytes
 {
     const N: usize;
-    /// A SIMD vector mask with the same number of elements.
-    ///
-    /// The mask element is represented as an integer which is
-    /// all-0 for `false` and all-1 for `true`. When we get deep
-    /// into AVX-512, we need to think about predication masks.
-    ///
-    /// One possiblity to consider is that the SIMD trait grows
-    /// `maskAxB` associated types.
+    #[doc = r" A SIMD vector mask with the same number of elements."]
+    #[doc = r""]
+    #[doc = r" The mask element is represented as an integer which is"]
+    #[doc = r" all-0 for `false` and all-1 for `true`. When we get deep"]
+    #[doc = r" into AVX-512, we need to think about predication masks."]
+    #[doc = r""]
+    #[doc = r" One possiblity to consider is that the SIMD trait grows"]
+    #[doc = r" `maskAxB` associated types."]
     type Mask: SimdMask<Element::Mask, S>;
-    /// A 128 bit SIMD vector of the same scalar type.
+    #[doc = r" A 128 bit SIMD vector of the same scalar type."]
     type Block: SimdBase<Element, S>;
     fn as_slice(&self) -> &[Element];
     fn as_mut_slice(&mut self) -> &mut [Element];
-    /// Create a SIMD vector from a slice.
-    ///
-    /// The slice must be the proper width.
+    #[doc = r" Create a SIMD vector from a slice."]
+    #[doc = r""]
+    #[doc = r" The slice must be the proper width."]
     fn from_slice(simd: S, slice: &[Element]) -> Self;
     fn splat(simd: S, val: Element) -> Self;
     fn block_splat(block: Self::Block) -> Self;

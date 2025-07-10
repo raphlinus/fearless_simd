@@ -7,7 +7,7 @@ use crate::{
     u8x16, u8x32, u8x64, u16x8, u16x16, u16x32, u32x4, u32x8, u32x16,
 };
 use core::arch::wasm32::*;
-/// The SIMD token for the "wasm128" level.
+#[doc = r#" The SIMD token for the "wasm128" level."#]
 #[derive(Clone, Copy, Debug)]
 pub struct WasmSimd128 {
     _private: (),
