@@ -1,9 +1,8 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use proc_macro2::{Literal, Span, TokenStream};
+use proc_macro2::{Ident, Literal, Span, TokenStream};
 use quote::quote;
-use syn::Ident;
 
 use crate::{
     ops::{CORE_OPS, OpSig, TyFlavor, ops_for_type},

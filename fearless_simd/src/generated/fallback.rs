@@ -33,7 +33,7 @@ impl FloatExt for f32 {
         libm::truncf(self)
     }
 }
-/// The SIMD token for the "fallback" level.
+#[doc = r#" The SIMD token for the "fallback" level."#]
 #[derive(Clone, Copy, Debug)]
 pub struct Fallback {
     pub fallback: crate::core_arch::fallback::Fallback,

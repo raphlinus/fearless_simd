@@ -1,9 +1,8 @@
 // Copyright 2025 the Fearless_SIMD Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
-use proc_macro2::{Span, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
-use syn::Ident;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum ScalarType {
