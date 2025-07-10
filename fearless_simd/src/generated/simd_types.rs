@@ -154,6 +154,22 @@ impl<S: Simd> f32x4<S> {
         self.simd.combine_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn reinterpret_f64(self) -> f64x2<S> {
+        self.simd.reinterpret_f64_f32x4(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_i32(self) -> i32x4<S> {
+        self.simd.reinterpret_i32_f32x4(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x16<S> {
+        self.simd.reinterpret_u8_f32x4(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_f32x4(self)
+    }
+    #[inline(always)]
     pub fn cvt_u32(self) -> u32x4<S> {
         self.simd.cvt_u32_f32x4(self)
     }
@@ -229,6 +245,14 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x4<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
         self.simd.zip_high_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.unzip_low_f32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
+        self.simd.unzip_high_f32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> f32x4<S> {
@@ -422,6 +446,10 @@ impl<S: Simd> i8x16<S> {
     pub fn reinterpret_u8(self) -> u8x16<S> {
         self.simd.reinterpret_u8_i8x16(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_i8x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i8, S> for i8x16<S> {
     const N: usize = 16;
@@ -478,6 +506,14 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
         self.simd.zip_high_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.unzip_low_i8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
+        self.simd.unzip_high_i8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i8x16<S> {
@@ -637,6 +673,10 @@ impl<S: Simd> u8x16<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.combine_u8x16(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_u8x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u8, S> for u8x16<S> {
     const N: usize = 16;
@@ -693,6 +733,14 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
         self.simd.zip_high_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.unzip_low_u8x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
+        self.simd.unzip_high_u8x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u8x16<S> {
@@ -985,6 +1033,10 @@ impl<S: Simd> i16x8<S> {
     pub fn reinterpret_u8(self) -> u8x16<S> {
         self.simd.reinterpret_u8_i16x8(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_i16x8(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i16, S> for i16x8<S> {
     const N: usize = 8;
@@ -1041,6 +1093,14 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x8<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
         self.simd.zip_high_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.unzip_low_i16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
+        self.simd.unzip_high_i16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i16x8<S> {
@@ -1196,6 +1256,10 @@ impl<S: Simd> u16x8<S> {
     pub fn reinterpret_u8(self) -> u8x16<S> {
         self.simd.reinterpret_u8_u16x8(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_u16x8(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u16, S> for u16x8<S> {
     const N: usize = 8;
@@ -1252,6 +1316,14 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x8<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
         self.simd.zip_high_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.unzip_low_u16x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
+        self.simd.unzip_high_u16x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u16x8<S> {
@@ -1528,6 +1600,10 @@ impl<S: Simd> i32x4<S> {
         self.simd.reinterpret_u8_i32x4(self)
     }
     #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x4<S> {
+        self.simd.reinterpret_u32_i32x4(self)
+    }
+    #[inline(always)]
     pub fn cvt_f32(self) -> f32x4<S> {
         self.simd.cvt_f32_i32x4(self)
     }
@@ -1587,6 +1663,14 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x4<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
         self.simd.zip_high_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.unzip_low_i32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
+        self.simd.unzip_high_i32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i32x4<S> {
@@ -1795,6 +1879,14 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x4<S> {
         self.simd.zip_high_u32x4(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.unzip_low_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
+        self.simd.unzip_high_u32x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u32x4<S> {
         self.simd.min_u32x4(self, rhs.simd_into(self.simd))
     }
@@ -1921,6 +2013,398 @@ impl<S: Simd> crate::SimdMask<i32, S> for mask32x4<S> {
     #[inline(always)]
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x4<S> {
         self.simd.simd_eq_mask32x4(self, rhs.simd_into(self.simd))
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(16))]
+pub struct f64x2<S: Simd> {
+    pub val: [f64; 2],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[f64; 2], S> for f64x2<S> {
+    #[inline(always)]
+    fn simd_from(val: [f64; 2], simd: S) -> Self {
+        Self {
+            val: [val[0usize], val[1usize]],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x2<S>> for [f64; 2] {
+    #[inline(always)]
+    fn from(value: f64x2<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for f64x2<S> {
+    type Target = [f64; 2];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for f64x2<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> SimdFrom<f64, S> for f64x2<S> {
+    #[inline(always)]
+    fn simd_from(value: f64, simd: S) -> Self {
+        simd.splat_f64x2(value)
+    }
+}
+impl<S: Simd> Select<f64x2<S>> for mask64x2<S> {
+    #[inline(always)]
+    fn select(self, if_true: f64x2<S>, if_false: f64x2<S>) -> f64x2<S> {
+        self.simd.select_f64x2(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for f64x2<S> {
+    type Bytes = u8x16<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x16 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> f64x2<S> {
+    #[inline(always)]
+    pub fn abs(self) -> f64x2<S> {
+        self.simd.abs_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn neg(self) -> f64x2<S> {
+        self.simd.neg_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn sqrt(self) -> f64x2<S> {
+        self.simd.sqrt_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn add(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.add_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn sub(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.sub_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn mul(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.mul_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn div(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.div_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.copysign_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_eq_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_lt_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_le_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_ge_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_gt_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.max_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.max_precise_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.min_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.min_precise_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f64x2<S> {
+        self.simd.floor_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn fract(self) -> f64x2<S> {
+        self.simd.fract_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn trunc(self) -> f64x2<S> {
+        self.simd.trunc_f64x2(self)
+    }
+    #[inline(always)]
+    pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.combine_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_f32(self) -> f32x4<S> {
+        self.simd.reinterpret_f32_f64x2(self)
+    }
+}
+impl<S: Simd> crate::SimdBase<f64, S> for f64x2<S> {
+    const N: usize = 2;
+    type Mask = mask64x2<S>;
+    type Block = f64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[f64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [f64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[f64]) -> Self {
+        let mut val = [0.0; 2];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: f64) -> Self {
+        simd.splat_f64x2(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
+    }
+}
+impl<S: Simd> crate::SimdFloat<f64, S> for f64x2<S> {
+    #[inline(always)]
+    fn abs(self) -> f64x2<S> {
+        self.simd.abs_f64x2(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f64x2<S> {
+        self.simd.sqrt_f64x2(self)
+    }
+    #[inline(always)]
+    fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.copysign_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_eq_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_lt_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_le_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_ge_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_gt_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_low(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.zip_low_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.zip_high_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.unzip_low_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.unzip_high_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.max_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.max_precise_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.min_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd.min_precise_f64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd
+            .madd_f64x2(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x2<S> {
+        self.simd
+            .msub_f64x2(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f64x2<S> {
+        self.simd.floor_f64x2(self)
+    }
+    #[inline(always)]
+    fn fract(self) -> f64x2<S> {
+        self.simd.fract_f64x2(self)
+    }
+    #[inline(always)]
+    fn trunc(self) -> f64x2<S> {
+        self.simd.trunc_f64x2(self)
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(16))]
+pub struct mask64x2<S: Simd> {
+    pub val: [i64; 2],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[i64; 2], S> for mask64x2<S> {
+    #[inline(always)]
+    fn simd_from(val: [i64; 2], simd: S) -> Self {
+        Self {
+            val: [val[0usize], val[1usize]],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x2<S>> for [i64; 2] {
+    #[inline(always)]
+    fn from(value: mask64x2<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for mask64x2<S> {
+    type Target = [i64; 2];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for mask64x2<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> Select<mask64x2<S>> for mask64x2<S> {
+    #[inline(always)]
+    fn select(self, if_true: mask64x2<S>, if_false: mask64x2<S>) -> mask64x2<S> {
+        self.simd.select_mask64x2(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for mask64x2<S> {
+    type Bytes = u8x16<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x16 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> mask64x2<S> {
+    #[inline(always)]
+    pub fn not(self) -> mask64x2<S> {
+        self.simd.not_mask64x2(self)
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.and_mask64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.or_mask64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.xor_mask64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_eq_mask64x2(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn combine(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.combine_mask64x2(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i64, S> for mask64x2<S> {
+    const N: usize = 2;
+    type Mask = mask64x2<S>;
+    type Block = mask64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i64]) -> Self {
+        let mut val = [0; 2];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i64) -> Self {
+        simd.splat_mask64x2(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block
+    }
+}
+impl<S: Simd> crate::SimdMask<i64, S> for mask64x2<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x2<S> {
+        self.simd.simd_eq_mask64x2(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -2085,6 +2569,22 @@ impl<S: Simd> f32x8<S> {
         self.simd.combine_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    pub fn reinterpret_f64(self) -> f64x4<S> {
+        self.simd.reinterpret_f64_f32x8(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_i32(self) -> i32x8<S> {
+        self.simd.reinterpret_i32_f32x8(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x32<S> {
+        self.simd.reinterpret_u8_f32x8(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_f32x8(self)
+    }
+    #[inline(always)]
     pub fn cvt_u32(self) -> u32x8<S> {
         self.simd.cvt_u32_f32x8(self)
     }
@@ -2160,6 +2660,14 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x8<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
         self.simd.zip_high_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.unzip_low_f32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
+        self.simd.unzip_high_f32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> f32x8<S> {
@@ -2369,6 +2877,10 @@ impl<S: Simd> i8x32<S> {
     pub fn reinterpret_u8(self) -> u8x32<S> {
         self.simd.reinterpret_u8_i8x32(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_i8x32(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i8, S> for i8x32<S> {
     const N: usize = 32;
@@ -2425,6 +2937,14 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x32<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
         self.simd.zip_high_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.unzip_low_i8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
+        self.simd.unzip_high_i8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i8x32<S> {
@@ -2600,6 +3120,10 @@ impl<S: Simd> u8x32<S> {
     pub fn combine(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.combine_u8x32(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_u8x32(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u8, S> for u8x32<S> {
     const N: usize = 32;
@@ -2656,6 +3180,14 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x32<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
         self.simd.zip_high_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.unzip_low_u8x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
+        self.simd.unzip_high_u8x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u8x32<S> {
@@ -2972,6 +3504,10 @@ impl<S: Simd> i16x16<S> {
     pub fn reinterpret_u8(self) -> u8x32<S> {
         self.simd.reinterpret_u8_i16x16(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_i16x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i16, S> for i16x16<S> {
     const N: usize = 16;
@@ -3028,6 +3564,14 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
         self.simd.zip_high_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd.unzip_low_i16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
+        self.simd.unzip_high_i16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i16x16<S> {
@@ -3191,6 +3735,10 @@ impl<S: Simd> u16x16<S> {
     pub fn reinterpret_u8(self) -> u8x32<S> {
         self.simd.reinterpret_u8_u16x16(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_u16x16(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u16, S> for u16x16<S> {
     const N: usize = 16;
@@ -3247,6 +3795,14 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
         self.simd.zip_high_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd.unzip_low_u16x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
+        self.simd.unzip_high_u16x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u16x16<S> {
@@ -3540,6 +4096,10 @@ impl<S: Simd> i32x8<S> {
         self.simd.reinterpret_u8_i32x8(self)
     }
     #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x8<S> {
+        self.simd.reinterpret_u32_i32x8(self)
+    }
+    #[inline(always)]
     pub fn cvt_f32(self) -> f32x8<S> {
         self.simd.cvt_f32_i32x8(self)
     }
@@ -3599,6 +4159,14 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x8<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
         self.simd.zip_high_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.unzip_low_i32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
+        self.simd.unzip_high_i32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i32x8<S> {
@@ -3816,6 +4384,14 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x8<S> {
         self.simd.zip_high_u32x8(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.unzip_low_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
+        self.simd.unzip_high_u32x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u32x8<S> {
         self.simd.min_u32x8(self, rhs.simd_into(self.simd))
     }
@@ -3951,6 +4527,398 @@ impl<S: Simd> crate::SimdMask<i32, S> for mask32x8<S> {
     #[inline(always)]
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x8<S> {
         self.simd.simd_eq_mask32x8(self, rhs.simd_into(self.simd))
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(32))]
+pub struct f64x4<S: Simd> {
+    pub val: [f64; 4],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[f64; 4], S> for f64x4<S> {
+    #[inline(always)]
+    fn simd_from(val: [f64; 4], simd: S) -> Self {
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x4<S>> for [f64; 4] {
+    #[inline(always)]
+    fn from(value: f64x4<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for f64x4<S> {
+    type Target = [f64; 4];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for f64x4<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> SimdFrom<f64, S> for f64x4<S> {
+    #[inline(always)]
+    fn simd_from(value: f64, simd: S) -> Self {
+        simd.splat_f64x4(value)
+    }
+}
+impl<S: Simd> Select<f64x4<S>> for mask64x4<S> {
+    #[inline(always)]
+    fn select(self, if_true: f64x4<S>, if_false: f64x4<S>) -> f64x4<S> {
+        self.simd.select_f64x4(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for f64x4<S> {
+    type Bytes = u8x32<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x32 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> f64x4<S> {
+    #[inline(always)]
+    pub fn abs(self) -> f64x4<S> {
+        self.simd.abs_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn neg(self) -> f64x4<S> {
+        self.simd.neg_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn sqrt(self) -> f64x4<S> {
+        self.simd.sqrt_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn add(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.add_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn sub(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.sub_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn mul(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.mul_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn div(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.div_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.copysign_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_eq_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_lt_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_le_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_ge_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_gt_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.max_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.max_precise_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.min_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.min_precise_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f64x4<S> {
+        self.simd.floor_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn fract(self) -> f64x4<S> {
+        self.simd.fract_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn trunc(self) -> f64x4<S> {
+        self.simd.trunc_f64x4(self)
+    }
+    #[inline(always)]
+    pub fn combine(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.combine_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn reinterpret_f32(self) -> f32x8<S> {
+        self.simd.reinterpret_f32_f64x4(self)
+    }
+}
+impl<S: Simd> crate::SimdBase<f64, S> for f64x4<S> {
+    const N: usize = 4;
+    type Mask = mask64x4<S>;
+    type Block = f64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[f64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [f64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[f64]) -> Self {
+        let mut val = [0.0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: f64) -> Self {
+        simd.splat_f64x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
+    }
+}
+impl<S: Simd> crate::SimdFloat<f64, S> for f64x4<S> {
+    #[inline(always)]
+    fn abs(self) -> f64x4<S> {
+        self.simd.abs_f64x4(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f64x4<S> {
+        self.simd.sqrt_f64x4(self)
+    }
+    #[inline(always)]
+    fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.copysign_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_eq_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_lt_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_le_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_ge_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_gt_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_low(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.zip_low_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.zip_high_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.unzip_low_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.unzip_high_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.max_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.max_precise_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.min_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd.min_precise_f64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd
+            .madd_f64x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x4<S> {
+        self.simd
+            .msub_f64x4(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f64x4<S> {
+        self.simd.floor_f64x4(self)
+    }
+    #[inline(always)]
+    fn fract(self) -> f64x4<S> {
+        self.simd.fract_f64x4(self)
+    }
+    #[inline(always)]
+    fn trunc(self) -> f64x4<S> {
+        self.simd.trunc_f64x4(self)
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(32))]
+pub struct mask64x4<S: Simd> {
+    pub val: [i64; 4],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[i64; 4], S> for mask64x4<S> {
+    #[inline(always)]
+    fn simd_from(val: [i64; 4], simd: S) -> Self {
+        Self {
+            val: [val[0usize], val[1usize], val[2usize], val[3usize]],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x4<S>> for [i64; 4] {
+    #[inline(always)]
+    fn from(value: mask64x4<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for mask64x4<S> {
+    type Target = [i64; 4];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for mask64x4<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> Select<mask64x4<S>> for mask64x4<S> {
+    #[inline(always)]
+    fn select(self, if_true: mask64x4<S>, if_false: mask64x4<S>) -> mask64x4<S> {
+        self.simd.select_mask64x4(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for mask64x4<S> {
+    type Bytes = u8x32<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x32 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> mask64x4<S> {
+    #[inline(always)]
+    pub fn not(self) -> mask64x4<S> {
+        self.simd.not_mask64x4(self)
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.and_mask64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.or_mask64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.xor_mask64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_eq_mask64x4(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn combine(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.combine_mask64x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i64, S> for mask64x4<S> {
+    const N: usize = 4;
+    type Mask = mask64x4<S>;
+    type Block = mask64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i64]) -> Self {
+        let mut val = [0; 4];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i64) -> Self {
+        simd.splat_mask64x4(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        block.combine(block)
+    }
+}
+impl<S: Simd> crate::SimdMask<i64, S> for mask64x4<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x4<S> {
+        self.simd.simd_eq_mask64x4(self, rhs.simd_into(self.simd))
     }
 }
 #[derive(Clone, Copy, Debug)]
@@ -4119,6 +5087,22 @@ impl<S: Simd> f32x16<S> {
         self.simd.trunc_f32x16(self)
     }
     #[inline(always)]
+    pub fn reinterpret_f64(self) -> f64x8<S> {
+        self.simd.reinterpret_f64_f32x16(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_i32(self) -> i32x16<S> {
+        self.simd.reinterpret_i32_f32x16(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u8(self) -> u8x64<S> {
+        self.simd.reinterpret_u8_f32x16(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_f32x16(self)
+    }
+    #[inline(always)]
     pub fn cvt_u32(self) -> u32x16<S> {
         self.simd.cvt_u32_f32x16(self)
     }
@@ -4195,6 +5179,14 @@ impl<S: Simd> crate::SimdFloat<f32, S> for f32x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f32x16<S> {
         self.simd.zip_high_f32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f32x16<S> {
+        self.simd.unzip_low_f32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f32x16<S> {
+        self.simd.unzip_high_f32x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn max(self, rhs: impl SimdInto<Self, S>) -> f32x16<S> {
@@ -4432,6 +5424,10 @@ impl<S: Simd> i8x64<S> {
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_i8x64(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_i8x64(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i8, S> for i8x64<S> {
     const N: usize = 64;
@@ -4489,6 +5485,14 @@ impl<S: Simd> crate::SimdInt<i8, S> for i8x64<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
         self.simd.zip_high_i8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
+        self.simd.unzip_low_i8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
+        self.simd.unzip_high_i8x64(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i8x64<S> {
@@ -4692,6 +5696,10 @@ impl<S: Simd> u8x64<S> {
     pub fn max(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.max_u8x64(self, rhs.simd_into(self.simd))
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_u8x64(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u8, S> for u8x64<S> {
     const N: usize = 64;
@@ -4749,6 +5757,14 @@ impl<S: Simd> crate::SimdInt<u8, S> for u8x64<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
         self.simd.zip_high_u8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
+        self.simd.unzip_low_u8x64(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
+        self.simd.unzip_high_u8x64(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u8x64<S> {
@@ -5106,6 +6122,10 @@ impl<S: Simd> i16x32<S> {
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_i16x32(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_i16x32(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<i16, S> for i16x32<S> {
     const N: usize = 32;
@@ -5163,6 +6183,14 @@ impl<S: Simd> crate::SimdInt<i16, S> for i16x32<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
         self.simd.zip_high_i16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
+        self.simd.unzip_low_i16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
+        self.simd.unzip_high_i16x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i16x32<S> {
@@ -5338,6 +6366,10 @@ impl<S: Simd> u16x32<S> {
     pub fn reinterpret_u8(self) -> u8x64<S> {
         self.simd.reinterpret_u8_u16x32(self)
     }
+    #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_u16x32(self)
+    }
 }
 impl<S: Simd> crate::SimdBase<u16, S> for u16x32<S> {
     const N: usize = 32;
@@ -5395,6 +6427,14 @@ impl<S: Simd> crate::SimdInt<u16, S> for u16x32<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
         self.simd.zip_high_u16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
+        self.simd.unzip_low_u16x32(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
+        self.simd.unzip_high_u16x32(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u16x32<S> {
@@ -5705,6 +6745,10 @@ impl<S: Simd> i32x16<S> {
         self.simd.reinterpret_u8_i32x16(self)
     }
     #[inline(always)]
+    pub fn reinterpret_u32(self) -> u32x16<S> {
+        self.simd.reinterpret_u32_i32x16(self)
+    }
+    #[inline(always)]
     pub fn cvt_f32(self) -> f32x16<S> {
         self.simd.cvt_f32_i32x16(self)
     }
@@ -5765,6 +6809,14 @@ impl<S: Simd> crate::SimdInt<i32, S> for i32x16<S> {
     #[inline(always)]
     fn zip_high(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
         self.simd.zip_high_i32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
+        self.simd.unzip_low_i32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
+        self.simd.unzip_high_i32x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> i32x16<S> {
@@ -5987,6 +7039,14 @@ impl<S: Simd> crate::SimdInt<u32, S> for u32x16<S> {
         self.simd.zip_high_u32x16(self, rhs.simd_into(self.simd))
     }
     #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
+        self.simd.unzip_low_u32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
+        self.simd.unzip_high_u32x16(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
     fn min(self, rhs: impl SimdInto<Self, S>) -> u32x16<S> {
         self.simd.min_u32x16(self, rhs.simd_into(self.simd))
     }
@@ -6127,5 +7187,409 @@ impl<S: Simd> crate::SimdMask<i32, S> for mask32x16<S> {
     #[inline(always)]
     fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask32x16<S> {
         self.simd.simd_eq_mask32x16(self, rhs.simd_into(self.simd))
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(64))]
+pub struct f64x8<S: Simd> {
+    pub val: [f64; 8],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[f64; 8], S> for f64x8<S> {
+    #[inline(always)]
+    fn simd_from(val: [f64; 8], simd: S) -> Self {
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x8<S>> for [f64; 8] {
+    #[inline(always)]
+    fn from(value: f64x8<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for f64x8<S> {
+    type Target = [f64; 8];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for f64x8<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> SimdFrom<f64, S> for f64x8<S> {
+    #[inline(always)]
+    fn simd_from(value: f64, simd: S) -> Self {
+        simd.splat_f64x8(value)
+    }
+}
+impl<S: Simd> Select<f64x8<S>> for mask64x8<S> {
+    #[inline(always)]
+    fn select(self, if_true: f64x8<S>, if_false: f64x8<S>) -> f64x8<S> {
+        self.simd.select_f64x8(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for f64x8<S> {
+    type Bytes = u8x64<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x64 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> f64x8<S> {
+    #[inline(always)]
+    pub fn abs(self) -> f64x8<S> {
+        self.simd.abs_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn neg(self) -> f64x8<S> {
+        self.simd.neg_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn sqrt(self) -> f64x8<S> {
+        self.simd.sqrt_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn add(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.add_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn sub(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.sub_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn mul(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.mul_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn div(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.div_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.copysign_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_eq_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_lt_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_le_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_ge_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_gt_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.max_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.max_precise_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.min_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.min_precise_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn floor(self) -> f64x8<S> {
+        self.simd.floor_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn fract(self) -> f64x8<S> {
+        self.simd.fract_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn trunc(self) -> f64x8<S> {
+        self.simd.trunc_f64x8(self)
+    }
+    #[inline(always)]
+    pub fn reinterpret_f32(self) -> f32x16<S> {
+        self.simd.reinterpret_f32_f64x8(self)
+    }
+}
+impl<S: Simd> crate::SimdBase<f64, S> for f64x8<S> {
+    const N: usize = 8;
+    type Mask = mask64x8<S>;
+    type Block = f64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[f64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [f64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[f64]) -> Self {
+        let mut val = [0.0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: f64) -> Self {
+        simd.splat_f64x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        let block2 = block.combine(block);
+        block2.combine(block2)
+    }
+}
+impl<S: Simd> crate::SimdFloat<f64, S> for f64x8<S> {
+    #[inline(always)]
+    fn abs(self) -> f64x8<S> {
+        self.simd.abs_f64x8(self)
+    }
+    #[inline(always)]
+    fn sqrt(self) -> f64x8<S> {
+        self.simd.sqrt_f64x8(self)
+    }
+    #[inline(always)]
+    fn copysign(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.copysign_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_eq_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_lt(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_lt_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_le(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_le_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_ge(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_ge_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn simd_gt(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_gt_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_low(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.zip_low_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn zip_high(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.zip_high_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_low(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.unzip_low_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn unzip_high(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.unzip_high_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.max_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn max_precise(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.max_precise_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.min_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn min_precise(self, rhs: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd.min_precise_f64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn madd(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd
+            .madd_f64x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn msub(self, op1: impl SimdInto<Self, S>, op2: impl SimdInto<Self, S>) -> f64x8<S> {
+        self.simd
+            .msub_f64x8(self, op1.simd_into(self.simd), op2.simd_into(self.simd))
+    }
+    #[inline(always)]
+    fn floor(self) -> f64x8<S> {
+        self.simd.floor_f64x8(self)
+    }
+    #[inline(always)]
+    fn fract(self) -> f64x8<S> {
+        self.simd.fract_f64x8(self)
+    }
+    #[inline(always)]
+    fn trunc(self) -> f64x8<S> {
+        self.simd.trunc_f64x8(self)
+    }
+}
+#[derive(Clone, Copy, Debug)]
+#[repr(C, align(64))]
+pub struct mask64x8<S: Simd> {
+    pub val: [i64; 8],
+    pub simd: S,
+}
+impl<S: Simd> SimdFrom<[i64; 8], S> for mask64x8<S> {
+    #[inline(always)]
+    fn simd_from(val: [i64; 8], simd: S) -> Self {
+        Self {
+            val: [
+                val[0usize],
+                val[1usize],
+                val[2usize],
+                val[3usize],
+                val[4usize],
+                val[5usize],
+                val[6usize],
+                val[7usize],
+            ],
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x8<S>> for [i64; 8] {
+    #[inline(always)]
+    fn from(value: mask64x8<S>) -> Self {
+        value.val
+    }
+}
+impl<S: Simd> core::ops::Deref for mask64x8<S> {
+    type Target = [i64; 8];
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.val
+    }
+}
+impl<S: Simd> core::ops::DerefMut for mask64x8<S> {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.val
+    }
+}
+impl<S: Simd> Select<mask64x8<S>> for mask64x8<S> {
+    #[inline(always)]
+    fn select(self, if_true: mask64x8<S>, if_false: mask64x8<S>) -> mask64x8<S> {
+        self.simd.select_mask64x8(self, if_true, if_false)
+    }
+}
+impl<S: Simd> Bytes for mask64x8<S> {
+    type Bytes = u8x64<S>;
+    #[inline(always)]
+    fn to_bytes(self) -> Self::Bytes {
+        unsafe {
+            u8x64 {
+                val: core::mem::transmute(self.val),
+                simd: self.simd,
+            }
+        }
+    }
+    #[inline(always)]
+    fn from_bytes(value: Self::Bytes) -> Self {
+        unsafe {
+            Self {
+                val: core::mem::transmute(value.val),
+                simd: value.simd,
+            }
+        }
+    }
+}
+impl<S: Simd> mask64x8<S> {
+    #[inline(always)]
+    pub fn not(self) -> mask64x8<S> {
+        self.simd.not_mask64x8(self)
+    }
+    #[inline(always)]
+    pub fn and(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.and_mask64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn or(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.or_mask64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn xor(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.xor_mask64x8(self, rhs.simd_into(self.simd))
+    }
+    #[inline(always)]
+    pub fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_eq_mask64x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> crate::SimdBase<i64, S> for mask64x8<S> {
+    const N: usize = 8;
+    type Mask = mask64x8<S>;
+    type Block = mask64x2<S>;
+    #[inline(always)]
+    fn as_slice(&self) -> &[i64] {
+        &self.val
+    }
+    #[inline(always)]
+    fn as_mut_slice(&mut self) -> &mut [i64] {
+        &mut self.val
+    }
+    #[inline(always)]
+    fn from_slice(simd: S, slice: &[i64]) -> Self {
+        let mut val = [0; 8];
+        val.copy_from_slice(slice);
+        Self { val, simd }
+    }
+    #[inline(always)]
+    fn splat(simd: S, val: i64) -> Self {
+        simd.splat_mask64x8(val)
+    }
+    #[inline(always)]
+    fn block_splat(block: Self::Block) -> Self {
+        let block2 = block.combine(block);
+        block2.combine(block2)
+    }
+}
+impl<S: Simd> crate::SimdMask<i64, S> for mask64x8<S> {
+    #[inline(always)]
+    fn simd_eq(self, rhs: impl SimdInto<Self, S>) -> mask64x8<S> {
+        self.simd.simd_eq_mask64x8(self, rhs.simd_into(self.simd))
     }
 }

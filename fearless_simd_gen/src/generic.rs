@@ -187,6 +187,16 @@ pub fn generic_op(op: &str, sig: OpSig, ty: &VecType) -> TokenStream {
                 }
             }
         }
+        OpSig::Unzip(_) => {
+            quote! {
+                #[inline(always)]
+                fn #name(self, a: #ty_rust<Self>, b: #ty_rust<Self>) -> #ret_ty {
+                    let (a0, a1) = self.#split(a);
+                    let (b0, b1) = self.#split(b);
+                    self.#combine(self.#do_half(a0, a1), self.#do_half(b0, b1))
+                }
+            }
+        }
         OpSig::Cvt(scalar, scalar_bits) => {
             let half = VecType::new(scalar, scalar_bits, ty.len / 2);
             let combine = Ident::new(&format!("combine_{}", half.rust_name()), Span::call_site());

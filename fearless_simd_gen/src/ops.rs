@@ -17,6 +17,7 @@ pub enum OpSig {
     Combine,
     Split,
     Zip(bool),
+    Unzip(bool),
     Cvt(ScalarType, usize),
     Reinterpret(ScalarType, usize),
     WidenNarrow(VecType),
@@ -47,6 +48,8 @@ pub const FLOAT_OPS: &[(&str, OpSig)] = &[
     ("simd_gt", OpSig::Compare),
     ("zip_low", OpSig::Zip(true)),
     ("zip_high", OpSig::Zip(false)),
+    ("unzip_low", OpSig::Unzip(true)),
+    ("unzip_high", OpSig::Unzip(false)),
     ("max", OpSig::Binary),
     ("max_precise", OpSig::Binary),
     ("min", OpSig::Binary),
@@ -77,6 +80,8 @@ pub const INT_OPS: &[(&str, OpSig)] = &[
     ("simd_gt", OpSig::Compare),
     ("zip_low", OpSig::Zip(true)),
     ("zip_high", OpSig::Zip(false)),
+    ("unzip_low", OpSig::Unzip(true)),
+    ("unzip_high", OpSig::Unzip(false)),
     ("select", OpSig::Select),
     ("min", OpSig::Binary),
     ("max", OpSig::Binary),
@@ -111,6 +116,22 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
         ops.push(("split", OpSig::Split));
     }
 
+    if ty.scalar == ScalarType::Float {
+        if cvt {
+            if ty.scalar_bits == 64 {
+                ops.push(("reinterpret_f32", OpSig::Reinterpret(ScalarType::Float, 32)));
+            } else {
+                ops.push(("reinterpret_f64", OpSig::Reinterpret(ScalarType::Float, 64)));
+
+                ops.push(("reinterpret_i32", OpSig::Reinterpret(ScalarType::Int, 32)));
+            }
+        }
+
+        if ty.scalar_bits == 64 {
+            return ops;
+        }
+    }
+
     if matches!(ty.scalar, ScalarType::Unsigned | ScalarType::Float) && ty.n_bits() == 512 {
         ops.push(("load_interleaved_128", OpSig::LoadInterleaved(128, 4)));
     }
@@ -137,6 +158,13 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
             ));
         }
 
+        if valid_reinterpret(ty, ScalarType::Unsigned, 32) {
+            ops.push((
+                "reinterpret_u32",
+                OpSig::Reinterpret(ScalarType::Unsigned, 32),
+            ));
+        }
+
         match (ty.scalar, ty.scalar_bits) {
             (ScalarType::Float, 32) => {
                 ops.push(("cvt_u32", OpSig::Cvt(ScalarType::Unsigned, 32)));
@@ -147,6 +175,7 @@ pub fn ops_for_type(ty: &VecType, cvt: bool) -> Vec<(&str, OpSig)> {
             _ => (),
         }
     }
+
     ops
 }
 
@@ -179,7 +208,7 @@ impl OpSig {
             | OpSig::Cvt(_, _)
             | OpSig::Reinterpret(_, _)
             | OpSig::WidenNarrow(_) => quote! { self, a: #ty<Self> },
-            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) => {
+            OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) | OpSig::Unzip(_) => {
                 quote! { self, a: #ty<Self>, b: #ty<Self> }
             }
             OpSig::Shift => {
@@ -203,7 +232,7 @@ impl OpSig {
             OpSig::Unary | OpSig::Cvt(_, _) | OpSig::Reinterpret(_, _) | OpSig::WidenNarrow(_) => {
                 quote! { self }
             }
-            OpSig::Binary | OpSig::Compare | OpSig::Zip(_) | OpSig::Combine => {
+            OpSig::Binary | OpSig::Compare | OpSig::Zip(_) | OpSig::Combine | OpSig::Unzip(_) => {
                 quote! { self, rhs: impl SimdInto<Self, S> }
             }
             OpSig::Shift => {
@@ -251,7 +280,7 @@ impl OpSig {
                 let result = VecType::new(ty.scalar, ty.scalar_bits, len).rust();
                 quote! { ( #result #quant, #result #quant ) }
             }
-            OpSig::Zip(_) => {
+            OpSig::Zip(_) | OpSig::Unzip(_) => {
                 let rust = ty.rust();
                 quote! { #rust #quant }
             }
@@ -294,7 +323,7 @@ pub(crate) fn valid_reinterpret(src: &VecType, dst_scalar: ScalarType, dst_bits:
         return false;
     }
 
-    if matches!(src.scalar, ScalarType::Mask | ScalarType::Float) {
+    if matches!(src.scalar, ScalarType::Mask) {
         return false;
     }
 

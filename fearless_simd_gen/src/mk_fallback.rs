@@ -295,6 +295,32 @@ fn mk_simd_impl() -> TokenStream {
                         }
                     }
                 }
+                OpSig::Unzip(unzip1) => {
+                    let indices = if unzip1 {
+                        (0..vec_ty.len).step_by(2)
+                    } else {
+                        (1..vec_ty.len).step_by(2)
+                    };
+
+                    let unzip = make_list(
+                        indices
+                            .clone()
+                            .map(|idx| {
+                                quote! {a[#idx]}
+                            })
+                            .chain(indices.map(|idx| {
+                                quote! {b[#idx]}
+                            }))
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                            #unzip.simd_into(self)
+                        }
+                    }
+                }
                 OpSig::Cvt(scalar, scalar_bits) => {
                     let to_ty = &VecType::new(scalar, scalar_bits, vec_ty.len);
                     let scalar = to_ty.scalar.rust(scalar_bits);

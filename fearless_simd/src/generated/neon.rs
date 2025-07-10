@@ -2,9 +2,10 @@
 
 use crate::{Level, Simd, SimdFrom, SimdInto, seal::Seal};
 use crate::{
-    f32x4, f32x8, f32x16, i8x16, i8x32, i8x64, i16x8, i16x16, i16x32, i32x4, i32x8, i32x16,
-    mask8x16, mask8x32, mask8x64, mask16x8, mask16x16, mask16x32, mask32x4, mask32x8, mask32x16,
-    u8x16, u8x32, u8x64, u16x8, u16x16, u16x32, u32x4, u32x8, u32x16,
+    f32x4, f32x8, f32x16, f64x2, f64x4, f64x8, i8x16, i8x32, i8x64, i16x8, i16x16, i16x32, i32x4,
+    i32x8, i32x16, mask8x16, mask8x32, mask8x64, mask16x8, mask16x16, mask16x32, mask32x4,
+    mask32x8, mask32x16, mask64x2, mask64x4, mask64x8, u8x16, u8x32, u8x64, u16x8, u16x16, u16x32,
+    u32x4, u32x8, u32x16,
 };
 use core::arch::aarch64::*;
 #[doc = r#" The SIMD token for the "neon" level."#]
@@ -117,6 +118,18 @@ impl Simd for Neon {
         unsafe { vzip2q_f32(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_f32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_f32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn max_f32x4(self, a: f32x4<Self>, b: f32x4<Self>) -> f32x4<Self> {
         unsafe { vmaxq_f32(a.into(), b.into()).simd_into(self) }
     }
@@ -166,6 +179,22 @@ impl Simd for Neon {
         result[0..4usize].copy_from_slice(&a.val);
         result[4usize..8usize].copy_from_slice(&b.val);
         result.simd_into(self)
+    }
+    #[inline(always)]
+    fn reinterpret_f64_f32x4(self, a: f32x4<Self>) -> f64x2<Self> {
+        unsafe { vreinterpretq_f64_f32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_i32_f32x4(self, a: f32x4<Self>) -> i32x4<Self> {
+        unsafe { vreinterpretq_s32_f32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u8_f32x4(self, a: f32x4<Self>) -> u8x16<Self> {
+        unsafe { vreinterpretq_u8_f32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_f32x4(self, a: f32x4<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_f32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn cvt_u32_f32x4(self, a: f32x4<Self>) -> u32x4<Self> {
@@ -244,6 +273,18 @@ impl Simd for Neon {
         unsafe { vzip2q_s8(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_s8(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_i8x16(self, a: i8x16<Self>, b: i8x16<Self>) -> i8x16<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_s8(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_i8x16(self, a: mask8x16<Self>, b: i8x16<Self>, c: i8x16<Self>) -> i8x16<Self> {
         unsafe { vbslq_s8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -265,6 +306,10 @@ impl Simd for Neon {
     #[inline(always)]
     fn reinterpret_u8_i8x16(self, a: i8x16<Self>) -> u8x16<Self> {
         unsafe { vreinterpretq_u8_s8(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i8x16(self, a: i8x16<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_s8(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn splat_u8x16(self, val: u8) -> u8x16<Self> {
@@ -335,6 +380,18 @@ impl Simd for Neon {
         unsafe { vzip2q_u8(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_u8(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_u8x16(self, a: u8x16<Self>, b: u8x16<Self>) -> u8x16<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_u8(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_u8x16(self, a: mask8x16<Self>, b: u8x16<Self>, c: u8x16<Self>) -> u8x16<Self> {
         unsafe { vbslq_u8(vreinterpretq_u8_s8(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -360,6 +417,10 @@ impl Simd for Neon {
             let high = vmovl_u8(vget_high_u8(a.into()));
             uint16x8x2_t(low, high).simd_into(self)
         }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u8x16(self, a: u8x16<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_u8(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn splat_mask8x16(self, val: i8) -> mask8x16<Self> {
@@ -470,6 +531,18 @@ impl Simd for Neon {
         unsafe { vzip2q_s16(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_s16(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_i16x8(self, a: i16x8<Self>, b: i16x8<Self>) -> i16x8<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_s16(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_i16x8(self, a: mask16x8<Self>, b: i16x8<Self>, c: i16x8<Self>) -> i16x8<Self> {
         unsafe { vbslq_s16(vreinterpretq_u16_s16(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -491,6 +564,10 @@ impl Simd for Neon {
     #[inline(always)]
     fn reinterpret_u8_i16x8(self, a: i16x8<Self>) -> u8x16<Self> {
         unsafe { vreinterpretq_u8_s16(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i16x8(self, a: i16x8<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_s16(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn splat_u16x8(self, val: u16) -> u16x8<Self> {
@@ -561,6 +638,18 @@ impl Simd for Neon {
         unsafe { vzip2q_u16(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_u16(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_u16x8(self, a: u16x8<Self>, b: u16x8<Self>) -> u16x8<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_u16(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_u16x8(self, a: mask16x8<Self>, b: u16x8<Self>, c: u16x8<Self>) -> u16x8<Self> {
         unsafe { vbslq_u16(vreinterpretq_u16_s16(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -582,6 +671,10 @@ impl Simd for Neon {
     #[inline(always)]
     fn reinterpret_u8_u16x8(self, a: u16x8<Self>) -> u8x16<Self> {
         unsafe { vreinterpretq_u8_u16(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u16x8(self, a: u16x8<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_u16(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn splat_mask16x8(self, val: i16) -> mask16x8<Self> {
@@ -692,6 +785,18 @@ impl Simd for Neon {
         unsafe { vzip2q_s32(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_s32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_i32x4(self, a: i32x4<Self>, b: i32x4<Self>) -> i32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_s32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_i32x4(self, a: mask32x4<Self>, b: i32x4<Self>, c: i32x4<Self>) -> i32x4<Self> {
         unsafe { vbslq_s32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -713,6 +818,10 @@ impl Simd for Neon {
     #[inline(always)]
     fn reinterpret_u8_i32x4(self, a: i32x4<Self>) -> u8x16<Self> {
         unsafe { vreinterpretq_u8_s32(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i32x4(self, a: i32x4<Self>) -> u32x4<Self> {
+        unsafe { vreinterpretq_u32_s32(a.into()).simd_into(self) }
     }
     #[inline(always)]
     fn cvt_f32_i32x4(self, a: i32x4<Self>) -> f32x4<Self> {
@@ -787,6 +896,18 @@ impl Simd for Neon {
         unsafe { vzip2q_u32(x, y).simd_into(self) }
     }
     #[inline(always)]
+    fn unzip_low_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_u32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_u32x4(self, a: u32x4<Self>, b: u32x4<Self>) -> u32x4<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_u32(x, y).simd_into(self) }
+    }
+    #[inline(always)]
     fn select_u32x4(self, a: mask32x4<Self>, b: u32x4<Self>, c: u32x4<Self>) -> u32x4<Self> {
         unsafe { vbslq_u32(vreinterpretq_u32_s32(a.into()), b.into(), c.into()).simd_into(self) }
     }
@@ -851,6 +972,184 @@ impl Simd for Neon {
         let mut result = [0; 8usize];
         result[0..4usize].copy_from_slice(&a.val);
         result[4usize..8usize].copy_from_slice(&b.val);
+        result.simd_into(self)
+    }
+    #[inline(always)]
+    fn splat_f64x2(self, val: f64) -> f64x2<Self> {
+        unsafe { vdupq_n_f64(val).simd_into(self) }
+    }
+    #[inline(always)]
+    fn abs_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vabsq_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn neg_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vnegq_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn sqrt_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vsqrtq_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn add_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vaddq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn sub_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vsubq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn mul_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vmulq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn div_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vdivq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn copysign_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe {
+            let sign_mask = vdupq_n_u64(1 << 63);
+            vbslq_f64(sign_mask, b.into(), a.into()).simd_into(self)
+        }
+    }
+    #[inline(always)]
+    fn simd_eq_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vceqq_f64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn simd_lt_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vcltq_f64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn simd_le_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vcleq_f64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn simd_ge_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vcgeq_f64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn simd_gt_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vcgtq_f64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn zip_low_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vzip1q_f64(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn zip_high_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vzip2q_f64(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_low_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp1q_f64(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn unzip_high_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        let x = a.into();
+        let y = b.into();
+        unsafe { vuzp2q_f64(x, y).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vmaxq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn max_precise_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vmaxnmq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn min_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vminq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn min_precise_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vminnmq_f64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn madd_f64x2(self, a: f64x2<Self>, b: f64x2<Self>, c: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vfmaq_f64(a.into(), b.into(), c.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn msub_f64x2(self, a: f64x2<Self>, b: f64x2<Self>, c: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vfmsq_f64(a.into(), b.into(), c.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn floor_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vrndmq_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn fract_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe {
+            let c1 = vcvtq_s64_f64(a.into());
+            let c2 = vcvtq_f64_s64(c1);
+            vsubq_f64(a.into(), c2).simd_into(self)
+        }
+    }
+    #[inline(always)]
+    fn trunc_f64x2(self, a: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vrndq_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn select_f64x2(self, a: mask64x2<Self>, b: f64x2<Self>, c: f64x2<Self>) -> f64x2<Self> {
+        unsafe { vbslq_f64(vreinterpretq_u64_s64(a.into()), b.into(), c.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn combine_f64x2(self, a: f64x2<Self>, b: f64x2<Self>) -> f64x4<Self> {
+        let mut result = [0.0; 4usize];
+        result[0..2usize].copy_from_slice(&a.val);
+        result[2usize..4usize].copy_from_slice(&b.val);
+        result.simd_into(self)
+    }
+    #[inline(always)]
+    fn reinterpret_f32_f64x2(self, a: f64x2<Self>) -> f32x4<Self> {
+        unsafe { vreinterpretq_f32_f64(a.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn splat_mask64x2(self, val: i64) -> mask64x2<Self> {
+        unsafe { vdupq_n_s64(val).simd_into(self) }
+    }
+    #[inline(always)]
+    fn not_mask64x2(self, a: mask64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_s32(vmvnq_s32(vreinterpretq_s32_s64(a.into()))).simd_into(self) }
+    }
+    #[inline(always)]
+    fn and_mask64x2(self, a: mask64x2<Self>, b: mask64x2<Self>) -> mask64x2<Self> {
+        unsafe { vandq_s64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn or_mask64x2(self, a: mask64x2<Self>, b: mask64x2<Self>) -> mask64x2<Self> {
+        unsafe { vorrq_s64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn xor_mask64x2(self, a: mask64x2<Self>, b: mask64x2<Self>) -> mask64x2<Self> {
+        unsafe { veorq_s64(a.into(), b.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn select_mask64x2(
+        self,
+        a: mask64x2<Self>,
+        b: mask64x2<Self>,
+        c: mask64x2<Self>,
+    ) -> mask64x2<Self> {
+        unsafe { vbslq_s64(vreinterpretq_u64_s64(a.into()), b.into(), c.into()).simd_into(self) }
+    }
+    #[inline(always)]
+    fn simd_eq_mask64x2(self, a: mask64x2<Self>, b: mask64x2<Self>) -> mask64x2<Self> {
+        unsafe { vreinterpretq_s64_u64(vceqq_s64(a.into(), b.into())).simd_into(self) }
+    }
+    #[inline(always)]
+    fn combine_mask64x2(self, a: mask64x2<Self>, b: mask64x2<Self>) -> mask64x4<Self> {
+        let mut result = [0; 4usize];
+        result[0..2usize].copy_from_slice(&a.val);
+        result[2usize..4usize].copy_from_slice(&b.val);
         result.simd_into(self)
     }
     #[inline(always)]
@@ -946,6 +1245,18 @@ impl Simd for Neon {
         self.combine_f32x4(self.zip_low_f32x4(a1, b1), self.zip_high_f32x4(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(self.unzip_low_f32x4(a0, a1), self.unzip_low_f32x4(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        let (b0, b1) = self.split_f32x8(b);
+        self.combine_f32x4(self.unzip_high_f32x4(a0, a1), self.unzip_high_f32x4(b0, b1))
+    }
+    #[inline(always)]
     fn max_f32x8(self, a: f32x8<Self>, b: f32x8<Self>) -> f32x8<Self> {
         let (a0, a1) = self.split_f32x8(a);
         let (b0, b1) = self.split_f32x8(b);
@@ -1025,6 +1336,35 @@ impl Simd for Neon {
         b0.copy_from_slice(&a.val[0..4usize]);
         b1.copy_from_slice(&a.val[4usize..8usize]);
         (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn reinterpret_f64_f32x8(self, a: f32x8<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_f64x2(
+            self.reinterpret_f64_f32x4(a0),
+            self.reinterpret_f64_f32x4(a1),
+        )
+    }
+    #[inline(always)]
+    fn reinterpret_i32_f32x8(self, a: f32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_i32x4(
+            self.reinterpret_i32_f32x4(a0),
+            self.reinterpret_i32_f32x4(a1),
+        )
+    }
+    #[inline(always)]
+    fn reinterpret_u8_f32x8(self, a: f32x8<Self>) -> u8x32<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_u8x16(self.reinterpret_u8_f32x4(a0), self.reinterpret_u8_f32x4(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_f32x8(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_f32x4(a0),
+            self.reinterpret_u32_f32x4(a1),
+        )
     }
     #[inline(always)]
     fn cvt_u32_f32x8(self, a: f32x8<Self>) -> u32x8<Self> {
@@ -1130,6 +1470,18 @@ impl Simd for Neon {
         self.combine_i8x16(self.zip_low_i8x16(a1, b1), self.zip_high_i8x16(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (a0, a1) = self.split_i8x32(a);
+        let (b0, b1) = self.split_i8x32(b);
+        self.combine_i8x16(self.unzip_low_i8x16(a0, a1), self.unzip_low_i8x16(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i8x32(self, a: i8x32<Self>, b: i8x32<Self>) -> i8x32<Self> {
+        let (a0, a1) = self.split_i8x32(a);
+        let (b0, b1) = self.split_i8x32(b);
+        self.combine_i8x16(self.unzip_high_i8x16(a0, a1), self.unzip_high_i8x16(b0, b1))
+    }
+    #[inline(always)]
     fn select_i8x32(self, a: mask8x32<Self>, b: i8x32<Self>, c: i8x32<Self>) -> i8x32<Self> {
         let (a0, a1) = self.split_mask8x32(a);
         let (b0, b1) = self.split_i8x32(b);
@@ -1167,6 +1519,14 @@ impl Simd for Neon {
     fn reinterpret_u8_i8x32(self, a: i8x32<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_i8x32(a);
         self.combine_u8x16(self.reinterpret_u8_i8x16(a0), self.reinterpret_u8_i8x16(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i8x32(self, a: i8x32<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_i8x32(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_i8x16(a0),
+            self.reinterpret_u32_i8x16(a1),
+        )
     }
     #[inline(always)]
     fn splat_u8x32(self, a: u8) -> u8x32<Self> {
@@ -1262,6 +1622,18 @@ impl Simd for Neon {
         self.combine_u8x16(self.zip_low_u8x16(a1, b1), self.zip_high_u8x16(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (a0, a1) = self.split_u8x32(a);
+        let (b0, b1) = self.split_u8x32(b);
+        self.combine_u8x16(self.unzip_low_u8x16(a0, a1), self.unzip_low_u8x16(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u8x32(self, a: u8x32<Self>, b: u8x32<Self>) -> u8x32<Self> {
+        let (a0, a1) = self.split_u8x32(a);
+        let (b0, b1) = self.split_u8x32(b);
+        self.combine_u8x16(self.unzip_high_u8x16(a0, a1), self.unzip_high_u8x16(b0, b1))
+    }
+    #[inline(always)]
     fn select_u8x32(self, a: mask8x32<Self>, b: u8x32<Self>, c: u8x32<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_mask8x32(a);
         let (b0, b1) = self.split_u8x32(b);
@@ -1299,6 +1671,14 @@ impl Simd for Neon {
     fn widen_u8x32(self, a: u8x32<Self>) -> u16x32<Self> {
         let (a0, a1) = self.split_u8x32(a);
         self.combine_u16x16(self.widen_u8x16(a0), self.widen_u8x16(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u8x32(self, a: u8x32<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u8x32(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_u8x16(a0),
+            self.reinterpret_u32_u8x16(a1),
+        )
     }
     #[inline(always)]
     fn splat_mask8x32(self, a: i8) -> mask8x32<Self> {
@@ -1458,6 +1838,18 @@ impl Simd for Neon {
         self.combine_i16x8(self.zip_low_i16x8(a1, b1), self.zip_high_i16x8(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (a0, a1) = self.split_i16x16(a);
+        let (b0, b1) = self.split_i16x16(b);
+        self.combine_i16x8(self.unzip_low_i16x8(a0, a1), self.unzip_low_i16x8(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i16x16(self, a: i16x16<Self>, b: i16x16<Self>) -> i16x16<Self> {
+        let (a0, a1) = self.split_i16x16(a);
+        let (b0, b1) = self.split_i16x16(b);
+        self.combine_i16x8(self.unzip_high_i16x8(a0, a1), self.unzip_high_i16x8(b0, b1))
+    }
+    #[inline(always)]
     fn select_i16x16(self, a: mask16x16<Self>, b: i16x16<Self>, c: i16x16<Self>) -> i16x16<Self> {
         let (a0, a1) = self.split_mask16x16(a);
         let (b0, b1) = self.split_i16x16(b);
@@ -1495,6 +1887,14 @@ impl Simd for Neon {
     fn reinterpret_u8_i16x16(self, a: i16x16<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_i16x16(a);
         self.combine_u8x16(self.reinterpret_u8_i16x8(a0), self.reinterpret_u8_i16x8(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i16x16(self, a: i16x16<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_i16x16(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_i16x8(a0),
+            self.reinterpret_u32_i16x8(a1),
+        )
     }
     #[inline(always)]
     fn splat_u16x16(self, a: u16) -> u16x16<Self> {
@@ -1590,6 +1990,18 @@ impl Simd for Neon {
         self.combine_u16x8(self.zip_low_u16x8(a1, b1), self.zip_high_u16x8(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (a0, a1) = self.split_u16x16(a);
+        let (b0, b1) = self.split_u16x16(b);
+        self.combine_u16x8(self.unzip_low_u16x8(a0, a1), self.unzip_low_u16x8(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u16x16(self, a: u16x16<Self>, b: u16x16<Self>) -> u16x16<Self> {
+        let (a0, a1) = self.split_u16x16(a);
+        let (b0, b1) = self.split_u16x16(b);
+        self.combine_u16x8(self.unzip_high_u16x8(a0, a1), self.unzip_high_u16x8(b0, b1))
+    }
+    #[inline(always)]
     fn select_u16x16(self, a: mask16x16<Self>, b: u16x16<Self>, c: u16x16<Self>) -> u16x16<Self> {
         let (a0, a1) = self.split_mask16x16(a);
         let (b0, b1) = self.split_u16x16(b);
@@ -1636,6 +2048,14 @@ impl Simd for Neon {
     fn reinterpret_u8_u16x16(self, a: u16x16<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_u16x16(a);
         self.combine_u8x16(self.reinterpret_u8_u16x8(a0), self.reinterpret_u8_u16x8(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u16x16(self, a: u16x16<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u16x16(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_u16x8(a0),
+            self.reinterpret_u32_u16x8(a1),
+        )
     }
     #[inline(always)]
     fn splat_mask16x16(self, a: i16) -> mask16x16<Self> {
@@ -1795,6 +2215,18 @@ impl Simd for Neon {
         self.combine_i32x4(self.zip_low_i32x4(a1, b1), self.zip_high_i32x4(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        let (b0, b1) = self.split_i32x8(b);
+        self.combine_i32x4(self.unzip_low_i32x4(a0, a1), self.unzip_low_i32x4(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i32x8(self, a: i32x8<Self>, b: i32x8<Self>) -> i32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        let (b0, b1) = self.split_i32x8(b);
+        self.combine_i32x4(self.unzip_high_i32x4(a0, a1), self.unzip_high_i32x4(b0, b1))
+    }
+    #[inline(always)]
     fn select_i32x8(self, a: mask32x8<Self>, b: i32x8<Self>, c: i32x8<Self>) -> i32x8<Self> {
         let (a0, a1) = self.split_mask32x8(a);
         let (b0, b1) = self.split_i32x8(b);
@@ -1832,6 +2264,14 @@ impl Simd for Neon {
     fn reinterpret_u8_i32x8(self, a: i32x8<Self>) -> u8x32<Self> {
         let (a0, a1) = self.split_i32x8(a);
         self.combine_u8x16(self.reinterpret_u8_i32x4(a0), self.reinterpret_u8_i32x4(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i32x8(self, a: i32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_i32x8(a);
+        self.combine_u32x4(
+            self.reinterpret_u32_i32x4(a0),
+            self.reinterpret_u32_i32x4(a1),
+        )
     }
     #[inline(always)]
     fn cvt_f32_i32x8(self, a: i32x8<Self>) -> f32x8<Self> {
@@ -1930,6 +2370,18 @@ impl Simd for Neon {
         let (_, a1) = self.split_u32x8(a);
         let (_, b1) = self.split_u32x8(b);
         self.combine_u32x4(self.zip_low_u32x4(a1, b1), self.zip_high_u32x4(a1, b1))
+    }
+    #[inline(always)]
+    fn unzip_low_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        let (b0, b1) = self.split_u32x8(b);
+        self.combine_u32x4(self.unzip_low_u32x4(a0, a1), self.unzip_low_u32x4(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u32x8(self, a: u32x8<Self>, b: u32x8<Self>) -> u32x8<Self> {
+        let (a0, a1) = self.split_u32x8(a);
+        let (b0, b1) = self.split_u32x8(b);
+        self.combine_u32x4(self.unzip_high_u32x4(a0, a1), self.unzip_high_u32x4(b0, b1))
     }
     #[inline(always)]
     fn select_u32x8(self, a: mask32x8<Self>, b: u32x8<Self>, c: u32x8<Self>) -> u32x8<Self> {
@@ -2040,6 +2492,263 @@ impl Simd for Neon {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
+    fn splat_f64x4(self, a: f64) -> f64x4<Self> {
+        let half = self.splat_f64x2(a);
+        self.combine_f64x2(half, half)
+    }
+    #[inline(always)]
+    fn abs_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.abs_f64x2(a0), self.abs_f64x2(a1))
+    }
+    #[inline(always)]
+    fn neg_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.neg_f64x2(a0), self.neg_f64x2(a1))
+    }
+    #[inline(always)]
+    fn sqrt_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.sqrt_f64x2(a0), self.sqrt_f64x2(a1))
+    }
+    #[inline(always)]
+    fn add_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.add_f64x2(a0, b0), self.add_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn sub_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.sub_f64x2(a0, b0), self.sub_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn mul_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.mul_f64x2(a0, b0), self.mul_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn div_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.div_f64x2(a0, b0), self.div_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn copysign_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.copysign_f64x2(a0, b0), self.copysign_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_eq_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_mask64x2(self.simd_eq_f64x2(a0, b0), self.simd_eq_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_lt_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_mask64x2(self.simd_lt_f64x2(a0, b0), self.simd_lt_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_le_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_mask64x2(self.simd_le_f64x2(a0, b0), self.simd_le_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_ge_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_mask64x2(self.simd_ge_f64x2(a0, b0), self.simd_ge_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_gt_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_mask64x2(self.simd_gt_f64x2(a0, b0), self.simd_gt_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn zip_low_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, _) = self.split_f64x4(a);
+        let (b0, _) = self.split_f64x4(b);
+        self.combine_f64x2(self.zip_low_f64x2(a0, b0), self.zip_high_f64x2(a0, b0))
+    }
+    #[inline(always)]
+    fn zip_high_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (_, a1) = self.split_f64x4(a);
+        let (_, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.zip_low_f64x2(a1, b1), self.zip_high_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn unzip_low_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.unzip_low_f64x2(a0, a1), self.unzip_low_f64x2(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.unzip_high_f64x2(a0, a1), self.unzip_high_f64x2(b0, b1))
+    }
+    #[inline(always)]
+    fn max_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.max_f64x2(a0, b0), self.max_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn max_precise_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(
+            self.max_precise_f64x2(a0, b0),
+            self.max_precise_f64x2(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn min_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(self.min_f64x2(a0, b0), self.min_f64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn min_precise_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        self.combine_f64x2(
+            self.min_precise_f64x2(a0, b0),
+            self.min_precise_f64x2(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn madd_f64x4(self, a: f64x4<Self>, b: f64x4<Self>, c: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        let (c0, c1) = self.split_f64x4(c);
+        self.combine_f64x2(self.madd_f64x2(a0, b0, c0), self.madd_f64x2(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn msub_f64x4(self, a: f64x4<Self>, b: f64x4<Self>, c: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        let (c0, c1) = self.split_f64x4(c);
+        self.combine_f64x2(self.msub_f64x2(a0, b0, c0), self.msub_f64x2(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn floor_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.floor_f64x2(a0), self.floor_f64x2(a1))
+    }
+    #[inline(always)]
+    fn fract_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.fract_f64x2(a0), self.fract_f64x2(a1))
+    }
+    #[inline(always)]
+    fn trunc_f64x4(self, a: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f64x2(self.trunc_f64x2(a0), self.trunc_f64x2(a1))
+    }
+    #[inline(always)]
+    fn select_f64x4(self, a: mask64x4<Self>, b: f64x4<Self>, c: f64x4<Self>) -> f64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_f64x4(b);
+        let (c0, c1) = self.split_f64x4(c);
+        self.combine_f64x2(self.select_f64x2(a0, b0, c0), self.select_f64x2(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn combine_f64x4(self, a: f64x4<Self>, b: f64x4<Self>) -> f64x8<Self> {
+        let mut result = [0.0; 8usize];
+        result[0..4usize].copy_from_slice(&a.val);
+        result[4usize..8usize].copy_from_slice(&b.val);
+        result.simd_into(self)
+    }
+    #[inline(always)]
+    fn split_f64x4(self, a: f64x4<Self>) -> (f64x2<Self>, f64x2<Self>) {
+        let mut b0 = [0.0; 2usize];
+        let mut b1 = [0.0; 2usize];
+        b0.copy_from_slice(&a.val[0..2usize]);
+        b1.copy_from_slice(&a.val[2usize..4usize]);
+        (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn reinterpret_f32_f64x4(self, a: f64x4<Self>) -> f32x8<Self> {
+        let (a0, a1) = self.split_f64x4(a);
+        self.combine_f32x4(
+            self.reinterpret_f32_f64x2(a0),
+            self.reinterpret_f32_f64x2(a1),
+        )
+    }
+    #[inline(always)]
+    fn splat_mask64x4(self, a: i64) -> mask64x4<Self> {
+        let half = self.splat_mask64x2(a);
+        self.combine_mask64x2(half, half)
+    }
+    #[inline(always)]
+    fn not_mask64x4(self, a: mask64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        self.combine_mask64x2(self.not_mask64x2(a0), self.not_mask64x2(a1))
+    }
+    #[inline(always)]
+    fn and_mask64x4(self, a: mask64x4<Self>, b: mask64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_mask64x4(b);
+        self.combine_mask64x2(self.and_mask64x2(a0, b0), self.and_mask64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn or_mask64x4(self, a: mask64x4<Self>, b: mask64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_mask64x4(b);
+        self.combine_mask64x2(self.or_mask64x2(a0, b0), self.or_mask64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn xor_mask64x4(self, a: mask64x4<Self>, b: mask64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_mask64x4(b);
+        self.combine_mask64x2(self.xor_mask64x2(a0, b0), self.xor_mask64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn select_mask64x4(
+        self,
+        a: mask64x4<Self>,
+        b: mask64x4<Self>,
+        c: mask64x4<Self>,
+    ) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_mask64x4(b);
+        let (c0, c1) = self.split_mask64x4(c);
+        self.combine_mask64x2(
+            self.select_mask64x2(a0, b0, c0),
+            self.select_mask64x2(a1, b1, c1),
+        )
+    }
+    #[inline(always)]
+    fn simd_eq_mask64x4(self, a: mask64x4<Self>, b: mask64x4<Self>) -> mask64x4<Self> {
+        let (a0, a1) = self.split_mask64x4(a);
+        let (b0, b1) = self.split_mask64x4(b);
+        self.combine_mask64x2(self.simd_eq_mask64x2(a0, b0), self.simd_eq_mask64x2(a1, b1))
+    }
+    #[inline(always)]
+    fn combine_mask64x4(self, a: mask64x4<Self>, b: mask64x4<Self>) -> mask64x8<Self> {
+        let mut result = [0; 8usize];
+        result[0..4usize].copy_from_slice(&a.val);
+        result[4usize..8usize].copy_from_slice(&b.val);
+        result.simd_into(self)
+    }
+    #[inline(always)]
+    fn split_mask64x4(self, a: mask64x4<Self>) -> (mask64x2<Self>, mask64x2<Self>) {
+        let mut b0 = [0; 2usize];
+        let mut b1 = [0; 2usize];
+        b0.copy_from_slice(&a.val[0..2usize]);
+        b1.copy_from_slice(&a.val[2usize..4usize]);
+        (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
     fn splat_f32x16(self, a: f32) -> f32x16<Self> {
         let half = self.splat_f32x8(a);
         self.combine_f32x8(half, half)
@@ -2132,6 +2841,18 @@ impl Simd for Neon {
         self.combine_f32x8(self.zip_low_f32x8(a1, b1), self.zip_high_f32x8(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        let (b0, b1) = self.split_f32x16(b);
+        self.combine_f32x8(self.unzip_low_f32x8(a0, a1), self.unzip_low_f32x8(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        let (b0, b1) = self.split_f32x16(b);
+        self.combine_f32x8(self.unzip_high_f32x8(a0, a1), self.unzip_high_f32x8(b0, b1))
+    }
+    #[inline(always)]
     fn max_f32x16(self, a: f32x16<Self>, b: f32x16<Self>) -> f32x16<Self> {
         let (a0, a1) = self.split_f32x16(a);
         let (b0, b1) = self.split_f32x16(b);
@@ -2206,12 +2927,41 @@ impl Simd for Neon {
         (b0.simd_into(self), b1.simd_into(self))
     }
     #[inline(always)]
+    fn reinterpret_f64_f32x16(self, a: f32x16<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_f64x4(
+            self.reinterpret_f64_f32x8(a0),
+            self.reinterpret_f64_f32x8(a1),
+        )
+    }
+    #[inline(always)]
+    fn reinterpret_i32_f32x16(self, a: f32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_i32x8(
+            self.reinterpret_i32_f32x8(a0),
+            self.reinterpret_i32_f32x8(a1),
+        )
+    }
+    #[inline(always)]
     fn load_interleaved_128_f32x16(self, src: &[f32; 16usize]) -> f32x16<Self> {
         unsafe { vld4q_f32(src.as_ptr()).simd_into(self) }
     }
     #[inline(always)]
     fn store_interleaved_128_f32x16(self, a: f32x16<Self>, dest: &mut [f32; 16usize]) -> () {
         unsafe { vst4q_f32(dest.as_mut_ptr(), a.into()) }
+    }
+    #[inline(always)]
+    fn reinterpret_u8_f32x16(self, a: f32x16<Self>) -> u8x64<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_u8x32(self.reinterpret_u8_f32x8(a0), self.reinterpret_u8_f32x8(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_f32x16(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_f32x8(a0),
+            self.reinterpret_u32_f32x8(a1),
+        )
     }
     #[inline(always)]
     fn cvt_u32_f32x16(self, a: f32x16<Self>) -> u32x16<Self> {
@@ -2317,6 +3067,18 @@ impl Simd for Neon {
         self.combine_i8x32(self.zip_low_i8x32(a1, b1), self.zip_high_i8x32(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (a0, a1) = self.split_i8x64(a);
+        let (b0, b1) = self.split_i8x64(b);
+        self.combine_i8x32(self.unzip_low_i8x32(a0, a1), self.unzip_low_i8x32(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i8x64(self, a: i8x64<Self>, b: i8x64<Self>) -> i8x64<Self> {
+        let (a0, a1) = self.split_i8x64(a);
+        let (b0, b1) = self.split_i8x64(b);
+        self.combine_i8x32(self.unzip_high_i8x32(a0, a1), self.unzip_high_i8x32(b0, b1))
+    }
+    #[inline(always)]
     fn select_i8x64(self, a: mask8x64<Self>, b: i8x64<Self>, c: i8x64<Self>) -> i8x64<Self> {
         let (a0, a1) = self.split_mask8x64(a);
         let (b0, b1) = self.split_i8x64(b);
@@ -2347,6 +3109,14 @@ impl Simd for Neon {
     fn reinterpret_u8_i8x64(self, a: i8x64<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_i8x64(a);
         self.combine_u8x32(self.reinterpret_u8_i8x32(a0), self.reinterpret_u8_i8x32(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i8x64(self, a: i8x64<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_i8x64(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_i8x32(a0),
+            self.reinterpret_u32_i8x32(a1),
+        )
     }
     #[inline(always)]
     fn splat_u8x64(self, a: u8) -> u8x64<Self> {
@@ -2442,6 +3212,18 @@ impl Simd for Neon {
         self.combine_u8x32(self.zip_low_u8x32(a1, b1), self.zip_high_u8x32(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (a0, a1) = self.split_u8x64(a);
+        let (b0, b1) = self.split_u8x64(b);
+        self.combine_u8x32(self.unzip_low_u8x32(a0, a1), self.unzip_low_u8x32(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u8x64(self, a: u8x64<Self>, b: u8x64<Self>) -> u8x64<Self> {
+        let (a0, a1) = self.split_u8x64(a);
+        let (b0, b1) = self.split_u8x64(b);
+        self.combine_u8x32(self.unzip_high_u8x32(a0, a1), self.unzip_high_u8x32(b0, b1))
+    }
+    #[inline(always)]
     fn select_u8x64(self, a: mask8x64<Self>, b: u8x64<Self>, c: u8x64<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_mask8x64(a);
         let (b0, b1) = self.split_u8x64(b);
@@ -2475,6 +3257,14 @@ impl Simd for Neon {
     #[inline(always)]
     fn store_interleaved_128_u8x64(self, a: u8x64<Self>, dest: &mut [u8; 64usize]) -> () {
         unsafe { vst4q_u8(dest.as_mut_ptr(), a.into()) }
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u8x64(self, a: u8x64<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u8x64(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_u8x32(a0),
+            self.reinterpret_u32_u8x32(a1),
+        )
     }
     #[inline(always)]
     fn splat_mask8x64(self, a: i8) -> mask8x64<Self> {
@@ -2627,6 +3417,21 @@ impl Simd for Neon {
         self.combine_i16x16(self.zip_low_i16x16(a1, b1), self.zip_high_i16x16(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (a0, a1) = self.split_i16x32(a);
+        let (b0, b1) = self.split_i16x32(b);
+        self.combine_i16x16(self.unzip_low_i16x16(a0, a1), self.unzip_low_i16x16(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i16x32(self, a: i16x32<Self>, b: i16x32<Self>) -> i16x32<Self> {
+        let (a0, a1) = self.split_i16x32(a);
+        let (b0, b1) = self.split_i16x32(b);
+        self.combine_i16x16(
+            self.unzip_high_i16x16(a0, a1),
+            self.unzip_high_i16x16(b0, b1),
+        )
+    }
+    #[inline(always)]
     fn select_i16x32(self, a: mask16x32<Self>, b: i16x32<Self>, c: i16x32<Self>) -> i16x32<Self> {
         let (a0, a1) = self.split_mask16x32(a);
         let (b0, b1) = self.split_i16x32(b);
@@ -2662,6 +3467,14 @@ impl Simd for Neon {
         self.combine_u8x32(
             self.reinterpret_u8_i16x16(a0),
             self.reinterpret_u8_i16x16(a1),
+        )
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i16x32(self, a: i16x32<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_i16x32(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_i16x16(a0),
+            self.reinterpret_u32_i16x16(a1),
         )
     }
     #[inline(always)]
@@ -2758,6 +3571,21 @@ impl Simd for Neon {
         self.combine_u16x16(self.zip_low_u16x16(a1, b1), self.zip_high_u16x16(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (a0, a1) = self.split_u16x32(a);
+        let (b0, b1) = self.split_u16x32(b);
+        self.combine_u16x16(self.unzip_low_u16x16(a0, a1), self.unzip_low_u16x16(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u16x32(self, a: u16x32<Self>, b: u16x32<Self>) -> u16x32<Self> {
+        let (a0, a1) = self.split_u16x32(a);
+        let (b0, b1) = self.split_u16x32(b);
+        self.combine_u16x16(
+            self.unzip_high_u16x16(a0, a1),
+            self.unzip_high_u16x16(b0, b1),
+        )
+    }
+    #[inline(always)]
     fn select_u16x32(self, a: mask16x32<Self>, b: u16x32<Self>, c: u16x32<Self>) -> u16x32<Self> {
         let (a0, a1) = self.split_mask16x32(a);
         let (b0, b1) = self.split_u16x32(b);
@@ -2806,6 +3634,14 @@ impl Simd for Neon {
         self.combine_u8x32(
             self.reinterpret_u8_u16x16(a0),
             self.reinterpret_u8_u16x16(a1),
+        )
+    }
+    #[inline(always)]
+    fn reinterpret_u32_u16x32(self, a: u16x32<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u16x32(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_u16x16(a0),
+            self.reinterpret_u32_u16x16(a1),
         )
     }
     #[inline(always)]
@@ -2962,6 +3798,18 @@ impl Simd for Neon {
         self.combine_i32x8(self.zip_low_i32x8(a1, b1), self.zip_high_i32x8(a1, b1))
     }
     #[inline(always)]
+    fn unzip_low_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        let (b0, b1) = self.split_i32x16(b);
+        self.combine_i32x8(self.unzip_low_i32x8(a0, a1), self.unzip_low_i32x8(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_i32x16(self, a: i32x16<Self>, b: i32x16<Self>) -> i32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        let (b0, b1) = self.split_i32x16(b);
+        self.combine_i32x8(self.unzip_high_i32x8(a0, a1), self.unzip_high_i32x8(b0, b1))
+    }
+    #[inline(always)]
     fn select_i32x16(self, a: mask32x16<Self>, b: i32x16<Self>, c: i32x16<Self>) -> i32x16<Self> {
         let (a0, a1) = self.split_mask32x16(a);
         let (b0, b1) = self.split_i32x16(b);
@@ -2992,6 +3840,14 @@ impl Simd for Neon {
     fn reinterpret_u8_i32x16(self, a: i32x16<Self>) -> u8x64<Self> {
         let (a0, a1) = self.split_i32x16(a);
         self.combine_u8x32(self.reinterpret_u8_i32x8(a0), self.reinterpret_u8_i32x8(a1))
+    }
+    #[inline(always)]
+    fn reinterpret_u32_i32x16(self, a: i32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_i32x16(a);
+        self.combine_u32x8(
+            self.reinterpret_u32_i32x8(a0),
+            self.reinterpret_u32_i32x8(a1),
+        )
     }
     #[inline(always)]
     fn cvt_f32_i32x16(self, a: i32x16<Self>) -> f32x16<Self> {
@@ -3090,6 +3946,18 @@ impl Simd for Neon {
         let (_, a1) = self.split_u32x16(a);
         let (_, b1) = self.split_u32x16(b);
         self.combine_u32x8(self.zip_low_u32x8(a1, b1), self.zip_high_u32x8(a1, b1))
+    }
+    #[inline(always)]
+    fn unzip_low_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        let (b0, b1) = self.split_u32x16(b);
+        self.combine_u32x8(self.unzip_low_u32x8(a0, a1), self.unzip_low_u32x8(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_u32x16(self, a: u32x16<Self>, b: u32x16<Self>) -> u32x16<Self> {
+        let (a0, a1) = self.split_u32x16(a);
+        let (b0, b1) = self.split_u32x16(b);
+        self.combine_u32x8(self.unzip_high_u32x8(a0, a1), self.unzip_high_u32x8(b0, b1))
     }
     #[inline(always)]
     fn select_u32x16(self, a: mask32x16<Self>, b: u32x16<Self>, c: u32x16<Self>) -> u32x16<Self> {
@@ -3191,6 +4059,249 @@ impl Simd for Neon {
         let mut b1 = [0; 8usize];
         b0.copy_from_slice(&a.val[0..8usize]);
         b1.copy_from_slice(&a.val[8usize..16usize]);
+        (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn splat_f64x8(self, a: f64) -> f64x8<Self> {
+        let half = self.splat_f64x4(a);
+        self.combine_f64x4(half, half)
+    }
+    #[inline(always)]
+    fn abs_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.abs_f64x4(a0), self.abs_f64x4(a1))
+    }
+    #[inline(always)]
+    fn neg_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.neg_f64x4(a0), self.neg_f64x4(a1))
+    }
+    #[inline(always)]
+    fn sqrt_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.sqrt_f64x4(a0), self.sqrt_f64x4(a1))
+    }
+    #[inline(always)]
+    fn add_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.add_f64x4(a0, b0), self.add_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn sub_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.sub_f64x4(a0, b0), self.sub_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn mul_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.mul_f64x4(a0, b0), self.mul_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn div_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.div_f64x4(a0, b0), self.div_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn copysign_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.copysign_f64x4(a0, b0), self.copysign_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_eq_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_mask64x4(self.simd_eq_f64x4(a0, b0), self.simd_eq_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_lt_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_mask64x4(self.simd_lt_f64x4(a0, b0), self.simd_lt_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_le_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_mask64x4(self.simd_le_f64x4(a0, b0), self.simd_le_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_ge_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_mask64x4(self.simd_ge_f64x4(a0, b0), self.simd_ge_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn simd_gt_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_mask64x4(self.simd_gt_f64x4(a0, b0), self.simd_gt_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn zip_low_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, _) = self.split_f64x8(a);
+        let (b0, _) = self.split_f64x8(b);
+        self.combine_f64x4(self.zip_low_f64x4(a0, b0), self.zip_high_f64x4(a0, b0))
+    }
+    #[inline(always)]
+    fn zip_high_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (_, a1) = self.split_f64x8(a);
+        let (_, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.zip_low_f64x4(a1, b1), self.zip_high_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn unzip_low_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.unzip_low_f64x4(a0, a1), self.unzip_low_f64x4(b0, b1))
+    }
+    #[inline(always)]
+    fn unzip_high_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.unzip_high_f64x4(a0, a1), self.unzip_high_f64x4(b0, b1))
+    }
+    #[inline(always)]
+    fn max_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.max_f64x4(a0, b0), self.max_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn max_precise_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(
+            self.max_precise_f64x4(a0, b0),
+            self.max_precise_f64x4(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn min_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(self.min_f64x4(a0, b0), self.min_f64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn min_precise_f64x8(self, a: f64x8<Self>, b: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        self.combine_f64x4(
+            self.min_precise_f64x4(a0, b0),
+            self.min_precise_f64x4(a1, b1),
+        )
+    }
+    #[inline(always)]
+    fn madd_f64x8(self, a: f64x8<Self>, b: f64x8<Self>, c: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        let (c0, c1) = self.split_f64x8(c);
+        self.combine_f64x4(self.madd_f64x4(a0, b0, c0), self.madd_f64x4(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn msub_f64x8(self, a: f64x8<Self>, b: f64x8<Self>, c: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        let (c0, c1) = self.split_f64x8(c);
+        self.combine_f64x4(self.msub_f64x4(a0, b0, c0), self.msub_f64x4(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn floor_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.floor_f64x4(a0), self.floor_f64x4(a1))
+    }
+    #[inline(always)]
+    fn fract_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.fract_f64x4(a0), self.fract_f64x4(a1))
+    }
+    #[inline(always)]
+    fn trunc_f64x8(self, a: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f64x4(self.trunc_f64x4(a0), self.trunc_f64x4(a1))
+    }
+    #[inline(always)]
+    fn select_f64x8(self, a: mask64x8<Self>, b: f64x8<Self>, c: f64x8<Self>) -> f64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_f64x8(b);
+        let (c0, c1) = self.split_f64x8(c);
+        self.combine_f64x4(self.select_f64x4(a0, b0, c0), self.select_f64x4(a1, b1, c1))
+    }
+    #[inline(always)]
+    fn split_f64x8(self, a: f64x8<Self>) -> (f64x4<Self>, f64x4<Self>) {
+        let mut b0 = [0.0; 4usize];
+        let mut b1 = [0.0; 4usize];
+        b0.copy_from_slice(&a.val[0..4usize]);
+        b1.copy_from_slice(&a.val[4usize..8usize]);
+        (b0.simd_into(self), b1.simd_into(self))
+    }
+    #[inline(always)]
+    fn reinterpret_f32_f64x8(self, a: f64x8<Self>) -> f32x16<Self> {
+        let (a0, a1) = self.split_f64x8(a);
+        self.combine_f32x8(
+            self.reinterpret_f32_f64x4(a0),
+            self.reinterpret_f32_f64x4(a1),
+        )
+    }
+    #[inline(always)]
+    fn splat_mask64x8(self, a: i64) -> mask64x8<Self> {
+        let half = self.splat_mask64x4(a);
+        self.combine_mask64x4(half, half)
+    }
+    #[inline(always)]
+    fn not_mask64x8(self, a: mask64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        self.combine_mask64x4(self.not_mask64x4(a0), self.not_mask64x4(a1))
+    }
+    #[inline(always)]
+    fn and_mask64x8(self, a: mask64x8<Self>, b: mask64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_mask64x8(b);
+        self.combine_mask64x4(self.and_mask64x4(a0, b0), self.and_mask64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn or_mask64x8(self, a: mask64x8<Self>, b: mask64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_mask64x8(b);
+        self.combine_mask64x4(self.or_mask64x4(a0, b0), self.or_mask64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn xor_mask64x8(self, a: mask64x8<Self>, b: mask64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_mask64x8(b);
+        self.combine_mask64x4(self.xor_mask64x4(a0, b0), self.xor_mask64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn select_mask64x8(
+        self,
+        a: mask64x8<Self>,
+        b: mask64x8<Self>,
+        c: mask64x8<Self>,
+    ) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_mask64x8(b);
+        let (c0, c1) = self.split_mask64x8(c);
+        self.combine_mask64x4(
+            self.select_mask64x4(a0, b0, c0),
+            self.select_mask64x4(a1, b1, c1),
+        )
+    }
+    #[inline(always)]
+    fn simd_eq_mask64x8(self, a: mask64x8<Self>, b: mask64x8<Self>) -> mask64x8<Self> {
+        let (a0, a1) = self.split_mask64x8(a);
+        let (b0, b1) = self.split_mask64x8(b);
+        self.combine_mask64x4(self.simd_eq_mask64x4(a0, b0), self.simd_eq_mask64x4(a1, b1))
+    }
+    #[inline(always)]
+    fn split_mask64x8(self, a: mask64x8<Self>) -> (mask64x4<Self>, mask64x4<Self>) {
+        let mut b0 = [0; 4usize];
+        let mut b1 = [0; 4usize];
+        b0.copy_from_slice(&a.val[0..4usize]);
+        b1.copy_from_slice(&a.val[4usize..8usize]);
         (b0.simd_into(self), b1.simd_into(self))
     }
 }
@@ -3344,6 +4455,36 @@ impl<S: Simd> From<mask32x4<S>> for int32x4_t {
         unsafe { core::mem::transmute(value.val) }
     }
 }
+impl<S: Simd> SimdFrom<float64x2_t, S> for f64x2<S> {
+    #[inline(always)]
+    fn simd_from(arch: float64x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x2<S>> for float64x2_t {
+    #[inline(always)]
+    fn from(value: f64x2<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int64x2_t, S> for mask64x2<S> {
+    #[inline(always)]
+    fn simd_from(arch: int64x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x2<S>> for int64x2_t {
+    #[inline(always)]
+    fn from(value: mask64x2<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
 impl<S: Simd> SimdFrom<float32x4x2_t, S> for f32x8<S> {
     #[inline(always)]
     fn simd_from(arch: float32x4x2_t, simd: S) -> Self {
@@ -3494,6 +4635,36 @@ impl<S: Simd> From<mask32x8<S>> for int32x4x2_t {
         unsafe { core::mem::transmute(value.val) }
     }
 }
+impl<S: Simd> SimdFrom<float64x2x2_t, S> for f64x4<S> {
+    #[inline(always)]
+    fn simd_from(arch: float64x2x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x4<S>> for float64x2x2_t {
+    #[inline(always)]
+    fn from(value: f64x4<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int64x2x2_t, S> for mask64x4<S> {
+    #[inline(always)]
+    fn simd_from(arch: int64x2x2_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x4<S>> for int64x2x2_t {
+    #[inline(always)]
+    fn from(value: mask64x4<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
 impl<S: Simd> SimdFrom<float32x4x4_t, S> for f32x16<S> {
     #[inline(always)]
     fn simd_from(arch: float32x4x4_t, simd: S) -> Self {
@@ -3641,6 +4812,36 @@ impl<S: Simd> SimdFrom<int32x4x4_t, S> for mask32x16<S> {
 impl<S: Simd> From<mask32x16<S>> for int32x4x4_t {
     #[inline(always)]
     fn from(value: mask32x16<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<float64x2x4_t, S> for f64x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: float64x2x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<f64x8<S>> for float64x2x4_t {
+    #[inline(always)]
+    fn from(value: f64x8<S>) -> Self {
+        unsafe { core::mem::transmute(value.val) }
+    }
+}
+impl<S: Simd> SimdFrom<int64x2x4_t, S> for mask64x8<S> {
+    #[inline(always)]
+    fn simd_from(arch: int64x2x4_t, simd: S) -> Self {
+        Self {
+            val: unsafe { core::mem::transmute(arch) },
+            simd,
+        }
+    }
+}
+impl<S: Simd> From<mask64x8<S>> for int64x2x4_t {
+    #[inline(always)]
+    fn from(value: mask64x8<S>) -> Self {
         unsafe { core::mem::transmute(value.val) }
     }
 }
