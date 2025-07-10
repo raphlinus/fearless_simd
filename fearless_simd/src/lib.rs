@@ -4,6 +4,7 @@
 //! A helper library to make SIMD more friendly.
 
 #![allow(non_camel_case_types)]
+#![allow(clippy::unused_unit, reason = "easier for code generation")]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod core_arch;
