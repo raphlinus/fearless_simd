@@ -56,11 +56,11 @@ impl Module {
         }
     }
 
-    fn generate_string(self) -> String {
+    fn generate(self, out: impl Into<std::process::Stdio>) {
         let code = self.generate_code();
         let mut child = std::process::Command::new("rustfmt")
             .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
+            .stdout(out)
             .spawn()
             .expect("`rustfmt` should spawn");
         let mut stdin = child.stdin.take().unwrap();
@@ -70,7 +70,7 @@ impl Module {
             )
             .unwrap();
         drop(stdin);
-        String::from_utf8(child.wait_with_output().unwrap().stdout).unwrap()
+        child.wait().expect("`rustfmt` should succeed");
     }
 
     fn file_base(self) -> &'static str {
@@ -99,8 +99,7 @@ const FILE_BASE: &str = "./fearless_simd/src/generated";
 fn main() {
     let cli = Cli::parse();
     if let Some(module) = cli.module {
-        let code = module.generate_string();
-        println!("{code}");
+        module.generate(std::process::Stdio::inherit());
     } else {
         // generate all modules
         let base_dir = Path::new(FILE_BASE);
@@ -110,9 +109,8 @@ fn main() {
         for module in MODULES {
             let name = module.file_base();
             let path = base_dir.join(format!("{name}.rs"));
-            let mut file = File::create(&path).expect("error creating {path:?}");
-            let code_str = module.generate_string();
-            file.write_all(code_str.as_bytes()).unwrap();
+            let file = File::create(&path).expect("error creating {path:?}");
+            module.generate(file);
         }
     }
 }
