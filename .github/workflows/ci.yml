@@ -122,7 +122,7 @@ jobs:
           save-if: ${{ github.event_name != 'merge_group' }}
 
       - name: cargo test
-        run: cargo test run --workspace --locked --all-features --no-fail-fast
+        run: cargo test --workspace --tests --locked --all-features --no-fail-fast
 
   test-stable-wasm:
     name: test (wasm32)
