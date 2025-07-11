@@ -2,9 +2,10 @@
 
 use crate::{Simd, SimdInto};
 use crate::{
-    f32x4, f32x8, f32x16, i8x16, i8x32, i8x64, i16x8, i16x16, i16x32, i32x4, i32x8, i32x16,
-    mask8x16, mask8x32, mask8x64, mask16x8, mask16x16, mask16x32, mask32x4, mask32x8, mask32x16,
-    u8x16, u8x32, u8x64, u16x8, u16x16, u16x32, u32x4, u32x8, u32x16,
+    f32x4, f32x8, f32x16, f64x2, f64x4, f64x8, i8x16, i8x32, i8x64, i16x8, i16x16, i16x32, i32x4,
+    i32x8, i32x16, mask8x16, mask8x32, mask8x64, mask16x8, mask16x16, mask16x32, mask32x4,
+    mask32x8, mask32x16, mask64x2, mask64x4, mask64x8, u8x16, u8x32, u8x64, u16x8, u16x16, u16x32,
+    u32x4, u32x8, u32x16,
 };
 impl<S: Simd> core::ops::Neg for f32x4<S> {
     type Output = Self;
@@ -935,6 +936,125 @@ impl<S: Simd> core::ops::Not for mask32x4<S> {
     #[inline(always)]
     fn not(self) -> Self::Output {
         self.simd.not_mask32x4(self)
+    }
+}
+impl<S: Simd> core::ops::Neg for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(self) -> Self::Output {
+        self.simd.neg_f64x2(self)
+    }
+}
+impl<S: Simd> core::ops::Add for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Self::Output {
+        self.simd.add_f64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Add<f64> for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: f64) -> Self::Output {
+        self.simd.add_f64x2(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Add<f64x2<S>> for f64 {
+    type Output = f64x2<S>;
+    #[inline(always)]
+    fn add(self, rhs: f64x2<S>) -> Self::Output {
+        rhs.simd.add_f64x2(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.simd.sub_f64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub<f64> for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: f64) -> Self::Output {
+        self.simd.sub_f64x2(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Sub<f64x2<S>> for f64 {
+    type Output = f64x2<S>;
+    #[inline(always)]
+    fn sub(self, rhs: f64x2<S>) -> Self::Output {
+        rhs.simd.sub_f64x2(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.simd.mul_f64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul<f64> for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.simd.mul_f64x2(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Mul<f64x2<S>> for f64 {
+    type Output = f64x2<S>;
+    #[inline(always)]
+    fn mul(self, rhs: f64x2<S>) -> Self::Output {
+        rhs.simd.mul_f64x2(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Div for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: Self) -> Self::Output {
+        self.simd.div_f64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Div<f64> for f64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: f64) -> Self::Output {
+        self.simd.div_f64x2(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Div<f64x2<S>> for f64 {
+    type Output = f64x2<S>;
+    #[inline(always)]
+    fn div(self, rhs: f64x2<S>) -> Self::Output {
+        rhs.simd.div_f64x2(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::BitAnd for mask64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitand(self, rhs: Self) -> Self::Output {
+        self.simd.and_mask64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitOr for mask64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.simd.or_mask64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitXor for mask64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        self.simd.xor_mask64x2(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Not for mask64x2<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn not(self) -> Self::Output {
+        self.simd.not_mask64x2(self)
     }
 }
 impl<S: Simd> core::ops::Neg for f32x8<S> {
@@ -1868,6 +1988,125 @@ impl<S: Simd> core::ops::Not for mask32x8<S> {
         self.simd.not_mask32x8(self)
     }
 }
+impl<S: Simd> core::ops::Neg for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(self) -> Self::Output {
+        self.simd.neg_f64x4(self)
+    }
+}
+impl<S: Simd> core::ops::Add for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Self::Output {
+        self.simd.add_f64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Add<f64> for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: f64) -> Self::Output {
+        self.simd.add_f64x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Add<f64x4<S>> for f64 {
+    type Output = f64x4<S>;
+    #[inline(always)]
+    fn add(self, rhs: f64x4<S>) -> Self::Output {
+        rhs.simd.add_f64x4(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.simd.sub_f64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub<f64> for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: f64) -> Self::Output {
+        self.simd.sub_f64x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Sub<f64x4<S>> for f64 {
+    type Output = f64x4<S>;
+    #[inline(always)]
+    fn sub(self, rhs: f64x4<S>) -> Self::Output {
+        rhs.simd.sub_f64x4(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.simd.mul_f64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul<f64> for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.simd.mul_f64x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Mul<f64x4<S>> for f64 {
+    type Output = f64x4<S>;
+    #[inline(always)]
+    fn mul(self, rhs: f64x4<S>) -> Self::Output {
+        rhs.simd.mul_f64x4(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Div for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: Self) -> Self::Output {
+        self.simd.div_f64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Div<f64> for f64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: f64) -> Self::Output {
+        self.simd.div_f64x4(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Div<f64x4<S>> for f64 {
+    type Output = f64x4<S>;
+    #[inline(always)]
+    fn div(self, rhs: f64x4<S>) -> Self::Output {
+        rhs.simd.div_f64x4(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::BitAnd for mask64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitand(self, rhs: Self) -> Self::Output {
+        self.simd.and_mask64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitOr for mask64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.simd.or_mask64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitXor for mask64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        self.simd.xor_mask64x4(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Not for mask64x4<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn not(self) -> Self::Output {
+        self.simd.not_mask64x4(self)
+    }
+}
 impl<S: Simd> core::ops::Neg for f32x16<S> {
     type Output = Self;
     #[inline(always)]
@@ -2797,5 +3036,124 @@ impl<S: Simd> core::ops::Not for mask32x16<S> {
     #[inline(always)]
     fn not(self) -> Self::Output {
         self.simd.not_mask32x16(self)
+    }
+}
+impl<S: Simd> core::ops::Neg for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn neg(self) -> Self::Output {
+        self.simd.neg_f64x8(self)
+    }
+}
+impl<S: Simd> core::ops::Add for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: Self) -> Self::Output {
+        self.simd.add_f64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Add<f64> for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn add(self, rhs: f64) -> Self::Output {
+        self.simd.add_f64x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Add<f64x8<S>> for f64 {
+    type Output = f64x8<S>;
+    #[inline(always)]
+    fn add(self, rhs: f64x8<S>) -> Self::Output {
+        rhs.simd.add_f64x8(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.simd.sub_f64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Sub<f64> for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn sub(self, rhs: f64) -> Self::Output {
+        self.simd.sub_f64x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Sub<f64x8<S>> for f64 {
+    type Output = f64x8<S>;
+    #[inline(always)]
+    fn sub(self, rhs: f64x8<S>) -> Self::Output {
+        rhs.simd.sub_f64x8(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.simd.mul_f64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Mul<f64> for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn mul(self, rhs: f64) -> Self::Output {
+        self.simd.mul_f64x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Mul<f64x8<S>> for f64 {
+    type Output = f64x8<S>;
+    #[inline(always)]
+    fn mul(self, rhs: f64x8<S>) -> Self::Output {
+        rhs.simd.mul_f64x8(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::Div for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: Self) -> Self::Output {
+        self.simd.div_f64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Div<f64> for f64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn div(self, rhs: f64) -> Self::Output {
+        self.simd.div_f64x8(self, rhs.simd_into(self.simd))
+    }
+}
+impl<S: Simd> core::ops::Div<f64x8<S>> for f64 {
+    type Output = f64x8<S>;
+    #[inline(always)]
+    fn div(self, rhs: f64x8<S>) -> Self::Output {
+        rhs.simd.div_f64x8(self.simd_into(rhs.simd), rhs)
+    }
+}
+impl<S: Simd> core::ops::BitAnd for mask64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitand(self, rhs: Self) -> Self::Output {
+        self.simd.and_mask64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitOr for mask64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitor(self, rhs: Self) -> Self::Output {
+        self.simd.or_mask64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::BitXor for mask64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        self.simd.xor_mask64x8(self, rhs)
+    }
+}
+impl<S: Simd> core::ops::Not for mask64x8<S> {
+    type Output = Self;
+    #[inline(always)]
+    fn not(self) -> Self::Output {
+        self.simd.not_mask64x8(self)
     }
 }

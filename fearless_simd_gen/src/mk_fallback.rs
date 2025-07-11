@@ -38,10 +38,10 @@ pub fn mk_fallback_impl() -> TokenStream {
 
         #[cfg(all(feature = "libm", not(feature = "std")))]
         trait FloatExt {
-            fn floor(self) -> f32;
-            fn fract(self) -> f32;
-            fn sqrt(self) -> f32;
-            fn trunc(self) -> f32;
+            fn floor(self) -> Self;
+            fn fract(self) -> Self;
+            fn sqrt(self) -> Self;
+            fn trunc(self) -> Self;
         }
 
         #[cfg(all(feature = "libm", not(feature = "std")))]
@@ -61,6 +61,26 @@ pub fn mk_fallback_impl() -> TokenStream {
             #[inline(always)]
             fn trunc(self) -> f32 {
                 libm::truncf(self)
+            }
+        }
+
+        #[cfg(all(feature = "libm", not(feature = "std")))]
+        impl FloatExt for f64 {
+            #[inline(always)]
+            fn floor(self) -> f64 {
+                libm::floor(self)
+            }
+            #[inline(always)]
+            fn sqrt(self) -> f64 {
+                libm::sqrt(self)
+            }
+            #[inline(always)]
+            fn fract(self) -> f64 {
+                self - self.trunc()
+            }
+            #[inline(always)]
+            fn trunc(self) -> f64 {
+                libm::trunc(self)
             }
         }
 
@@ -292,6 +312,32 @@ fn mk_simd_impl() -> TokenStream {
                         #[inline(always)]
                         fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
                             #zip.simd_into(self)
+                        }
+                    }
+                }
+                OpSig::Unzip(unzip1) => {
+                    let indices = if unzip1 {
+                        (0..vec_ty.len).step_by(2)
+                    } else {
+                        (1..vec_ty.len).step_by(2)
+                    };
+
+                    let unzip = make_list(
+                        indices
+                            .clone()
+                            .map(|idx| {
+                                quote! {a[#idx]}
+                            })
+                            .chain(indices.map(|idx| {
+                                quote! {b[#idx]}
+                            }))
+                            .collect::<Vec<_>>(),
+                    );
+
+                    quote! {
+                        #[inline(always)]
+                        fn #method_ident(self, a: #ty<Self>, b: #ty<Self>) -> #ret_ty {
+                            #unzip.simd_into(self)
                         }
                     }
                 }

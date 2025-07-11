@@ -204,7 +204,11 @@ fn simd_vec_impl(ty: &VecType) -> TokenStream {
             let ret_ty = sig.ret_ty(ty, TyFlavor::VecImpl);
             let call_args = match sig {
                 OpSig::Unary => quote! { self },
-                OpSig::Binary | OpSig::Compare | OpSig::Combine | OpSig::Zip(_) => {
+                OpSig::Binary
+                | OpSig::Compare
+                | OpSig::Combine
+                | OpSig::Zip(_)
+                | OpSig::Unzip(_) => {
                     quote! { self, rhs.simd_into(self.simd) }
                 }
                 OpSig::Ternary => {

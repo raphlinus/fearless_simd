@@ -82,6 +82,10 @@ impl SimdElement for f32 {
     type Mask = i32;
 }
 
+impl SimdElement for f64 {
+    type Mask = i64;
+}
+
 impl SimdElement for u8 {
     type Mask = i8;
 }
@@ -104,4 +108,8 @@ impl SimdElement for u32 {
 
 impl SimdElement for i32 {
     type Mask = i32;
+}
+
+impl SimdElement for i64 {
+    type Mask = i64;
 }
