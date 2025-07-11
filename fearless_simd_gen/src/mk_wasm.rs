@@ -232,11 +232,7 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Shift => {
-                    let prefix = match vec_ty.scalar {
-                        ScalarType::Int => "i",
-                        ScalarType::Unsigned => "u",
-                        _ => unimplemented!(),
-                    };
+                    let prefix = vec_ty.scalar.prefix();
                     let shift_name = format!("{prefix}{}x{}_shr", vec_ty.scalar_bits, vec_ty.len);
                     let shift_fn = Ident::new(&shift_name, Span::call_site());
 
@@ -260,22 +256,17 @@ fn mk_simd_impl(level: Level) -> TokenStream {
                     }
                 }
                 OpSig::Cvt(scalar, scalar_bits) => {
-                    let conversion_fn =
-                        match (scalar, scalar_bits, vec_ty.scalar, vec_ty.scalar_bits) {
-                            (ScalarType::Unsigned, 32, ScalarType::Float, 32) => {
-                                quote! { u32x4_trunc_sat_f32x4 }
-                            }
-                            (ScalarType::Int, 32, ScalarType::Float, 32) => {
-                                quote! { i32x4_trunc_sat_f32x4 }
-                            }
-                            (ScalarType::Float, 32, ScalarType::Unsigned, 32) => {
-                                quote! { f32x4_convert_u32x4 }
-                            }
-                            (ScalarType::Float, 32, ScalarType::Int, 32) => {
-                                quote! { f32x4_convert_i32x4 }
-                            }
-                            _ => unimplemented!(),
-                        };
+                    let src_prefix = vec_ty.scalar.prefix();
+                    let dst_prefix = scalar.prefix();
+                    let len = vec_ty.len;
+                    let op = match (vec_ty.scalar, scalar) {
+                        (ScalarType::Float, ScalarType::Int | ScalarType::Unsigned) => "trunc_sat",
+                        (ScalarType::Int | ScalarType::Unsigned, ScalarType::Float) => "convert",
+                        _ => unimplemented!(),
+                    };
+                    let conversion_fn = format_ident!(
+                        "{dst_prefix}{scalar_bits}x{len}_{op}_{src_prefix}{scalar_bits}x{len}"
+                    );
 
                     quote! {
                         #[inline(always)]

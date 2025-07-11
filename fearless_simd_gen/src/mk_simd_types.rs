@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 use proc_macro2::{Ident, Literal, Span, TokenStream};
-use quote::quote;
+use quote::{format_ident, quote};
 
 use crate::{
     ops::{CORE_OPS, OpSig, TyFlavor, ops_for_type},
@@ -11,7 +11,7 @@ use crate::{
 
 pub fn mk_simd_types() -> TokenStream {
     let mut result = quote! {
-        use crate::{Bytes, Select, Simd, SimdFrom, SimdInto};
+        use crate::{Bytes, Select, Simd, SimdFrom, SimdInto, SimdCvtFloat, SimdCvtTruncate};
     };
     for ty in SIMD_TYPES {
         let name = ty.rust();
@@ -42,6 +42,50 @@ pub fn mk_simd_types() -> TokenStream {
                 .map(|idx| quote! { val[#idx] })
                 .collect::<Vec<_>>(),
         );
+        let mut cvt_impls = Vec::new();
+        match ty.scalar {
+            ScalarType::Float => {
+                for src_scalar in [ScalarType::Unsigned, ScalarType::Int] {
+                    let src_ty = VecType {
+                        scalar: src_scalar,
+                        ..*ty
+                    };
+                    let method = format_ident!(
+                        "cvt_{}_{}",
+                        ty.scalar.rust_name(ty.scalar_bits),
+                        src_ty.rust_name()
+                    );
+                    let src_ty = src_ty.rust();
+                    cvt_impls.push(quote! {
+                        impl<S: Simd> SimdCvtFloat<#src_ty<S>> for #name<S> {
+                            fn float_from(x: #src_ty<S>) -> Self {
+                                x.simd.#method(x)
+                            }
+                        }
+                    });
+                }
+            }
+            ScalarType::Int | ScalarType::Unsigned if ty.scalar_bits == 32 => {
+                let src_ty = VecType {
+                    scalar: ScalarType::Float,
+                    ..*ty
+                };
+                let method = format_ident!(
+                    "cvt_{}_{}",
+                    ty.scalar.rust_name(ty.scalar_bits),
+                    src_ty.rust_name()
+                );
+                let src_ty = src_ty.rust();
+                cvt_impls.push(quote! {
+                    impl<S: Simd> SimdCvtTruncate<#src_ty<S>> for #name<S> {
+                        fn truncate_from(x: #src_ty<S>) -> Self {
+                            x.simd.#method(x)
+                        }
+                    }
+                });
+            }
+            _ => {}
+        }
         result.extend(quote! {
             #[derive(Clone, Copy, Debug)]
             #[repr(C, align(#align_lit))]
@@ -119,6 +163,8 @@ pub fn mk_simd_types() -> TokenStream {
             }
 
             #impl_block
+
+            #( #cvt_impls )*
         });
     }
     result
